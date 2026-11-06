@@ -11,6 +11,19 @@ npx expo start --go
 
 iPhoneとWindowsを同じWi-Fiに接続し、カメラでQRコードを読み取ってExpo Goで開きます。WSL2からLAN接続できない場合は `npx expo start --go --tunnel` を試してください（初回はExpo CLIからトンネル用ツールの導入を求められる場合があります）。
 
+## 起動時のエラーを確認する
+
+`Web Bundling` はブラウザ向けのビルドです。iPhoneのネイティブ動作確認では、ターミナルの `w` キーやブラウザ表示ではなく、QRコードからExpo Goで開いてください。
+
+`Unable to resolve "react-native-web/dist/index"` が出る場合は、最新の依存を入れ直してキャッシュをクリアします。
+
+```bash
+npm ci
+npx expo start --go --clear
+```
+
+Webプレビュー用の `react-native-web` も依存に含めています。WSL2から接続できない場合は `npx expo start --go --tunnel --clear` を使用してください。
+
 ## iPhoneでの確認
 
 1. ホームのアプリ名・説明・「今日の一語を開く」を確認する。
@@ -32,6 +45,7 @@ npm run lint
 npm run typecheck
 node --test tests/progress.test.cjs
 npx expo export --platform ios --output-dir /tmp/knowgacha-ios
+npx expo export --platform web --output-dir /tmp/knowgacha-web
 ```
 
 ## 構成・保存
