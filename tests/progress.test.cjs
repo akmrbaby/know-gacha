@@ -40,3 +40,34 @@ test('restoration preserves day offset and rejects corrupt/duplicate records', (
   state.openings.push(state.openings[0]);
   assert.throws(() => restoreProgress(JSON.stringify(state)));
 });
+const { keywords } = load('src/data/keywords.ts');
+const { positions, relatedConcepts, relations, visibleGraph, ownerOf } = load('src/data/graph.ts');
+test('the atlas reveals only opened clusters, with no daily unlock for related concepts', () => {
+  assert.deepEqual(visibleGraph([]), { ids: [], edges: [] });
+  const one = visibleGraph([keywords[0].id]);
+  assert.equal(one.ids.length, 3);
+  assert.equal(one.edges.length, 2);
+  assert.ok(!one.ids.includes(keywords[1].id));
+  const all = visibleGraph(keywords.map((word) => word.id));
+  assert.equal(all.ids.length, 9);
+  assert.equal(all.edges.length, 6);
+  const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
+  visibleGraph(state.openings.map((item) => item.keywordId));
+  assert.equal(restoreProgress(JSON.stringify(state)).openings.length, 1);
+});
+test('every edge has valid directed endpoints, a distinct id, and finite fixed coordinates', () => {
+  const nodes = [...keywords, ...relatedConcepts];
+  const ids = new Set(nodes.map((node) => node.id));
+  assert.equal(ids.size, 9);
+  assert.equal(new Set(relations.map((edge) => edge.id)).size, relations.length);
+  for (const edge of relations) {
+    assert.ok(ids.has(edge.sourceId) && ids.has(edge.targetId));
+    assert.notEqual(edge.sourceId, edge.targetId);
+    assert.ok(keywords.some((word) => word.id === edge.ownerId));
+    assert.ok(edge.label && edge.explanation);
+  }
+  for (const id of ids) {
+    assert.ok(Number.isFinite(positions[id].x) && Number.isFinite(positions[id].y));
+    assert.ok(keywords.some((word) => word.id === ownerOf(id)));
+  }
+});
