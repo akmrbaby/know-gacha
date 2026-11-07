@@ -25,13 +25,14 @@ export const specimens: Record<string, { mark: string; color: string; tint: stri
 };
 export type Position = { x: number; y: number };
 export const positions: Record<string, Position> = {};
-// Fixed, version 1: separate clusters; distances have no semantic weight.
+// Fixed, version 2: a spatial atlas; distances have no semantic weight.
+const clusterCenters = [{ x: -270, y: -220 }, { x: 300, y: -70 }, { x: -150, y: 340 }];
 keywords.forEach((word, index) => {
-  const x = index * 480;
-  positions[word.id] = { x, y: 0 };
+  const { x, y } = clusterCenters[index];
+  positions[word.id] = { x, y };
   relations.filter((edge) => edge.ownerId === word.id).forEach((edge, i) => {
     const other = edge.sourceId === word.id ? edge.targetId : edge.sourceId;
-    positions[other] = { x: x + (i === 0 ? -104 : 104), y: 200 };
+    positions[other] = { x: x + (i === 0 ? -145 : 145), y: y + (i === 0 ? 155 : 185) };
   });
 });
 export function visibleGraph(openedIds: string[]) {

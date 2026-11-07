@@ -71,3 +71,42 @@ test('every edge has valid directed endpoints, a distinct id, and finite fixed c
     assert.ok(keywords.some((word) => word.id === ownerOf(id)));
   }
 });
+const { fitCamera, focusCamera, zoomAt, MIN_SCALE, MAX_SCALE } = load('src/graph/camera.ts');
+const { availability } = load('src/graph/availability.ts');
+test('zoom preserves the world point under the fingers, including scale limits', () => {
+  const camera = { x: -140, y: 70, scale: 0.8 };
+  for (const requested of [0.001, 1.6, 100]) {
+    const next = zoomAt(camera, 120, 230, requested);
+    assert.ok(next.scale >= MIN_SCALE && next.scale <= MAX_SCALE);
+    assert.ok(Math.abs((120 - next.x) / next.scale - (120 - camera.x) / camera.scale) < 1e-9);
+    assert.ok(Math.abs((230 - next.y) / next.scale - (230 - camera.y) / camera.scale) < 1e-9);
+  }
+});
+test('fit includes all visible node centers and focus leaves the collapsed sheet clear', () => {
+  for (const [width, height] of [[320, 480], [390, 700], [700, 320]]) {
+    const ids = visibleGraph(keywords.map((word) => word.id)).ids;
+    const camera = fitCamera(ids, width, height);
+    for (const id of ids) {
+      const x = positions[id].x * camera.scale + camera.x;
+      const y = positions[id].y * camera.scale + camera.y;
+      assert.ok(x > 0 && x < width && y > 0 && y < height);
+      const focused = focusCamera(id, width, height);
+      const fy = positions[id].y * focused.scale + focused.y;
+      assert.ok(fy >= 100 && fy < height - Math.min(265, height * 0.4));
+    }
+    const edge = relations[0], focused = focusCamera(edge.id, width, height);
+    const midpoint = (positions[edge.sourceId].x + positions[edge.targetId].x) / 2;
+    assert.ok(Math.abs(midpoint * focused.scale + focused.x - width / 2) < 1e-9);
+  }
+});
+test('Gacha remaining count agrees with daily consumption and exhausted content after restore', () => {
+  let state = emptyProgress();
+  assert.equal(availability(state, '2026-11-07').remaining, 1);
+  for (let day = 7; day <= 9; day++) {
+    const date = `2026-11-0${day}`;
+    state = restoreProgress(JSON.stringify(openForDate(state, date, () => 0)));
+    assert.equal(availability(state, date).remaining, 0);
+  }
+  assert.equal(availability(state, '2026-11-10').remaining, 0);
+  assert.equal(availability(state, '2026-11-10').exhausted, true);
+});
