@@ -96,6 +96,8 @@ npx expo export --platform web --output-dir /tmp/knowgacha-web
 
 設計・企画の一覧は [docs/README.md](docs/README.md) を参照してください。[UI/UX設計 v0.2](docs/ux-design-v0.2.md) には、開封演出・読書・知識の地図の仕様・実装記録・実機確認項目を記載しています。
 
+次の改善方針は [UI/UX設計 v0.3](docs/ux-design-v0.3.md) を参照してください。Gachaと全画面Mapへの再設計で、現時点では未実装です。
+
 ## ブランチ運用
 
 `main` → `develop` → `feature/*`。機能PRは `develop` に向けて作成します。
