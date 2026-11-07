@@ -1,74 +1,134 @@
-import { router } from 'expo-router';
-import { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useMapViewport } from '../../hooks/useMapViewport';
 import { Capsule } from '../../components/Capsule';
-import { Specimen } from '../../components/Specimen';
-import { Action } from '../../components/ui';
+import { availability } from '../../graph/availability';
+import { GraphCanvas, type CameraRequest } from '../../components/GraphCanvas';
+import { MapSheet } from '../../components/MapSheet';
+import { AppIcon } from '../../components/native-ui/AppIcon';
+import { AppSheet } from '../../components/native-ui/AppSheet';
+import { NativeIconAction } from '../../components/native-ui/NativeIconAction';
+import { NativeToolbar } from '../../components/native-ui/NativeToolbar';
 import { NativeText } from '../../components/native-ui/NativeText';
 import { NavigationRow } from '../../components/native-ui/NavigationRow';
-import { graphLabEnabled } from '../../graph/lab';
-import { availability } from '../../graph/availability';
+import { Action } from '../../components/ui';
+import { conceptName } from '../../data/graph';
+import { baseGraph } from '../../knowledge/base';
+import { graphForAcquired } from '../../knowledge/model';
 import { useProgress } from '../../state/ProgressProvider';
 import { spacing, useThemeColors } from '../../theme';
 import { selectionFeedback } from '../../ui/feedback';
-
-export default function Gacha() {
+const sessionStarted = Date.now();
+const appeared = new Set<string>();
+export default function GraphScreen() {
   const colors = useThemeColors();
-  const { progress, date, ready, busy, error, retry, open, nextDay, reset } = useProgress();
-  const [reveal, setReveal] = useState<{ id: string; phase: 'opening' | 'result' } | null>(null);
-  const [development, setDevelopment] = useState(false);
-  const lock = useRef(false);
-  const { today, exhausted, remaining } = availability(progress, date);
+  const { progress, date, ready, busy, error, retry, open } = useProgress();
+  const { focus, fresh } = useLocalSearchParams<{ focus?: string; fresh?: string }>();
+  const acquiredIds = progress.openings.map(item => item.keywordId);
+  const graph = graphForAcquired(baseGraph, acquiredIds);
+  const [size, setSize] = useState({ width: 390, height: 700 });
+  const viewport = useMapViewport(size.width, size.height);
+  const [selected, setSelected] = useState('');
+  const [reveal, setReveal] = useState<string | null>(null);
+  const drawing = useRef(false);
+  const { today, remaining, exhausted } = availability(progress, date);
   async function draw() {
-    if (lock.current || !remaining) return;
-    lock.current = true;
-    try {
-      const id = await open();
-      if (id) { selectionFeedback(); setReveal({ id, phase: 'opening' }); }
-    } finally { lock.current = false; }
+    if (drawing.current || !ready || !remaining) return;
+    drawing.current = true;
+    try { const id = await open(); if (id) { setPanelOpen(false); setReveal(id); } }
+    finally { drawing.current = false; }
   }
-  function read(id: string) { setReveal(null); router.push({ pathname: '/word/[id]', params: { id } }); }
-  function finish() { setReveal(value => value ? { ...value, phase: 'result' } : null); }
-  return <SafeAreaView style={[gacha.screen, { backgroundColor: colors.background }]}>
-    <ScrollView contentContainerStyle={gacha.content}>
-      <View style={gacha.brand}>
-        <NativeText variant="title" accessibilityRole="header">KnowGacha<NativeText variant="title" style={{ color: colors.accent }}>.</NativeText></NativeText>
-        <NativeText variant="caption">脳ガチャ — 好奇心の入口</NativeText>
-      </View>
-      <View style={gacha.header}>
-        <NativeText variant="label" accessibilityRole="header">今日の知識</NativeText>
-        <NativeText variant="caption">{ready ? remaining ? '未開封' : '開封済み' : '読み込み中'}</NativeText>
-      </View>
-      <NativeText variant="caption">{date.replaceAll('-', ' / ')}{__DEV__ && progress.dayOffset > 0 ? ' · 開発用日付' : ''}</NativeText>
-      {!ready ? <View style={gacha.section}><ActivityIndicator color={colors.accent} /><NativeText>{error ?? '言葉を準備しています…'}</NativeText>{error && <Action title="読み込みを再試行" onPress={retry} />}</View>
-        : reveal ? <View style={gacha.section}>
-          {reveal.phase === 'opening' ? <><NativeText variant="label">知識をひらいています</NativeText><Capsule opening onFinish={finish} /><Action title="演出をスキップ" secondary onPress={finish} /></>
-            : <><Specimen id={reveal.id} /><Action title="Mapで見る" onPress={() => { const id = reveal.id; setReveal(null); router.navigate({ pathname: '/graph', params: { focus: id, fresh: String(Date.now()) } }); }} /><NavigationRow title="解説を読む" onPress={() => read(reveal.id)} /><NavigationRow title="今日の知識へ戻る" onPress={() => setReveal(null)} /></>}
-        </View> : <View style={gacha.section}>
-          {remaining ? <><NativeText variant="title">まだ知らない、自分に出会う。</NativeText><Capsule /><NativeText>1日1回、新しい言葉との出会いを。</NativeText><Action title="ガチャを回す" loading={busy} onPress={() => { void draw(); }} /></>
-            : <><NativeText variant="label">{exhausted ? 'すべての知識と出会いました' : '今日の知識を、もう少し深く'}</NativeText><NativeText>{exhausted ? '試作の教材はすべて開封済みです。Mapからつながりをたどれます。' : '次のガチャは明日。出会った知識はいつでも読み返せます。'}</NativeText>{today && <NavigationRow title="今日の知識を読み返す" onPress={() => read(today.keywordId)} />}<Action title="Mapをひらく" onPress={() => router.navigate('/graph')} /></>}
-          {error && <NativeText accessibilityRole="alert" selectable>{error}</NativeText>}
-          <NativeText variant="caption">現地日付の翌日に回復 · 再閲覧は回数不要</NativeText>
-        </View>}
-      <NavigationRow title="開封履歴" description={`${progress.openings.length} / 3語`} onPress={() => router.push('/history')} />
-      {graphLabEnabled && !__DEV__ && ready && !reveal && <NavigationRow title="知識グラフのデモ" description="5〜500件" onPress={() => router.push('/graph-demo')} />}
-      {__DEV__ && ready && !reveal && <View>
-        <NavigationRow title={development ? '開発用操作を閉じる' : '開発用操作'} onPress={() => setDevelopment(!development)} />
-        {development && <View style={gacha.section}>
-          <NavigationRow title="知識グラフのデモ（5〜500件）" onPress={() => router.push('/graph-demo')} />
-          <Action title="翌日扱いにする" secondary disabled={busy} onPress={() => { void nextDay(); }} />
-          <Action title="進捗を初期化する" secondary disabled={busy} onPress={() => Alert.alert('進捗を初期化しますか？', 'この端末の開封履歴と開発用日付を消去します。', [{ text: 'キャンセル', style: 'cancel' }, { text: '初期化する', style: 'destructive', onPress: () => { void reset(); } }])} />
-        </View>}
-      </View>}
-      <NativeText variant="caption">PROTOTYPE · 原稿は試作用</NativeText>
-    </ScrollView>
-  </SafeAreaView>;
+  function finishReveal() { if (reveal) { const id = reveal; setReveal(null); choose(id); } }
+  const [list, setList] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [active, setActive] = useState(false);
+  useFocusEffect(useCallback(() => { setActive(true); return () => { setActive(false); setPanelOpen(false); }; }, []));
+  const [request, setRequest] = useState<CameraRequest | null>(null);
+  const consumed = useRef('');
+  const insets = useSafeAreaInsets();
+  const latest = progress.openings.at(-1);
+  const newOwner = active && latest && !appeared.has(latest.openedAt) && Date.parse(latest.openedAt) >= sessionStarted ? latest.keywordId : undefined;
+  const requested = typeof focus === 'string' ? focus : '';
+  const requestKey = `${requested}:${fresh ?? ''}`;
+  function choose(id: string, userInitiated = true) {
+    setList(false);
+    setSelected(id);
+    setPanelOpen(!!id);
+    if (id) {
+      if (userInitiated && id !== selected) selectionFeedback();
+      setRequest({ id, kind: 'focus', token: 0 });
+    }
+  }
+  useEffect(() => {
+    if (!ready || !requested || consumed.current === requestKey || !(graph.ids.includes(requested) || graph.edges.some(edge => edge.id === requested))) return;
+    const frame = requestAnimationFrame(() => { consumed.current = requestKey; choose(requested, false); });
+    return () => cancelAnimationFrame(frame);
+    // The route parameter is an explicit camera request, separate from selection renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, requestKey, graph.ids.join('|')]);
+  useEffect(() => {
+    if (!newOwner || !latest) return;
+    const timer = setTimeout(() => appeared.add(latest.openedAt), 1800);
+    return () => clearTimeout(timer);
+  }, [newOwner, latest]);
+  const validSelected = graph.ids.includes(selected) || graph.edges.some(edge => edge.id === selected) ? selected : '';
+  const selectedEdge = graph.edges.find(edge => edge.id === validSelected);
+  const sheetTitle = validSelected ? selectedEdge ? `${conceptName(selectedEdge.sourceId)} → ${conceptName(selectedEdge.targetId)}` : conceptName(validSelected) : '出会った知識';
+  return <View style={[map.screen, { backgroundColor: colors.map }]} onLayout={event => setSize(event.nativeEvent.layout)}>
+    {ready && viewport.ready && graph.ids.length > 0 && <GraphCanvas initialCamera={viewport.initial} onCameraChange={viewport.save} ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={panelOpen ? validSelected : ''} request={request} newOwner={newOwner} onSelect={choose} />}
+    <View pointerEvents="box-none" style={[map.top, { top: insets.top + spacing.sm }]}>
+      <NativeToolbar style={map.titlebar}>
+        <View pointerEvents="none" style={map.title}><NativeText variant="title" accessibilityRole="header">Map</NativeText><NativeText variant="caption">{progress.openings.length}語の知識</NativeText></View>
+        {graph.ids.length > 0 && <NativeIconAction label="知識の一覧を開く" onPress={() => { selectionFeedback(); setSelected(''); setList(true); setPanelOpen(true); }}><AppIcon name="list" /></NativeIconAction>}
+      </NativeToolbar>
+    </View>
+    {!graph.ids.length && <ScrollView contentContainerStyle={[map.empty, { paddingTop: insets.top + 120 }]}>
+      {!ready && !error && <ActivityIndicator color={colors.accent} />}
+      <NativeText variant="title">{!ready ? error ? '地図を読み込めませんでした' : '地図を準備しています' : '最初の知識をひらこう'}</NativeText>
+      <NativeText>{!ready && error ? error : ready ? '最初の言葉をひらくと、知識とそのつながりがここに増えていきます。' : '保存した知識を読み込んでいます。'}</NativeText>
+      {error && !ready ? <Action title="読み込みを再試行" onPress={retry} /> : ready && <Action title="最初の知識をひらく" loading={busy} onPress={() => { void draw(); }} />}
+      {ready && error && <NativeText accessibilityRole="alert">{error}</NativeText>}
+    </ScrollView>}
+    {ready && !panelOpen && !reveal && graph.ids.length > 0 && <View style={[map.daily, { backgroundColor: colors.surface }]}>
+      <NativeText variant="caption">{remaining ? '今日の知識は未開封' : exhausted ? 'すべての知識を開封済み · つながりを探索できます' : '本日は開封済み · 次の開封は明日'}</NativeText>
+      {remaining ? <Action title="今日の知識をひらく" loading={busy} onPress={() => { void draw(); }} /> : today && <Action title="今日の知識をMapで見る" onPress={() => choose(today.keywordId)} />}
+      {error && <NativeText accessibilityRole="alert">{error}</NativeText>}
+      <NavigationRow title="開封履歴" onPress={() => router.push('/history')} />
+    </View>}
+    {graph.ids.length > 0 && !panelOpen && <View pointerEvents="box-none" style={map.bottom}>
+      <NativeToolbar style={map.zoom}>
+        {(['out', 'in', 'fit'] as const).map(kind => <NativeIconAction key={kind} label={kind === 'in' ? '地図を拡大' : kind === 'out' ? '地図を縮小' : '地図全体を表示'} onPress={() => setRequest({ kind, token: Date.now() })}><AppIcon name={kind === 'in' ? 'plus' : kind === 'out' ? 'minus' : 'fit'} /></NativeIconAction>)}
+      </NativeToolbar>
+    </View>}
+    {active && <AppSheet isPresented={panelOpen || !!reveal} title={reveal ? '今日の知識をひらく' : sheetTitle} closeLabel={reveal ? 'Mapで見る' : validSelected ? '詳細を閉じる' : '一覧を閉じる'} onClose={() => {
+      if (reveal) { setSelected(reveal); setRequest({ id: reveal, kind: 'focus', token: Date.now() }); setReveal(null); }
+      setPanelOpen(false);
+    }} testID={reveal ? 'map-reveal' : validSelected ? 'map-sheet' : 'map-list'}>
+      {reveal ? <View style={map.list}><Capsule key={reveal} opening onFinish={finishReveal} /><Action title="演出をスキップしてMapで見る" onPress={finishReveal} /></View> : validSelected && !list ? <MapSheet embedded edges={graph.edges} acquiredIds={acquiredIds} selected={validSelected} height={size.height} onSelect={choose} onClose={() => setPanelOpen(false)} /> : <ScrollView nestedScrollEnabled style={map.scroll} contentContainerStyle={[map.list, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+        {acquiredIds.map(id => <View key={id}>
+          <NavigationRow title={conceptName(id)} description="開封済み" onPress={() => choose(id)} />
+          {graph.edges.filter(edge => edge.sourceId === id || edge.targetId === id).map(edge => <View key={edge.id} style={map.related}>
+            <NavigationRow title={conceptName(edge.sourceId === id ? edge.targetId : edge.sourceId)} description="周辺概念" onPress={() => choose(edge.sourceId === id ? edge.targetId : edge.sourceId)} />
+            <NavigationRow title={edge.label} description="つながりの理由" onPress={() => choose(edge.id)} />
+          </View>)}
+        </View>)}
+        <NativeText variant="caption">周辺語・関係は試作用原稿です。配置の距離は意味の近さを表しません。</NativeText>
+      </ScrollView>}
+    </AppSheet>}
+  </View>;
 }
-const gacha = StyleSheet.create({
-  screen: { flex: 1 },
-  brand: { gap: spacing.xs, paddingVertical: spacing.sm },
-  content: { padding: spacing.md, gap: spacing.md, maxWidth: 680, width: '100%', alignSelf: 'center' },
-  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
-  section: { gap: spacing.md, paddingVertical: spacing.sm },
+const map = StyleSheet.create({
+  screen: { flex: 1, overflow: 'hidden' },
+  top: { position: 'absolute', left: spacing.md, right: spacing.md },
+  titlebar: { justifyContent: 'space-between' },
+  title: { flex: 1, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+  bottom: { position: 'absolute', right: spacing.md, left: spacing.md, bottom: spacing.md, alignItems: 'flex-end' },
+  daily: { position: 'absolute', left: spacing.md, right: spacing.md, bottom: 82, padding: spacing.sm, gap: spacing.xs, borderRadius: 16 },
+  zoom: { justifyContent: 'flex-end' },
+  empty: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
+  scroll: { flex: 1 },
+  list: { padding: spacing.md, gap: spacing.md },
+  related: { paddingLeft: spacing.md },
 });

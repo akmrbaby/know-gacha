@@ -15,6 +15,22 @@ function load(file) {
 const { demoGraph, demoOrder, demoView } = load('src/knowledge/demo.ts');
 const { graphForAcquired, graphCounts, neighborhood } = load('src/knowledge/model.ts');
 const { fitCamera, WORLD_CENTER, WORLD_SIZE } = load('src/graph/camera.ts');
+const { baseGraph } = load('src/knowledge/base.ts');
+
+test('normal Map joins acquired knowledge through one sourced photography concept without exposing unopened knowledge', () => {
+  const first = graphForAcquired(baseGraph, ['ethnography']);
+  assert.ok(first.ids.includes('photography'));
+  assert.ok(!first.ids.includes('surrealism'));
+  assert.ok(!first.edges.some(edge => edge.sourceId === 'surrealism'));
+  const second = graphForAcquired(baseGraph, ['ethnography', 'surrealism']);
+  assert.equal(second.ids.filter(id => id === 'photography').length, 1);
+  for (const id of ['ethnography', 'surrealism']) {
+    const edge = second.edges.find(edge => edge.sourceId === id && edge.targetId === 'photography');
+    assert.ok(edge && edge.evidence.length && edge.explanation);
+  }
+  assert.deepEqual(baseGraph.positions.photography, { x: 0, y: 40 });
+  assert.equal(new Set(Object.values(baseGraph.positions).map(p => `${p.x},${p.y}`)).size, Object.keys(baseGraph.positions).length);
+});
 
 test('all fixture sizes are nested, have valid unique identities and deterministic coordinates', () => {
   assert.equal(new Set(demoOrder).size, 500);

@@ -1,0 +1,101 @@
+const { chromium } = require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');
+const assert = require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ try {
+ const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const button=name=>page.getByRole('button',{name,exact:true});
+ await page.goto(process.env.MAP_TEST_URL || 'http://127.0.0.1:18767',{timeout:120000});
+ await button('最初の知識をひらく').waitFor({timeout:120000});
+ await button('最初の知識をひらく').click();
+ await button('詳細を閉じる').waitFor({timeout:30000});
+ const first=await page.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.progress.v1')));
+ assert.equal(first.openings.length,1);
+ await page.getByText('引き上げて全文を読む',{exact:true}).waitFor();
+ await button('詳細を閉じる').click();
+ await button('今日の知識をMapで見る').waitFor();
+ await button('地図を拡大').click();
+ await page.waitForTimeout(1300);
+ const before=await page.evaluate(()=>localStorage.getItem('knowgacha.map-viewport.v1'));
+ assert.ok(before);
+ await page.getByRole('tab',{name:'Gacha',exact:true}).click();
+ await page.getByRole('tab',{name:'Map',exact:true}).click();
+ await page.waitForTimeout(800);
+ assert.deepEqual(JSON.parse(await page.evaluate(()=>localStorage.getItem('knowgacha.map-viewport.v1'))),JSON.parse(before));
+ await page.setViewportSize({width:430,height:900});
+ await page.waitForTimeout(1000);
+ const resized=await page.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.map-viewport.v1')));
+ for(const key of ['centerX','centerY','scale']) assert.ok(Math.abs(resized[key]-JSON.parse(before)[key])<0.00001);
+ await page.setViewportSize({width:390,height:844});
+ await page.waitForTimeout(1000);
+ await page.reload();
+ await button('今日の知識をMapで見る').waitFor();
+ await page.waitForTimeout(1000);
+ const after=await page.evaluate(()=>localStorage.getItem('knowgacha.map-viewport.v1'));
+ assert.deepEqual(JSON.parse(after),JSON.parse(before));
+ await button('今日の知識をMapで見る').click();
+ await button('詳細を閉じる').waitFor();
+ await button('詳細を閉じる').click();
+ const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.progress.v1')));
+ assert.deepEqual(saved,first);
+ await page.screenshot({path:process.env.MAP_SCREENSHOT_PATH || '/tmp/map-home.png'});
+ // Seed an old opening, then exercise an actual new acquisition that shares a concept.
+ const shared = await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+ shared.on('pageerror',e=>errors.push(e.message));
+ await shared.addInitScript(() => {
+   if (!localStorage.getItem('knowgacha.progress.v1')) {
+     const now = new Date(); now.setDate(now.getDate()-1);
+     const date = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+     localStorage.setItem('knowgacha.progress.v1',JSON.stringify({version:1,dayOffset:0,openings:[{keywordId:'ethnography',date,openedAt:now.toISOString()}]}));
+   }
+   Math.random=()=>0.99;
+ });
+ const sb=name=>shared.getByRole('button',{name,exact:true});
+ await shared.goto(process.env.MAP_TEST_URL || 'http://127.0.0.1:18767');
+ await sb('今日の知識をひらく').click();
+ await sb('詳細を閉じる').waitFor();
+ const acquired=await shared.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.progress.v1')));
+ assert.deepEqual(acquired.openings.map(item=>item.keywordId),['ethnography','surrealism']);
+ await shared.getByRole('button').filter({hasText:'表現媒体の一つ'}).click();
+ await shared.getByText('つながりの理由',{exact:true}).waitFor();
+ await sb('写真').click();
+ await shared.getByRole('button').filter({hasText:'調査・記録の方法の一つ'}).click();
+ await sb('エスノグラフィー').click();
+ await shared.getByText('引き上げて全文を読む',{exact:true}).waitFor();
+ await sb('詳細を閉じる').click();
+ await sb('地図全体を表示').click();
+ await shared.waitForTimeout(1000);
+ // Tap the middle of the actual ethnography-to-photography line in the canvas.
+ const view=await shared.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.map-viewport.v1')));
+ const bounds=await shared.getByTestId('atlas-canvas').boundingBox();
+ await shared.mouse.click(bounds.x+bounds.width/2+(150-view.centerX)*view.scale,bounds.y+bounds.height/2+(-15-view.centerY)*view.scale);
+ await shared.getByText('つながりの理由',{exact:true}).waitFor();
+ await sb('詳細を閉じる').click();
+ assert.deepEqual(await shared.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.progress.v1'))),acquired);
+ await shared.screenshot({path:'/tmp/map-home-shared.png'});
+ await shared.evaluate(() => {
+   const ids=['ethnography','surrealism','photonics-electronics'];
+   const openings=ids.map((keywordId,index)=>({keywordId,date:`2020-01-0${index+1}`,openedAt:`2020-01-0${index+1}T00:00:00.000Z`}));
+   localStorage.setItem('knowgacha.progress.v1',JSON.stringify({version:1,dayOffset:0,openings}));
+ });
+ await shared.reload();
+ await shared.getByText('すべての知識を開封済み · つながりを探索できます',{exact:true}).waitFor();
+ assert.equal(await sb('今日の知識をひらく').count(),0);
+ await sb('知識の一覧を開く').click();
+ await shared.getByRole('button').filter({hasText:'表現媒体の一つ'}).click();
+ await shared.getByText('つながりの理由',{exact:true}).waitFor();
+ await sb('詳細を閉じる').click();
+ await shared.close();
+ const animated=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'no-preference'});
+ animated.on('pageerror',e=>errors.push(e.message));
+ await animated.goto(process.env.MAP_TEST_URL || 'http://127.0.0.1:18767');
+ await animated.getByRole('button',{name:'最初の知識をひらく',exact:true}).click();
+ await animated.getByRole('button',{name:'詳細を閉じる',exact:true}).waitFor();
+ assert.equal(await animated.getByRole('dialog').count(),1);
+ assert.equal(await animated.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.progress.v1')).openings.length),1);
+ await animated.close();
+ assert.deepEqual(errors,[]);
+ console.log('PASS: home, first draw, detail, daily revisit, viewport reload, unchanged history, shared-concept exploration, direct line tap, exhausted-state exploration, animated reveal, no runtime errors');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

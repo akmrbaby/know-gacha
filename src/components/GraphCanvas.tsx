@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures, useTapGesture } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDecay, withDelay, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
@@ -16,10 +16,11 @@ export type CameraRequest = { id?: string; kind: 'focus' | 'fit' | 'in' | 'out';
 type Props = {
   ids: string[]; edges: Relation[]; width: number; height: number;
   selected: string; request: CameraRequest | null; newOwner?: string;
+  initialCamera?: Camera; onCameraChange?: (camera: Camera) => void;
   onSelect: (id: string) => void; graph?: KnowledgeGraph; dynamic?: boolean; measurement?: LayoutMeasurement;
 };
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, graph = baseGraph, dynamic = false, measurement }: Props) {
+export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, initialCamera, onCameraChange, graph = baseGraph, dynamic = false, measurement }: Props) {
   const theme = useThemeColors();
   const worldSize = graph === baseGraph ? 2400 : WORLD_SIZE;
   const worldCenter = worldSize / 2;
@@ -29,11 +30,19 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const grabbed = useSharedValue('');
   const offset = useSharedValue({ x: 0, y: 0 });
   const manipulated = useSharedValue(false);
-  const initial = fitCamera(ids, width, height, graph);
+  const initial = initialCamera ?? fitCamera(ids, width, height, graph);
   const x = useSharedValue(initial.x), y = useSharedValue(initial.y), scale = useSharedValue(initial.scale);
   const pinching = useSharedValue(false);
   const rebasePan = useSharedValue(false);
   const lastFocal = useSharedValue({ x: 0, y: 0 });
+  const previousSize = useRef({ width, height });
+  const previousRequest = useRef<CameraRequest | null>(null);
+  useEffect(() => {
+    if (!onCameraChange) return;
+    const report = () => onCameraChange({ x: x.get(), y: y.get(), scale: scale.get() });
+    const timer = setInterval(report, 700);
+    return () => { clearInterval(timer); report(); };
+  }, [onCameraChange, x, y, scale]);
 
   function move(camera: Camera) {
     const duration = reduced === false ? 480 : 0;
@@ -49,6 +58,14 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const currentGraph = { ...graph, positions: positions.get() };
+      const resized = previousSize.current.width !== width || previousSize.current.height !== height;
+      if (request === previousRequest.current) {
+        if (resized) move({ x: x.get() + (width - previousSize.current.width) / 2, y: y.get() + (height - previousSize.current.height) / 2, scale: scale.get() });
+        previousSize.current = { width, height };
+        return;
+      }
+      previousSize.current = { width, height };
+      previousRequest.current = request;
       if (!request || request.kind === 'fit') move(fitCamera(ids, width, height, currentGraph));
       else if (request.kind === 'focus' && request.id) move(focusCamera(request.id, width, height, currentGraph));
       else if (request.kind === 'in' || request.kind === 'out') move(zoomAt({ x: x.value, y: y.value, scale: scale.value }, width / 2, height / 2, scale.value * (request.kind === 'in' ? 1.25 : 0.8)));

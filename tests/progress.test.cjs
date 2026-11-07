@@ -52,8 +52,8 @@ test('the atlas reveals only opened clusters, with no daily unlock for related c
   assert.equal(one.edges.length, 2);
   assert.ok(!one.ids.includes(keywords[1].id));
   const all = visibleGraph(keywords.map((word) => word.id));
-  assert.equal(all.ids.length, 9);
-  assert.equal(all.edges.length, 6);
+  assert.equal(all.ids.length, 10);
+  assert.equal(all.edges.length, 8);
   const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
   visibleGraph(state.openings.map((item) => item.keywordId));
   assert.equal(restoreProgress(JSON.stringify(state)).openings.length, 1);
@@ -61,7 +61,7 @@ test('the atlas reveals only opened clusters, with no daily unlock for related c
 test('every edge has valid directed endpoints, a distinct id, and finite fixed coordinates', () => {
   const nodes = [...keywords, ...relatedConcepts];
   const ids = new Set(nodes.map((node) => node.id));
-  assert.equal(ids.size, 9);
+  assert.equal(ids.size, 10);
   assert.equal(new Set(relations.map((edge) => edge.id)).size, relations.length);
   for (const edge of relations) {
     assert.ok(ids.has(edge.sourceId) && ids.has(edge.targetId));
