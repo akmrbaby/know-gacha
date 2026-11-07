@@ -24,6 +24,17 @@
     "scheme": "knowgacha",
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "4afd09c4-14e2-4b76-abf7-a610d9a3f2ef"
+      }
+    },
+    "owner": "akmrbaby"
   }
 }
