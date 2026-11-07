@@ -52,7 +52,7 @@ export default function GraphDemo() {
       <Text style={styles.small}>取得知識 {counts.acquired} · 周辺概念 {counts.concepts} · 関係 {counts.relations}</Text>
       <Text style={styles.small}>{count <= 10 ? '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : `内容確認用10件＋架空の検証用${count - 10}件 · 学習内容ではありません`}</Text>
       <Text style={styles.small}>{count <= 10 ? '動的配置の試作 · ノードをドラッグ、背景をパン／ピンチ' : '固定配置の比較デモ · 動的配置は10件の実機評価後に拡張'}</Text>
-      <Text style={styles.small}>配置の距離は意味の近さや関係の強さを表しません。</Text>
+      <Text style={styles.small}>配置の距離は意味の近さや関係の強さを表しません。 · 線表示 v2</Text>
       <View style={demo.row}>{demoSizes.map((value) => <Pressable key={value} accessibilityRole="button" accessibilityLabel={`${value}件のデモ`} accessibilityState={{ selected: value === count }} onPress={() => changeCount(value)} style={[demo.control, value === count && demo.active]}><Text>{value}件</Text></Pressable>)}</View>
       <View style={demo.row}>
         <Pressable accessibilityRole="button" disabled={count >= 10} onPress={addNext} style={[demo.control, count >= 10 && { opacity: 0.4 }]}><Text>次の1件を追加</Text></Pressable>
