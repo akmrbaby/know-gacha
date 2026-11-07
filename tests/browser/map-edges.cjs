@@ -16,7 +16,7 @@ const assert=require('node:assert/strict');
    })));
    assert.ok(surfaces.every(s=>s.width<=s.viewport.width+1 && s.height<=s.viewport.height+1),'SVG surfaces must fit the viewport');
   }
-  const canvas=page.getByTestId('atlas-canvas'), node=canvas.getByRole('button').first();
+  const canvas=page.getByTestId('atlas-canvas'), node=canvas.getByRole('button',{name:'エスノグラフィー、開封済み教材',exact:true});
   const orb=node.locator(':scope > div').first().locator(':scope > div').first();
   async function aligned(){
    const c=await canvas.boundingBox(), b=await orb.boundingBox();

@@ -1,12 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures, useTapGesture } from 'react-native-gesture-handler';
-import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDecay, withDelay, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
+import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useDerivedValue, useSharedValue, withDecay, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
+import { visibleLabels, type LabelBox } from '../graph/labels';
 import { baseGraph } from '../knowledge/base';
 import type { GraphRelation as Relation, KnowledgeGraph, Position } from '../knowledge/model';
-import { fitCamera, focusCamera, MAX_SCALE, MIN_SCALE, WORLD_CENTER, WORLD_SIZE, zoomAt, type Camera } from '../graph/camera';
+import { fitCamera, focusCamera, MAX_SCALE, MIN_SCALE, zoomAt, type Camera } from '../graph/camera';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import type { LayoutMeasurement } from '../graph/measurement';
 import { useGraphLayout } from '../hooks/useGraphLayout';
@@ -22,8 +23,6 @@ type Props = {
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, initialCamera, onCameraChange, graph = baseGraph, dynamic = false, measurement }: Props) {
   const theme = useThemeColors();
-  const worldSize = graph === baseGraph ? 2400 : WORLD_SIZE;
-  const worldCenter = worldSize / 2;
   const reduced = useReducedMotion();
   const { positions, drag, wake } = useGraphLayout(graph, { ids, edges }, dynamic, reduced !== false, measurement);
   const touching = useSharedValue(false);
@@ -32,6 +31,32 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const manipulated = useSharedValue(false);
   const initial = initialCamera ?? fitCamera(ids, width, height, graph);
   const x = useSharedValue(initial.x), y = useSharedValue(initial.y), scale = useSharedValue(initial.scale);
+  const labelSizes = useSharedValue<Record<string, { width: number; height: number }>>({});
+  const peripheral = useZoomDetail(scale, 0.65, 0.5);
+  const relations = useZoomDetail(scale, 1.1, 0.9);
+  const relatedIds = useMemo(() => Object.fromEntries(edges.flatMap(edge => edge.id === selected || edge.sourceId === selected || edge.targetId === selected ? [[edge.sourceId, true], [edge.targetId, true]] : [])), [edges, selected]);
+  const labelOrder = useMemo(() => ids.map(id => {
+    const main = graph.nodes[id].kind === 'knowledge', related = !!relatedIds[id] || id === selected;
+    return { id, main, related, priority: id === selected ? 0 : related ? 1 : main ? 3 : 4 };
+  }).sort((a, b) => a.priority - b.priority), [ids, selected, relatedIds, graph]);
+  const visibility = useDerivedValue(() => {
+    const boxes: (LabelBox & { priority: number })[] = [], points = positions.value, sizes = labelSizes.value;
+    const z = scale.value, cx = x.value, cy = y.value;
+    for (const { id, main, related, priority } of labelOrder) {
+      if (!main && !related && (selected || !peripheral.value)) continue;
+      const size = sizes[id] ?? { width: 180, height: 32 };
+      boxes.push({ id, priority, x: cx + points[id].x * z - size.width / 2, y: cy + points[id].y * z + 41, ...size });
+    }
+    for (const edge of edges) {
+      const related = edge.id === selected || edge.sourceId === selected || edge.targetId === selected;
+      if (!related && (selected || !relations.value)) continue;
+      const a = points[edge.sourceId], b = points[edge.targetId];
+      const size = sizes[edge.id] ?? { width: 130, height: 22 };
+      const box = { id: edge.id, priority: edge.id === selected ? 0 : related ? 2 : 5, x: cx + (a.x + b.x) / 2 * z - 65, y: cy + (a.y + b.y) / 2 * z - 12, ...size };
+      boxes.push(box);
+    }
+    return visibleLabels(boxes.sort((a, b) => a.priority - b.priority), width, height);
+  });
   const pinching = useSharedValue(false);
   const rebasePan = useSharedValue(false);
   const lastFocal = useSharedValue({ x: 0, y: 0 });
@@ -163,9 +188,6 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     },
   });
   const gesture = useSimultaneousGestures(pan, pinch, tap);
-  const world = useAnimatedStyle(() => ({
-    transform: [{ translateX: x.value - worldCenter * scale.value }, { translateY: y.value - worldCenter * scale.value }, { scale: scale.value }],
-  }));
   return <GestureDetector gesture={gesture}>
     <View testID="atlas-canvas" style={StyleSheet.absoluteFill}>
       <Svg pointerEvents="none" width={width} height={height} style={StyleSheet.absoluteFill}>
@@ -173,10 +195,10 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
         <Rect width="100%" height="100%" fill="url(#atlas-dots)" />
         {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} cameraX={x} cameraY={y} scale={scale} selected={selected === edge.id} connected={edge.sourceId === selected || edge.targetId === selected} hasSelection={!!selected} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
       </Svg>
-      <Animated.View pointerEvents="box-none" style={[atlas.world, { width: worldSize, height: worldSize }, world]}>
-        {edges.map((edge) => <EdgeLabel key={edge.id} edge={edge} graph={graph} positions={positions} scale={scale} selected={selected === edge.id} />)}
-        {ids.map((id) => <AtlasNode key={id} id={id} graph={graph} positions={positions} selected={id === selected} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
-      </Animated.View>
+      <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
+        {edges.map((edge) => <EdgeLabel key={edge.id} edge={edge} positions={positions} cameraX={x} cameraY={y} scale={scale} visibility={visibility} labelSizes={labelSizes} />)}
+        {ids.map((id) => <AtlasNode key={id} id={id} graph={graph} positions={positions} selected={id === selected} visibility={visibility} labelSizes={labelSizes} cameraX={x} cameraY={y} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
+      </View>
     </View>
   </GestureDetector>;
 }
@@ -199,45 +221,43 @@ function Connection({ edge, graph, positions, cameraX, cameraY, scale, selected,
   });
   return <AnimatedPath animatedProps={animated} stroke={color} fill="none" strokeLinecap="round" />;
 }
-function AtlasNode({ id, graph, positions, selected, scale, appear, reduced, onSelect }: { positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
-  const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
+function AtlasNode({ id, graph, positions, selected, visibility, labelSizes, cameraX, cameraY, scale, appear, reduced, onSelect }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const theme = useThemeColors();
   const look = graph.nodes[id], main = look.kind === 'knowledge';
   const emergence = useSharedValue(appear && !reduced ? 0 : 1);
-  useEffect(() => { if (appear && !reduced) { emergence.set(0); emergence.set(withSpring(1, { damping: 18, stiffness: 150 })); } else if (reduced) emergence.set(1); }, [emergence, reduced, appear]);
-  const node = useAnimatedStyle(() => ({ opacity: emergence.value, transform: [{ translateX: positions.value[id].x }, { translateY: positions.value[id].y }, { scale: Math.min(2.1, 1 / scale.value) * emergence.value }] }));
-  const labelOpacity = useLabelOpacity(scale, !!main, 0.65, 0.5);
-  const label = useAnimatedStyle(() => ({ opacity: labelOpacity.value }));
-  return <Animated.View style={[atlas.nodeAnchor, { left: worldCenter - 90, top: worldCenter - 32 }, node]}>
+  useEffect(() => { if (appear && !reduced) { emergence.set(0); emergence.set(withTiming(1, { duration: 150 })); } else if (reduced) emergence.set(1); }, [emergence, reduced, appear]);
+  const node = useAnimatedStyle(() => ({ opacity: emergence.value, transform: [{ translateX: cameraX.get() + positions.get()[id].x * scale.get() }, { translateY: cameraY.get() + positions.get()[id].y * scale.get() }] }));
+  const label = useAnimatedStyle(() => ({ opacity: visibility.value[id] ? 1 : 0 }));
+  const orbSize = useAnimatedStyle(() => { const size = (main ? 64 : 28) * Math.min(1, 2.1 * scale.get()); return { width: size, height: size }; });
+  const markSize = useAnimatedStyle(() => ({ fontSize: 30 * Math.min(1, 2.1 * scale.get()) }));
+  return <Animated.View style={[atlas.nodeAnchor, { left: -90, top: -32 }, node]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`${graph.nodes[id].name}、${main ? '開封済み教材' : '周辺語'}`} accessibilityState={{ selected }} onAccessibilityTap={() => onSelect(id)} accessibilityActions={[{ name: 'activate' }]} onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'activate') onSelect(id); }} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
-      <View style={atlas.orbSlot}><View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }]}>
-        {main && <Text accessible={false} style={{ color: '#FFFDF5', fontSize: 30 }}>{look.mark}</Text>}
+      <View style={atlas.orbSlot}><Animated.View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }, orbSize]}>
+        {main && <Animated.Text accessible={false} style={[{ color: '#FFFDF5' }, markSize]}>{look.mark}</Animated.Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}
-      </View></View>
-      <Animated.View style={[atlas.label, { backgroundColor: theme.surface }, label]}><Text style={{ fontSize: main ? 15 : 12, lineHeight: main ? 22 : 19, fontWeight: main ? '700' : '500', color: theme.text, textAlign: 'center' }}>{graph.nodes[id].name}</Text></Animated.View>
+      </Animated.View></View>
+      <Animated.View testID={`atlas-label-${id}`} pointerEvents="none" onLayout={event => { const { width, height } = event.nativeEvent.layout; labelSizes.set(previous => ({ ...previous, [id]: { width, height } })); }} style={[atlas.label, { backgroundColor: theme.surface }, label]}><Text style={{ fontSize: main ? 15 : 12, lineHeight: main ? 22 : 19, fontWeight: main ? '700' : '500', color: theme.text, textAlign: 'center' }}>{graph.nodes[id].name}</Text></Animated.View>
     </Pressable>
   </Animated.View>;
 }
-function EdgeLabel({ edge, graph, positions, scale, selected }: { positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; edge: Relation; scale: SharedValue<number>; selected: boolean }) {
-  const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
+type LabelState = { visibility: SharedValue<Record<string, boolean>>; labelSizes: SharedValue<Record<string, { width: number; height: number }>> };
+function EdgeLabel({ edge, positions, cameraX, cameraY, scale, visibility, labelSizes }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; edge: Relation; scale: SharedValue<number>; }) {
   const theme = useThemeColors();
-  const opacity = useLabelOpacity(scale, selected, 1.1, 0.9);
   const style = useAnimatedStyle(() => {
     const a = positions.value[edge.sourceId], b = positions.value[edge.targetId];
-    return { opacity: opacity.value, transform: [{ translateX: (a.x + b.x) / 2 }, { translateY: (a.y + b.y) / 2 }] };
+    return { opacity: visibility.value[edge.id] ? 1 : 0, transform: [{ translateX: cameraX.value + (a.x + b.x) / 2 * scale.value }, { translateY: cameraY.value + (a.y + b.y) / 2 * scale.value }] };
   });
-  return <Animated.View pointerEvents="none" style={[atlas.edgeLabel, { backgroundColor: theme.surface, left: worldCenter - 65, top: worldCenter - 12 }, style]}><Text style={{ color: theme.secondaryText, fontSize: 10, lineHeight: 16, textAlign: 'center' }}>{edge.label}</Text></Animated.View>;
+  return <Animated.View testID={`atlas-label-${edge.id}`} pointerEvents="none" onLayout={event => { const { width, height } = event.nativeEvent.layout; labelSizes.set(previous => ({ ...previous, [edge.id]: { width, height } })); }} style={[atlas.edgeLabel, { backgroundColor: theme.surface, left: -65, top: -12 }, style]}><Text style={{ color: theme.secondaryText, fontSize: 10, lineHeight: 16, textAlign: 'center' }}>{edge.label}</Text></Animated.View>;
 }
 // Separate show/hide thresholds keep labels stable near a zoom boundary.
-function useLabelOpacity(scale: SharedValue<number>, always: boolean, show: number, hide: number) {
-  const opacity = useSharedValue(always ? 1 : 0);
-  useAnimatedReaction(() => always || scale.value >= show ? 1 : scale.value <= hide ? 0 : -1,
-    (next) => { if (next !== -1) opacity.set(withTiming(next, { duration: 120 })); }, [always, show, hide]);
-  return opacity;
+function useZoomDetail(scale: SharedValue<number>, show: number, hide: number) {
+  const visible = useSharedValue(false);
+  useAnimatedReaction(() => scale.get() >= show ? 1 : scale.get() <= hide ? 0 : -1,
+    (next) => { if (next !== -1) visible.set(next === 1); }, [show, hide]);
+  return visible;
 }
 const atlas = StyleSheet.create({
   orbSlot: { height: 64, justifyContent: 'center', alignItems: 'center' },
-  world: { position: 'absolute', width: WORLD_SIZE, height: WORLD_SIZE, left: 0, top: 0, transformOrigin: 'top left' },
   nodeAnchor: { position: 'absolute', width: 180, alignItems: 'center', transformOrigin: '90px 32px' },
   orb: { alignItems: 'center', justifyContent: 'center' },
   label: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, maxWidth: 180 },
