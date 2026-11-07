@@ -154,32 +154,31 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       <Svg pointerEvents="none" width={width} height={height} style={StyleSheet.absoluteFill}>
         <Defs><Pattern id="atlas-dots" width="26" height="26" patternUnits="userSpaceOnUse"><Circle cx="1" cy="1" r="1" fill={theme.dot} opacity="0.55" /></Pattern></Defs>
         <Rect width="100%" height="100%" fill="url(#atlas-dots)" />
+        {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} cameraX={x} cameraY={y} scale={scale} selected={selected === edge.id} connected={edge.sourceId === selected || edge.targetId === selected} hasSelection={!!selected} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
       </Svg>
       <Animated.View pointerEvents="box-none" style={[atlas.world, { width: worldSize, height: worldSize }, world]}>
-        <Svg pointerEvents="none" width={worldSize} height={worldSize} style={StyleSheet.absoluteFill}>
-          {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} scale={scale} selected={selected === edge.id} connected={edge.sourceId === selected || edge.targetId === selected} hasSelection={!!selected} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
-        </Svg>
         {edges.map((edge) => <EdgeLabel key={edge.id} edge={edge} graph={graph} positions={positions} scale={scale} selected={selected === edge.id} />)}
         {ids.map((id) => <AtlasNode key={id} id={id} graph={graph} positions={positions} selected={id === selected} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
       </Animated.View>
     </View>
   </GestureDetector>;
 }
-function Connection({ edge, graph, positions, scale, selected, connected, hasSelection, appear, index, reduced }: { positions: SharedValue<Record<string, Position>>; scale: SharedValue<number>; graph: KnowledgeGraph; edge: Relation; selected: boolean; connected: boolean; hasSelection: boolean; appear: boolean; index: number; reduced: boolean }) {
-  const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
+function Connection({ edge, graph, positions, cameraX, cameraY, scale, selected, connected, hasSelection, appear, index, reduced }: { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; scale: SharedValue<number>; graph: KnowledgeGraph; edge: Relation; selected: boolean; connected: boolean; hasSelection: boolean; appear: boolean; index: number; reduced: boolean }) {
   const progress = useSharedValue(appear && !reduced ? 0 : 1);
   useEffect(() => { if (appear && !reduced) { progress.set(0); progress.set(withDelay(180 + index * 80, withTiming(1, { duration: 550 }))); } else if (reduced) progress.set(1); }, [progress, reduced, index, appear]);
   const theme = useThemeColors();
   const color = selected || connected ? graph.nodes[edge.sourceId].color : theme.edge;
   const animated = useAnimatedProps(() => {
     const a = positions.value[edge.sourceId], b = positions.value[edge.targetId];
-    const length = Math.hypot(b.x - a.x, b.y - a.y) + 20;
+    const ax = cameraX.value + a.x * scale.value, ay = cameraY.value + a.y * scale.value;
+    const bx = cameraX.value + b.x * scale.value, by = cameraY.value + b.y * scale.value;
+    const length = Math.hypot(bx - ax, by - ay) + 20;
     const detail = Math.min(1, Math.max(0, (scale.value - 0.12) / 0.6));
     const highlighted = selected || connected;
-    // Compensate the transformed world so overview edges remain visible in screen pixels.
+    // The viewport-sized SVG draws in screen pixels; never allocate a world-sized native surface.
     const width = selected ? 2.8 : connected ? 2.2 : 1 + detail * 0.6;
     const opacity = highlighted ? 1 : hasSelection ? 0.18 : 0.38 + detail * 0.37;
-    return { d: `M ${worldCenter + a.x} ${worldCenter + a.y} L ${worldCenter + b.x} ${worldCenter + b.y}`, strokeWidth: width / scale.value, strokeOpacity: opacity, strokeDasharray: [length, length], strokeDashoffset: length * (1 - progress.value) };
+    return { d: `M ${ax} ${ay} L ${bx} ${by}`, strokeWidth: width, strokeOpacity: opacity, strokeDasharray: [length, length], strokeDashoffset: length * (1 - progress.value) };
   });
   return <AnimatedPath animatedProps={animated} stroke={color} fill="none" strokeLinecap="round" />;
 }

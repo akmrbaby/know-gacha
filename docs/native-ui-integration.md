@@ -71,3 +71,10 @@ Web検証中にiOS専用の透明度設定APIをWebで呼んでいた問題を�
 受け入れ条件：ブランドとコピーが表示され、開封済み時にもブランドが残ること。lint・型チェック成功を確認する。この調整のiPhone/Android実機表示は未検証。
 
 ブランド・タグラインと未開封時コピーの復帰を実装。npm run lint・npm run typecheck・git diff --check成功。今回の変更ではWeb画像の取り直し・実機検証は行っていない。
+
+## PR作成時の同期・確認
+最新develop（#15の#7マージを含む）を取り込み、目次は#7の#12・#13・#14への移管記録と#9双方を保持した。GraphCanvasのviewportサイズのSVG描画修正をテーマ対応と統合。ブラウザ検証の関係選択を、#9の行形式の詳細へ合わせた。
+
+同期後にlint・型チェック・既存4テストファイルが成功。`tests/browser/map-edges.cjs`もChromiumで成功し、SVGのサイズ制限、ドラッグ／パン／フォーカス時の線とノード位置、ノード／関係の強調と解除を確認した。実行例：`MAP_PLAYWRIGHT_MODULE=/path/to/playwright MAP_TEST_URL=http://127.0.0.1:18765 node tests/browser/map-edges.cjs`（先にExpo Webを起動）。
+
+ユーザーのiPhone確認では「nativeっぽくはなりました」というフィードバックを受領。端末・OS・実行形態は未記録で、詳細な操作感やガラス・触覚の検証完了とは扱わない。画面構成は#8で変更する方針を確認した。
