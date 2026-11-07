@@ -32,8 +32,12 @@ export default function Gacha() {
   function finish() { setReveal(value => value ? { ...value, phase: 'result' } : null); }
   return <SafeAreaView style={[gacha.screen, { backgroundColor: colors.background }]}>
     <ScrollView contentContainerStyle={gacha.content}>
+      <View style={gacha.brand}>
+        <NativeText variant="title" accessibilityRole="header">KnowGacha<NativeText variant="title" style={{ color: colors.accent }}>.</NativeText></NativeText>
+        <NativeText variant="caption">脳ガチャ — 好奇心の入口</NativeText>
+      </View>
       <View style={gacha.header}>
-        <NativeText variant="title" accessibilityRole="header">今日の知識</NativeText>
+        <NativeText variant="label" accessibilityRole="header">今日の知識</NativeText>
         <NativeText variant="caption">{ready ? remaining ? '未開封' : '開封済み' : '読み込み中'}</NativeText>
       </View>
       <NativeText variant="caption">{date.replaceAll('-', ' / ')}{__DEV__ && progress.dayOffset > 0 ? ' · 開発用日付' : ''}</NativeText>
@@ -42,7 +46,7 @@ export default function Gacha() {
           {reveal.phase === 'opening' ? <><NativeText variant="label">知識をひらいています</NativeText><Capsule opening onFinish={finish} /><Action title="演出をスキップ" secondary onPress={finish} /></>
             : <><Specimen id={reveal.id} /><Action title="Mapで見る" onPress={() => { const id = reveal.id; setReveal(null); router.navigate({ pathname: '/graph', params: { focus: id, fresh: String(Date.now()) } }); }} /><NavigationRow title="解説を読む" onPress={() => read(reveal.id)} /><NavigationRow title="今日の知識へ戻る" onPress={() => setReveal(null)} /></>}
         </View> : <View style={gacha.section}>
-          {remaining ? <><Capsule /><NativeText>1日1回、新しい言葉との出会いを。</NativeText><Action title="ガチャを回す" loading={busy} onPress={() => { void draw(); }} /></>
+          {remaining ? <><NativeText variant="title">まだ知らない、自分に出会う。</NativeText><Capsule /><NativeText>1日1回、新しい言葉との出会いを。</NativeText><Action title="ガチャを回す" loading={busy} onPress={() => { void draw(); }} /></>
             : <><NativeText variant="label">{exhausted ? 'すべての知識と出会いました' : '今日の知識を、もう少し深く'}</NativeText><NativeText>{exhausted ? '試作の教材はすべて開封済みです。Mapからつながりをたどれます。' : '次のガチャは明日。出会った知識はいつでも読み返せます。'}</NativeText>{today && <NavigationRow title="今日の知識を読み返す" onPress={() => read(today.keywordId)} />}<Action title="Mapをひらく" onPress={() => router.navigate('/graph')} /></>}
           {error && <NativeText accessibilityRole="alert" selectable>{error}</NativeText>}
           <NativeText variant="caption">現地日付の翌日に回復 · 再閲覧は回数不要</NativeText>
@@ -63,6 +67,7 @@ export default function Gacha() {
 }
 const gacha = StyleSheet.create({
   screen: { flex: 1 },
+  brand: { gap: spacing.xs, paddingVertical: spacing.sm },
   content: { padding: spacing.md, gap: spacing.md, maxWidth: 680, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   section: { gap: spacing.md, paddingVertical: spacing.sm },
