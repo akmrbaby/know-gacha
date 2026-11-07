@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures, useTapGesture } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDecay, withDelay, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
+import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import { baseGraph } from '../knowledge/base';
 import type { GraphRelation as Relation, KnowledgeGraph, Position } from '../knowledge/model';
@@ -24,6 +24,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const worldCenter = worldSize / 2;
   const reduced = useReducedMotion();
   const { positions, drag, wake } = useGraphLayout(graph, { ids, edges }, dynamic, reduced !== false, measurement);
+  const touching = useSharedValue(false);
   const grabbed = useSharedValue('');
   const offset = useSharedValue({ x: 0, y: 0 });
   const manipulated = useSharedValue(false);
@@ -35,9 +36,14 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
 
   function move(camera: Camera) {
     const duration = reduced === false ? 480 : 0;
-    x.set(withTiming(camera.x, { duration }));
-    y.set(withTiming(camera.y, { duration }));
-    scale.set(withTiming(camera.scale, { duration }));
+    scheduleOnUI(() => {
+      'worklet';
+      // A request queued on JS must not restart motion after a finger interrupted it.
+      if (touching.value) return;
+      x.set(withTiming(camera.x, { duration }));
+      y.set(withTiming(camera.y, { duration }));
+      scale.set(withTiming(camera.scale, { duration }));
+    });
   }
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -60,6 +66,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const pan = usePanGesture({
     minDistance: 5, averageTouches: true,
     onBegin: (event) => {
+      touching.set(true);
       cancelAnimation(x); cancelAnimation(y); cancelAnimation(scale);
       manipulated.set(false); grabbed.set('');
       if (event.numberOfPointers === 1) rebasePan.set(false);
@@ -94,7 +101,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       x.set(withDecay({ velocity: event.velocityX, clamp: [-2500, 2500] }));
       y.set(withDecay({ velocity: event.velocityY, clamp: [-2500, 2500] }));
     },
-    onFinalize: releaseDrag,
+    onFinalize: () => { touching.set(false); releaseDrag(); },
   });
   const pinch = usePinchGesture({
     onActivate: (event) => {
