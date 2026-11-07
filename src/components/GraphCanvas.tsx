@@ -156,7 +156,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       </Svg>
       <Animated.View pointerEvents="box-none" style={[atlas.world, { width: worldSize, height: worldSize }, world]}>
         <Svg pointerEvents="none" width={worldSize} height={worldSize} style={StyleSheet.absoluteFill}>
-          {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} selected={selected === edge.id} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
+          {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} scale={scale} selected={selected === edge.id} connected={edge.sourceId === selected || edge.targetId === selected} hasSelection={!!selected} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
         </Svg>
         {edges.map((edge) => <EdgeLabel key={edge.id} edge={edge} graph={graph} positions={positions} scale={scale} selected={selected === edge.id} />)}
         {ids.map((id) => <AtlasNode key={id} id={id} graph={graph} positions={positions} selected={id === selected} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
@@ -164,17 +164,22 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     </View>
   </GestureDetector>;
 }
-function Connection({ edge, graph, positions, selected, appear, index, reduced }: { positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; edge: Relation; selected: boolean; appear: boolean; index: number; reduced: boolean }) {
+function Connection({ edge, graph, positions, scale, selected, connected, hasSelection, appear, index, reduced }: { positions: SharedValue<Record<string, Position>>; scale: SharedValue<number>; graph: KnowledgeGraph; edge: Relation; selected: boolean; connected: boolean; hasSelection: boolean; appear: boolean; index: number; reduced: boolean }) {
   const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
   const progress = useSharedValue(appear && !reduced ? 0 : 1);
   useEffect(() => { if (appear && !reduced) { progress.set(0); progress.set(withDelay(180 + index * 80, withTiming(1, { duration: 550 }))); } else if (reduced) progress.set(1); }, [progress, reduced, index, appear]);
+  const color = selected || connected ? graph.nodes[edge.sourceId].color : '#587565';
   const animated = useAnimatedProps(() => {
     const a = positions.value[edge.sourceId], b = positions.value[edge.targetId];
     const length = Math.hypot(b.x - a.x, b.y - a.y) + 20;
-    return { d: `M ${worldCenter + a.x} ${worldCenter + a.y} L ${worldCenter + b.x} ${worldCenter + b.y}`, strokeDasharray: [length, length], strokeDashoffset: length * (1 - progress.value) };
+    const detail = Math.min(1, Math.max(0, (scale.value - 0.12) / 0.6));
+    const highlighted = selected || connected;
+    // Compensate the transformed world so overview edges remain visible in screen pixels.
+    const width = selected ? 2.8 : connected ? 2.2 : 1 + detail * 0.6;
+    const opacity = highlighted ? 1 : hasSelection ? 0.18 : 0.38 + detail * 0.37;
+    return { d: `M ${worldCenter + a.x} ${worldCenter + a.y} L ${worldCenter + b.x} ${worldCenter + b.y}`, strokeWidth: width / scale.value, strokeOpacity: opacity, strokeDasharray: [length, length], strokeDashoffset: length * (1 - progress.value) };
   });
-  const color = graph.nodes[edge.sourceId].color;
-  return <AnimatedPath animatedProps={animated} stroke={selected ? color : '#A8BBB0'} strokeWidth={selected ? 3 : 1.5} fill="none" strokeLinecap="round" />;
+  return <AnimatedPath animatedProps={animated} stroke={color} fill="none" strokeLinecap="round" />;
 }
 function AtlasNode({ id, graph, positions, selected, scale, appear, reduced, onSelect }: { positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
