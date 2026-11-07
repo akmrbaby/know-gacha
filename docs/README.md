@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [native-ui-foundation.md](native-ui-foundation.md) | #9 UI基盤・並行開発の境界 | テーマ・共通操作・確認画面を実装、Web検証済み、実機未検証 |
 | [ios-ci.md](ios-ci.md) | iOS内部配布・GitHub Actionsの設定と初回準備 | 設定実装済み・クラウドと実機は未検証 |
 | [proposal.md](proposal.md) | アプリ全体の構想・長期候補 | 企画案。SwiftUI等の技術想定より現行のExpo環境を優先 |
 | [ux-design-v0.3.md](ux-design-v0.3.md) | Gachaと全画面Mapへの再設計 | 実装済み・自動検証済み、実機未検証。新しい付与ルールは保留 |
