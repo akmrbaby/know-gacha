@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+      <Text>KnowGacha：クラウドプレビュー確認用 PoC 01</Text>
       <StatusBar style="auto" />
     </View>
   );

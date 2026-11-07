@@ -1,13 +1,17 @@
 {
   "expo": {
-    "name": "tmp",
-    "slug": "tmp",
+    "name": "KnowGacha",
+    "slug": "know-gacha",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
+      "bundleIdentifier": "com.akmrbaby.knowgacha",
       "supportsTablet": true
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
     },
     "android": {
       "adaptiveIcon": {
