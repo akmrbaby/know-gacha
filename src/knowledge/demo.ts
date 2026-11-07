@@ -29,7 +29,6 @@ const extraRelations = [
   relation('ccd', 'light', 'detects', '記録する光をとらえる', 'CCDは光を電子的にとらえる撮像用の半導体回路です。', [sources.optics]),
   relation('photography', 'light', 'records', '像として記録する', '写真の電子的な記録では、CCDなどの撮像素子が光をとらえます。', [sources.optics]),
   relation('photography', 'ccd', 'uses', '電子的な記録手段の一つ', 'CCDは写真を電子的に記録する技術の一つです。', [sources.optics]),
-  relation('surrealism', 'photography', 'medium', '写真作品も含む', 'MoMAはシュルレアリスムの作品としてマン・レイによるアンドレ・ブルトンの写真を紹介しています。写真全体がこの運動に属するという意味ではありません。', [sources.surrealism]),
   relation('dada', 'collage', 'method', '表現方法の一つ', 'MoMAはダダの表現方法としてコラージュを紹介しています。', [sources.dada, sources.collage]),
   relation('dada', 'photography', 'method', '写真の断片も用いる', 'ダダの表現には写真の断片を組み合わせるフォトモンタージュがあります。', [sources.dada]),
   relation('user-research', 'participant-observation', 'method', '現場での観察を用いる', 'ユーザーリサーチにも日常の現場で活動を観察する方法があります。参与の度合いは調査によって異なり、両者を同一視する線ではありません。', [sources.observation]),

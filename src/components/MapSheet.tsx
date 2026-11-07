@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { baseGraph } from '../knowledge/base';
 import type { GraphRelation, KnowledgeGraph } from '../knowledge/model';
 import { spacing } from '../theme';
+import { findKeyword } from '../data/keywords';
 import { AppSheet } from './native-ui/AppSheet';
 import { NavigationRow } from './native-ui/NavigationRow';
 import { NativeText } from './native-ui/NativeText';
@@ -16,6 +17,7 @@ export function MapSheet({ selected, onSelect, onClose, graph = baseGraph, edges
   const insets = useSafeAreaInsets();
   const edge = edges.find(item => item.id === selected), node = graph.nodes[selected];
   const acquired = acquiredIds.includes(selected);
+  const word = acquired && !demo ? findKeyword(selected) : undefined;
   const reference = edge?.evidence ?? node?.evidence ?? [];
   const connected = edges.filter(item => item.sourceId === selected || item.targetId === selected);
   const name = (id: string) => graph.nodes[id]?.name ?? '';
@@ -24,7 +26,12 @@ export function MapSheet({ selected, onSelect, onClose, graph = baseGraph, edges
       <NativeText variant="caption">{edge ? 'つながりの理由' : acquired ? `${node?.category} · 取得済み` : '未取得の周辺概念'}</NativeText>
       {edge && <NativeText variant="label">{edge.label}</NativeText>}
       <NativeText selectable>{edge?.explanation ?? node?.summary}</NativeText>
-      {acquired && !demo && <Action title="解説を読む" onPress={() => { onClose(); router.push({ pathname: '/word/[id]', params: { id: selected } }); }} />}
+      {word && <>
+        <NativeText variant="caption">引き上げて全文を読む</NativeText>
+        <NativeText selectable>{word.summary}</NativeText>
+        {word.sections.map(section => <View key={section.title} style={sheet.references}><NativeText variant="label" accessibilityRole="header">{section.title}</NativeText><NativeText selectable>{section.body}</NativeText></View>)}
+        <Action title="言葉のノートで読む" onPress={() => { onClose(); router.push({ pathname: '/word/[id]', params: { id: selected } }); }} />
+      </>}
       {(edge || connected.length > 0) && <View>
         <NativeText variant="label" accessibilityRole="header">{edge ? 'つながっている知識' : 'この知識のつながり'}</NativeText>
         {edge ? [edge.sourceId, edge.targetId].map(id => <NavigationRow key={id} title={name(id)} onPress={() => onSelect(id)} />)
