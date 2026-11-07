@@ -1,10 +1,12 @@
-import { positions, relations } from '../data/graph';
+import { baseGraph } from '../knowledge/base';
+import type { KnowledgeGraph } from '../knowledge/model';
 export type Camera = { x: number; y: number; scale: number };
-export const MIN_SCALE = 0.25;
+export const MIN_SCALE = 0.02;
 export const MAX_SCALE = 2.2;
-export const WORLD_SIZE = 2400;
+export const WORLD_SIZE = 12000;
 export const WORLD_CENTER = WORLD_SIZE / 2;
-export function fitCamera(ids: string[], width: number, height: number): Camera {
+export function fitCamera(ids: string[], width: number, height: number, graph: KnowledgeGraph = baseGraph): Camera {
+  const { positions } = graph;
   if (!ids.length) return { x: width / 2, y: height / 2, scale: 1 };
   const xs = ids.map((id) => positions[id].x), ys = ids.map((id) => positions[id].y);
   const left = Math.min(...xs) - 110, right = Math.max(...xs) + 110;
@@ -19,7 +21,8 @@ export function zoomAt(camera: Camera, focalX: number, focalY: number, scale: nu
   const ratio = next / camera.scale;
   return { x: focalX - (focalX - camera.x) * ratio, y: focalY - (focalY - camera.y) * ratio, scale: next };
 }
-export function focusCamera(id: string, width: number, height: number): Camera {
+export function focusCamera(id: string, width: number, height: number, graph: KnowledgeGraph = baseGraph): Camera {
+  const { positions, relations } = graph;
   const edge = relations.find((item) => item.id === id);
   const p = edge ? { x: (positions[edge.sourceId].x + positions[edge.targetId].x) / 2, y: (positions[edge.sourceId].y + positions[edge.targetId].y) / 2 } : positions[id];
   if (!p) return fitCamera([], width, height);

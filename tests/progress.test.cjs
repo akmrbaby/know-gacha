@@ -41,7 +41,10 @@ test('restoration preserves day offset and rejects corrupt/duplicate records', (
   assert.throws(() => restoreProgress(JSON.stringify(state)));
 });
 const { keywords } = load('src/data/keywords.ts');
-const { positions, relatedConcepts, relations, visibleGraph, ownerOf } = load('src/data/graph.ts');
+const { positions, relatedConcepts, relations, ownerOf } = load('src/data/graph.ts');
+const { baseGraph } = load('src/knowledge/base.ts');
+const { graphForAcquired } = load('src/knowledge/model.ts');
+const visibleGraph = (ids) => graphForAcquired(baseGraph, ids);
 test('the atlas reveals only opened clusters, with no daily unlock for related concepts', () => {
   assert.deepEqual(visibleGraph([]), { ids: [], edges: [] });
   const one = visibleGraph([keywords[0].id]);
