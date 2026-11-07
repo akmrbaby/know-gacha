@@ -1,6 +1,6 @@
-# #7 実機評価の手順と結果
+# Map実機評価の手順と結果（#7から#14へ引き継ぎ）
 
-[設計・実装状態](map-interaction.md)。この記録の空欄は未検証を意味する。
+[設計・実装状態](map-interaction.md)。2026-11-07、ユーザーの合意により未完了の実機評価・計測を[#14](https://github.com/akmrbaby/know-gacha/issues/14)へ移管。通常Map・大量表示の実装は[#13](https://github.com/akmrbaby/know-gacha/issues/13)、文字描画は[#12](https://github.com/akmrbaby/know-gacha/issues/12)で追跡する。この記録の空欄は未検証を意味する。
 
 ## 同じ条件を用意する
 
@@ -46,7 +46,7 @@ npx eas-cli@latest build --platform ios --profile map-lab
 - `truncated` / `frameSamplesTruncated`: バッファ上限。上限ありの結果を完全な試行として扱わない。
 - `elapsedMs`: JS側の経過時間。20秒の自動停止はJSの混雑で遅れる場合がある。
 
-## 実機の結果（未実施）
+## 件数別の操作・計測結果（未取得・#14で継続）
 
 | 機種 / iOS / Hz / 省電力 / 温度・充電 | コミット / ビルドID / 実行形態 | 件数 / 動きを減らす | 操作・配置の評価 | 計測JSON |
 | --- | --- | --- | --- | --- |
