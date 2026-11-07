@@ -35,10 +35,5 @@ keywords.forEach((word, index) => {
     positions[other] = { x: x + (i === 0 ? -145 : 145), y: y + (i === 0 ? 155 : 185) };
   });
 });
-export function visibleGraph(openedIds: string[]) {
-  const edges = relations.filter((edge) => openedIds.includes(edge.ownerId));
-  const ids = new Set(edges.flatMap((edge) => [edge.sourceId, edge.targetId]));
-  return { ids: [...ids], edges };
-}
 export const conceptName = (id: string) => keywords.find((word) => word.id === id)?.name ?? relatedConcepts.find((word) => word.id === id)?.name ?? '';
 export function ownerOf(id: string) { return keywords.some((word) => word.id === id) ? id : relations.find((edge) => edge.sourceId === id || edge.targetId === id)?.ownerId; }

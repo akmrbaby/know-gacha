@@ -5,7 +5,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { GraphCanvas, type CameraRequest } from '../../components/GraphCanvas';
 import { MapSheet } from '../../components/MapSheet';
 import { Action, colors, styles } from '../../components/ui';
-import { conceptName, visibleGraph } from '../../data/graph';
+import { conceptName } from '../../data/graph';
+import { baseGraph } from '../../knowledge/base';
+import { graphForAcquired } from '../../knowledge/model';
 import { findKeyword } from '../../data/keywords';
 import { useProgress } from '../../state/ProgressProvider';
 const sessionStarted = Date.now();
@@ -13,7 +15,7 @@ const appeared = new Set<string>();
 export default function GraphScreen() {
   const { progress, ready, error } = useProgress();
   const { focus, fresh } = useLocalSearchParams<{ focus?: string; fresh?: string }>();
-  const graph = visibleGraph(progress.openings.map((item) => item.keywordId));
+  const graph = graphForAcquired(baseGraph, progress.openings.map((item) => item.keywordId));
   const [size, setSize] = useState({ width: 390, height: 700 });
   const [selected, setSelected] = useState('');
   const [list, setList] = useState(false);
@@ -58,12 +60,12 @@ export default function GraphScreen() {
         {(['out', 'in', 'fit'] as const).map((kind) => <Pressable key={kind} accessibilityRole="button" accessibilityLabel={kind === 'in' ? '地図を拡大' : kind === 'out' ? '地図を縮小' : '地図全体を表示'} onPress={() => setRequest({ kind, token: Date.now() })} style={map.pill}><Text style={map.pillText}>{kind === 'in' ? '＋' : kind === 'out' ? '−' : '↗ 全体'}</Text></Pressable>)}
       </View>
     </View>}
-    {!!validSelected && <MapSheet selected={validSelected} height={size.height} onSelect={choose} onClose={() => setSelected('')} />}
+    {!!validSelected && <MapSheet edges={graph.edges} acquiredIds={progress.openings.map((item) => item.keywordId)} selected={validSelected} height={size.height} onSelect={choose} onClose={() => setSelected('')} />}
     <Modal visible={list} transparent animationType="fade" onRequestClose={() => setList(false)}>
       <SafeAreaView style={map.scrim}><View style={map.list}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20 }}><Text style={styles.heading}>出会った知識</Text><Pressable accessibilityRole="button" accessibilityLabel="一覧を閉じる" style={map.pill} onPress={() => setList(false)}><Text style={map.pillText}>×</Text></Pressable></View>
         <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 0, gap: 16 }}>
-          {graph.ids.filter((id) => findKeyword(id)).map((id) => <View key={id} style={map.listGroup}><Action title={`${conceptName(id)} · 開封済み`} onPress={() => choose(id)} />{graph.edges.filter((edge) => edge.ownerId === id).map((edge) => <View key={edge.id} style={{ gap: 8 }}><Text style={styles.small}>{conceptName(edge.sourceId)} → {conceptName(edge.targetId)}</Text><Action title={`${conceptName(edge.sourceId === id ? edge.targetId : edge.sourceId)} · 周辺語`} secondary onPress={() => choose(edge.sourceId === id ? edge.targetId : edge.sourceId)} /><Action title={`関係：${edge.label}`} secondary onPress={() => choose(edge.id)} /></View>)}</View>)}
+          {graph.ids.filter((id) => findKeyword(id)).map((id) => <View key={id} style={map.listGroup}><Action title={`${conceptName(id)} · 開封済み`} onPress={() => choose(id)} />{graph.edges.filter((edge) => edge.sourceId === id || edge.targetId === id).map((edge) => <View key={edge.id} style={{ gap: 8 }}><Text style={styles.small}>{conceptName(edge.sourceId)} → {conceptName(edge.targetId)}</Text><Action title={`${conceptName(edge.sourceId === id ? edge.targetId : edge.sourceId)} · 周辺語`} secondary onPress={() => choose(edge.sourceId === id ? edge.targetId : edge.sourceId)} /><Action title={`関係：${edge.label}`} secondary onPress={() => choose(edge.id)} /></View>)}</View>)}
           <Text style={styles.small}>周辺語・関係は試作用原稿です。配置の距離は意味の近さを表しません。</Text>
         </ScrollView>
       </View></SafeAreaView>
