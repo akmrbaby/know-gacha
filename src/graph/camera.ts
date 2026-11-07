@@ -1,4 +1,4 @@
-import { positions } from '../data/graph';
+import { positions, relations } from '../data/graph';
 export type Camera = { x: number; y: number; scale: number };
 export const MIN_SCALE = 0.25;
 export const MAX_SCALE = 2.2;
@@ -20,7 +20,9 @@ export function zoomAt(camera: Camera, focalX: number, focalY: number, scale: nu
   return { x: focalX - (focalX - camera.x) * ratio, y: focalY - (focalY - camera.y) * ratio, scale: next };
 }
 export function focusCamera(id: string, width: number, height: number): Camera {
-  const p = positions[id];
+  const edge = relations.find((item) => item.id === id);
+  const p = edge ? { x: (positions[edge.sourceId].x + positions[edge.targetId].x) / 2, y: (positions[edge.sourceId].y + positions[edge.targetId].y) / 2 } : positions[id];
+  if (!p) return fitCamera([], width, height);
   const scale = Math.min(1.2, (width - 48) / 250);
-  return { x: width / 2 - p.x * scale, y: height * 0.32 - p.y * scale, scale };
+  return { x: width / 2 - p.x * scale, y: (Math.max(0, height - Math.min(265, height * 0.4)) + 100) / 2 - p.y * scale, scale };
 }

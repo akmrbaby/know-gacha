@@ -1,14 +1,15 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GraphCanvas, type CameraRequest } from '../../components/GraphCanvas';
 import { MapSheet } from '../../components/MapSheet';
 import { Action, colors, styles } from '../../components/ui';
-import { conceptName, ownerOf, relations, visibleGraph } from '../../data/graph';
+import { conceptName, visibleGraph } from '../../data/graph';
 import { findKeyword } from '../../data/keywords';
 import { useProgress } from '../../state/ProgressProvider';
 const sessionStarted = Date.now();
+const appeared = new Set<string>();
 export default function GraphScreen() {
   const { progress, ready, error } = useProgress();
   const { focus, fresh } = useLocalSearchParams<{ focus?: string; fresh?: string }>();
@@ -16,17 +17,19 @@ export default function GraphScreen() {
   const [size, setSize] = useState({ width: 390, height: 700 });
   const [selected, setSelected] = useState('');
   const [list, setList] = useState(false);
+  const [active, setActive] = useState(false);
+  useFocusEffect(useCallback(() => { setActive(true); return () => setActive(false); }, []));
   const [request, setRequest] = useState<CameraRequest | null>(null);
   const consumed = useRef('');
   const insets = useSafeAreaInsets();
   const latest = progress.openings.at(-1);
-  const newOwner = latest && Date.parse(latest.openedAt) >= sessionStarted ? latest.keywordId : undefined;
+  const newOwner = active && latest && !appeared.has(latest.openedAt) && Date.parse(latest.openedAt) >= sessionStarted ? latest.keywordId : undefined;
   const requested = typeof focus === 'string' ? focus : '';
   const requestKey = `${requested}:${fresh ?? ''}`;
   function choose(id: string) {
     setList(false);
     setSelected(id);
-    if (id) setRequest({ id: relations.find((edge) => edge.id === id)?.ownerId ?? id, kind: 'focus', token: Date.now() });
+    if (id) setRequest({ id, kind: 'focus', token: 0 });
   }
   useEffect(() => {
     if (!ready || !requested || consumed.current === requestKey || !(graph.ids.includes(requested) || graph.edges.some((edge) => edge.id === requested))) return;
@@ -36,6 +39,11 @@ export default function GraphScreen() {
     // Ordinary tab changes and camera interactions preserve the viewport.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, requestKey, graph.ids.join('|')]);
+  useEffect(() => {
+    if (!newOwner || !latest) return;
+    const timer = setTimeout(() => appeared.add(latest.openedAt), 1800);
+    return () => clearTimeout(timer);
+  }, [newOwner, latest]);
   const validSelected = graph.ids.includes(selected) || graph.edges.some((edge) => edge.id === selected) ? selected : '';
   return <View style={map.screen} onLayout={(event) => setSize(event.nativeEvent.layout)}>
     {ready && graph.ids.length > 0 && <GraphCanvas ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={validSelected} request={request} newOwner={newOwner} onSelect={choose} />}

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures, useTapGesture } from 'react-native-gesture-handler';
-import Animated, { cancelAnimation, interpolate, useAnimatedProps, useAnimatedStyle, useSharedValue, withDecay, withDelay, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
+import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useSharedValue, withDecay, withDelay, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import { conceptName, ownerOf, positions, specimens, type Relation } from '../data/graph';
@@ -22,52 +22,55 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const initial = fitCamera(ids, width, height);
   const x = useSharedValue(initial.x), y = useSharedValue(initial.y), scale = useSharedValue(initial.scale);
   const pinching = useSharedValue(false);
+  const rebasePan = useSharedValue(false);
   const lastFocal = useSharedValue({ x: 0, y: 0 });
   const nodeHits = ids.map((id) => ({ id, ...positions[id] }));
   const lineHits = edges.map((edge) => ({ id: edge.id, a: positions[edge.sourceId], b: positions[edge.targetId] }));
   function move(camera: Camera) {
     const duration = reduced === false ? 480 : 0;
-    x.value = withTiming(camera.x, { duration });
-    y.value = withTiming(camera.y, { duration });
-    scale.value = withTiming(camera.scale, { duration });
+    x.set(withTiming(camera.x, { duration }));
+    y.set(withTiming(camera.y, { duration }));
+    scale.set(withTiming(camera.scale, { duration }));
   }
   useEffect(() => {
     if (!request || request.kind === 'fit') move(fitCamera(ids, width, height));
-    else if (request.kind === 'focus' && request.id && positions[request.id]) move(focusCamera(request.id, width, height));
+    else if (request.kind === 'focus' && request.id) move(focusCamera(request.id, width, height));
     else if (request.kind === 'in' || request.kind === 'out') move(zoomAt({ x: x.value, y: y.value, scale: scale.value }, width / 2, height / 2, scale.value * (request.kind === 'in' ? 1.25 : 0.8)));
     // A camera request is an explicit event. Ordinary selection/state renders must not reset the viewport.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request, width, height, ids.join('|')]);
+  }, [request, width, height]);
 
   const pan = usePanGesture({
     minDistance: 5, averageTouches: true,
     onBegin: () => { cancelAnimation(x); cancelAnimation(y); cancelAnimation(scale); },
     onUpdate: (event) => {
-      if (pinching.value || event.numberOfPointers > 1) return;
-      x.value += event.changeX;
-      y.value += event.changeY;
+      if (pinching.value || event.numberOfPointers > 1) { rebasePan.set(true); return; }
+      if (rebasePan.value) { rebasePan.set(false); return; }
+      x.set(x.value + event.changeX);
+      y.set(y.value + event.changeY);
     },
     onDeactivate: (event) => {
-      if (event.canceled || pinching.value || reduced !== false) return;
-      x.value = withDecay({ velocity: event.velocityX, clamp: [-2500, 2500] });
-      y.value = withDecay({ velocity: event.velocityY, clamp: [-2500, 2500] });
+      if (event.canceled || pinching.value || rebasePan.value || reduced !== false) return;
+      x.set(withDecay({ velocity: event.velocityX, clamp: [-2500, 2500] }));
+      y.set(withDecay({ velocity: event.velocityY, clamp: [-2500, 2500] }));
     },
   });
   const pinch = usePinchGesture({
     onActivate: (event) => {
       cancelAnimation(x); cancelAnimation(y); cancelAnimation(scale);
-      pinching.value = true;
-      lastFocal.value = { x: event.focalX, y: event.focalY };
+      pinching.set(true);
+      rebasePan.set(true);
+      lastFocal.set({ x: event.focalX, y: event.focalY });
     },
     onUpdate: (event) => {
       const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale.value * event.scaleChange));
       const ratio = nextScale / scale.value;
-      x.value = event.focalX - (lastFocal.value.x - x.value) * ratio;
-      y.value = event.focalY - (lastFocal.value.y - y.value) * ratio;
-      scale.value = nextScale;
-      lastFocal.value = { x: event.focalX, y: event.focalY };
+      x.set(event.focalX - (lastFocal.value.x - x.value) * ratio);
+      y.set(event.focalY - (lastFocal.value.y - y.value) * ratio);
+      scale.set(nextScale);
+      lastFocal.set({ x: event.focalX, y: event.focalY });
     },
-    onFinalize: () => { pinching.value = false; },
+    onFinalize: () => { pinching.set(false); },
   });
   const tap = useTapGesture({
     maxDistance: 8,
@@ -113,7 +116,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
 }
 function Connection({ edge, selected, appear, index, reduced }: { edge: Relation; selected: boolean; appear: boolean; index: number; reduced: boolean }) {
   const progress = useSharedValue(appear && !reduced ? 0 : 1);
-  useEffect(() => { progress.value = reduced ? 1 : withDelay(180 + index * 80, withTiming(1, { duration: 550 })); }, [progress, reduced, index]);
+  useEffect(() => { if (appear && !reduced) { progress.set(0); progress.set(withDelay(180 + index * 80, withTiming(1, { duration: 550 }))); } else if (reduced) progress.set(1); }, [progress, reduced, index, appear]);
   const a = positions[edge.sourceId], b = positions[edge.targetId];
   const length = Math.hypot(b.x - a.x, b.y - a.y) + 20;
   const animated = useAnimatedProps(() => ({ strokeDashoffset: length * (1 - progress.value) }));
@@ -123,27 +126,37 @@ function Connection({ edge, selected, appear, index, reduced }: { edge: Relation
 function AtlasNode({ id, selected, scale, appear, reduced, onSelect }: { id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const main = findKeyword(id), look = specimens[ownerOf(id)!], p = positions[id];
   const emergence = useSharedValue(appear && !reduced ? 0 : 1);
-  useEffect(() => { emergence.value = reduced ? 1 : withSpring(1, { damping: 18, stiffness: 150 }); }, [emergence, reduced]);
+  useEffect(() => { if (appear && !reduced) { emergence.set(0); emergence.set(withSpring(1, { damping: 18, stiffness: 150 })); } else if (reduced) emergence.set(1); }, [emergence, reduced, appear]);
   const node = useAnimatedStyle(() => ({ opacity: emergence.value, transform: [{ scale: Math.min(2.1, 1 / scale.value) * emergence.value }] }));
-  const label = useAnimatedStyle(() => ({ opacity: main ? 1 : interpolate(scale.value, [0.45, 0.8], [0, 1], 'clamp') }));
-  return <Animated.View style={[atlas.nodeAnchor, { left: WORLD_CENTER + p.x - 90, top: WORLD_CENTER + p.y - 34 }, node]}>
+  const labelOpacity = useLabelOpacity(scale, !!main, 0.65, 0.5);
+  const label = useAnimatedStyle(() => ({ opacity: labelOpacity.value }));
+  return <Animated.View style={[atlas.nodeAnchor, { left: WORLD_CENTER + p.x - 90, top: WORLD_CENTER + p.y - 32 }, node]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`${conceptName(id)}、${main ? '開封済み教材' : '周辺語'}`} accessibilityState={{ selected }} onPress={() => onSelect(id)} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
-      <View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : colors.card, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }]}>
+      <View style={atlas.orbSlot}><View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : colors.card, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }]}>
         {main && <Text accessible={false} style={{ color: '#FFFDF5', fontSize: 30 }}>{look.mark}</Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}
-      </View>
+      </View></View>
       <Animated.View style={[atlas.label, label]}><Text style={{ fontSize: main ? 15 : 12, lineHeight: main ? 22 : 19, fontWeight: main ? '700' : '500', color: colors.ink, textAlign: 'center' }}>{conceptName(id)}</Text></Animated.View>
     </Pressable>
   </Animated.View>;
 }
 function EdgeLabel({ edge, scale, selected }: { edge: Relation; scale: SharedValue<number>; selected: boolean }) {
   const a = positions[edge.sourceId], b = positions[edge.targetId];
-  const style = useAnimatedStyle(() => ({ opacity: selected ? 1 : interpolate(scale.value, [0.8, 1.2], [0, 1], 'clamp') }));
+  const opacity = useLabelOpacity(scale, selected, 1.1, 0.9);
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
   return <Animated.View pointerEvents="none" style={[atlas.edgeLabel, { left: WORLD_CENTER + (a.x + b.x) / 2 - 65, top: WORLD_CENTER + (a.y + b.y) / 2 - 12 }, style]}><Text style={{ color: colors.muted, fontSize: 10, lineHeight: 16, textAlign: 'center' }}>{edge.label}</Text></Animated.View>;
 }
+// Separate show/hide thresholds keep labels stable near a zoom boundary.
+function useLabelOpacity(scale: SharedValue<number>, always: boolean, show: number, hide: number) {
+  const opacity = useSharedValue(always ? 1 : 0);
+  useAnimatedReaction(() => always || scale.value >= show ? 1 : scale.value <= hide ? 0 : -1,
+    (next) => { if (next !== -1) opacity.set(withTiming(next, { duration: 120 })); }, [always, show, hide]);
+  return opacity;
+}
 const atlas = StyleSheet.create({
+  orbSlot: { height: 64, justifyContent: 'center', alignItems: 'center' },
   world: { position: 'absolute', width: WORLD_SIZE, height: WORLD_SIZE, left: 0, top: 0, transformOrigin: 'top left' },
-  nodeAnchor: { position: 'absolute', width: 180, alignItems: 'center' },
+  nodeAnchor: { position: 'absolute', width: 180, alignItems: 'center', transformOrigin: '90px 32px' },
   orb: { alignItems: 'center', justifyContent: 'center' },
   label: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, backgroundColor: '#FAF9F0', maxWidth: 180 },
   edgeLabel: { position: 'absolute', width: 130, padding: 3, backgroundColor: '#FAF9F0', borderRadius: 8 },

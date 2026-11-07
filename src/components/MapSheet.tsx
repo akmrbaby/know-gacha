@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { cancelAnimation, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { Link, router } from 'expo-router';
 import { conceptName, relatedConcepts, relations } from '../data/graph';
@@ -15,27 +15,27 @@ export function MapSheet({ selected, height, onSelect, onClose }: { selected: st
   const edge = relations.find((item) => item.id === selected), word = findKeyword(selected), related = relatedConcepts.find((item) => item.id === selected);
   const reference = related ?? (edge ? relatedConcepts.find((item) => item.id === edge.sourceId || item.id === edge.targetId) : undefined);
   const connected = relations.filter((item) => item.sourceId === selected || item.targetId === selected);
-  useEffect(() => { offset.value = withTiming(collapsed, { duration: reduced === false ? 320 : 0 }); }, [selected, collapsed, offset, reduced]);
+  useEffect(() => { offset.set(withTiming(collapsed, { duration: reduced === false ? 320 : 0 })); }, [selected, collapsed, offset, reduced]);
   const drag = usePanGesture({
-    onActivate: () => { start.value = offset.value; },
-    onUpdate: (event) => { offset.value = Math.max(0, Math.min(sheetHeight + 30, start.value + event.translationY)); },
+    onActivate: () => { cancelAnimation(offset); start.set(offset.value); },
+    onUpdate: (event) => { offset.set(Math.max(0, Math.min(sheetHeight + 30, start.value + event.translationY))); },
     onDeactivate: (event) => {
-      if (event.canceled) { offset.value = withTiming(collapsed, { duration: 150 }); return; }
+      if (event.canceled) { offset.set(withTiming(collapsed, { duration: 150 })); return; }
       if (offset.value > collapsed + peek * 0.35 || event.velocityY > 1000) {
-        offset.value = withTiming(sheetHeight + 40, { duration: reduced === false ? 200 : 0 }, () => scheduleOnRN(onClose));
-      } else { offset.value = withSpring(offset.value < collapsed * 0.6 ? 0 : collapsed, { damping: 25, stiffness: 220 }); }
+        offset.set(withTiming(sheetHeight + 40, { duration: reduced === false ? 200 : 0 }, (finished) => { if (finished) scheduleOnRN(onClose); }));
+      } else { offset.set(withSpring(offset.value < collapsed * 0.6 ? 0 : collapsed, { damping: 25, stiffness: 220 })); }
     },
   });
   const animated = useAnimatedStyle(() => ({ transform: [{ translateY: offset.value }] }));
   return <Animated.View testID="map-sheet" style={[sheet.container, { height: sheetHeight }, animated]}>
-    <GestureDetector gesture={drag}><View style={sheet.handleArea} accessible accessibilityRole="adjustable" accessibilityLabel="詳細シート。上に引くと展開、下に引くと閉じる" accessibilityActions={[{ name: 'increment', label: '展開' }, { name: 'decrement', label: '縮小' }]} onAccessibilityAction={(event) => { offset.value = withTiming(event.nativeEvent.actionName === 'increment' ? 0 : collapsed, { duration: 0 }); }}><View style={sheet.handle} /></View></GestureDetector>
+    <GestureDetector gesture={drag}><View style={sheet.handleArea} accessible accessibilityRole="adjustable" accessibilityLabel="詳細シート。上に引くと展開、下に引くと閉じる" accessibilityActions={[{ name: 'increment', label: '展開' }, { name: 'decrement', label: '縮小' }]} onAccessibilityAction={(event) => { offset.set(withTiming(event.nativeEvent.actionName === 'increment' ? 0 : collapsed, { duration: 0 })); }}><View style={sheet.handle} /></View></GestureDetector>
     <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 0, paddingBottom: 38, gap: 14 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}><Text style={styles.eyebrow}>{edge ? 'つながりの理由' : word ? `${word.category} · 開封済み` : '周辺語'}</Text><Pressable accessibilityRole="button" accessibilityLabel="詳細を閉じる" hitSlop={8} onPress={onClose} style={sheet.smallButton}><Text style={{ color: colors.ink, fontSize: 22 }}>×</Text></Pressable></View>
       <Text accessibilityRole="header" style={styles.heading}>{edge ? `${conceptName(edge.sourceId)} → ${conceptName(edge.targetId)}` : conceptName(selected)}</Text>
       {word && <Action title="解説を読む →" onPress={() => router.push({ pathname: '/word/[id]', params: { id: selected } })} />}
       {edge && <Text style={styles.small}>{edge.label}</Text>}
       <Text selectable style={styles.body}>{edge?.explanation ?? word?.introduction ?? related?.summary}</Text>
-      <Pressable accessibilityRole="button" onPress={() => { offset.value = withTiming(0, { duration: reduced === false ? 300 : 0 }); }}><Text style={[styles.small, { textDecorationLine: 'underline', paddingVertical: 8 }]}>詳しく見る ↑</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={() => { offset.set(withTiming(0, { duration: reduced === false ? 300 : 0 })); }}><Text style={[styles.small, { textDecorationLine: 'underline', paddingVertical: 8 }]}>詳しく見る ↑</Text></Pressable>
       {edge && <><Action title={conceptName(edge.sourceId)} secondary onPress={() => onSelect(edge.sourceId)} /><Action title={conceptName(edge.targetId)} secondary onPress={() => onSelect(edge.targetId)} /></>}
       {connected.map((item) => <Action key={item.id} title={`つながり：${item.label}`} secondary onPress={() => onSelect(item.id)} />)}
       {reference && <Link href={reference.sourceUrl} style={styles.small}>参考資料 ↗</Link>}
