@@ -8,6 +8,7 @@ import { baseGraph } from '../knowledge/base';
 import type { GraphRelation as Relation, KnowledgeGraph, Position } from '../knowledge/model';
 import { fitCamera, focusCamera, MAX_SCALE, MIN_SCALE, WORLD_CENTER, WORLD_SIZE, zoomAt, type Camera } from '../graph/camera';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import type { LayoutMeasurement } from '../graph/measurement';
 import { useGraphLayout } from '../hooks/useGraphLayout';
 import { colors } from './ui';
 
@@ -15,14 +16,14 @@ export type CameraRequest = { id?: string; kind: 'focus' | 'fit' | 'in' | 'out';
 type Props = {
   ids: string[]; edges: Relation[]; width: number; height: number;
   selected: string; request: CameraRequest | null; newOwner?: string;
-  onSelect: (id: string) => void; graph?: KnowledgeGraph; dynamic?: boolean;
+  onSelect: (id: string) => void; graph?: KnowledgeGraph; dynamic?: boolean; measurement?: LayoutMeasurement;
 };
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, graph = baseGraph, dynamic = false }: Props) {
+export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, graph = baseGraph, dynamic = false, measurement }: Props) {
   const worldSize = graph === baseGraph ? 2400 : WORLD_SIZE;
   const worldCenter = worldSize / 2;
   const reduced = useReducedMotion();
-  const { positions, drag, wake } = useGraphLayout(graph, { ids, edges }, dynamic, reduced !== false);
+  const { positions, drag, wake } = useGraphLayout(graph, { ids, edges }, dynamic, reduced !== false, measurement);
   const grabbed = useSharedValue('');
   const offset = useSharedValue({ x: 0, y: 0 });
   const manipulated = useSharedValue(false);

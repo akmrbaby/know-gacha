@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Capsule } from '../../components/Capsule';
 import { Specimen } from '../../components/Specimen';
 import { Action, colors, styles } from '../../components/ui';
+import { graphLabEnabled } from '../../graph/lab';
 import { availability } from '../../graph/availability';
 import { useProgress } from '../../state/ProgressProvider';
 export default function Gacha() {
@@ -36,6 +37,7 @@ export default function Gacha() {
       <Text style={[styles.small, { textAlign: 'center' }]}>1日1回 · 現地日付の翌日に回復 · 再閲覧は回数不要</Text>
     </View>}
     <View style={gacha.footer}><Pressable accessibilityRole="button" style={gacha.textButton} onPress={() => router.push('/history')}><Text style={styles.small}>開封した知識　{progress.openings.length} / 3　→</Text></Pressable><Text style={[styles.small, { fontSize: 11 }]}>PROTOTYPE · 原稿は試作用</Text></View>
+    {graphLabEnabled && !__DEV__ && ready && !reveal && <Action title="知識グラフのデモ（5〜500件）" secondary onPress={() => router.push('/graph-demo')} />}
     {__DEV__ && ready && !reveal && <View style={gacha.dev}><Text style={styles.small}>開発用</Text><Action title="知識グラフのデモ（5〜500件）" secondary onPress={() => router.push('/graph-demo')} /><Action title="翌日扱いにする" secondary disabled={busy} onPress={() => { void nextDay(); }} /><Action title="進捗を初期化する" secondary disabled={busy} onPress={() => Alert.alert('進捗を初期化しますか？', 'この端末の開封履歴と開発用日付を消去します。', [{ text: 'キャンセル', style: 'cancel' }, { text: '初期化する', style: 'destructive', onPress: () => { void reset(); } }])} /></View>}
   </GachaPage>;
 }

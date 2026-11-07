@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [map-device-evaluation.md](map-device-evaluation.md) | #7 実機比較の手順・計測の読み方・評価記録 | 手順実装済み、iPhone実機の結果は未取得 |
 | [map-interaction.md](map-interaction.md) | #7 動的配置・直接操作・段階的実機評価 | 5〜10件の動的配置・直接ドラッグを実装、Web一部検証済み、実機評価は未完了 |
 | [knowledge-graph-demo.md](knowledge-graph-demo.md) | #6 共有概念・公開範囲・件数別デモ | 実装・自動検証・Web確認済み、実機未検証 |
 | [ios-ci.md](ios-ci.md) | iOS内部配布・GitHub Actionsの設定と初回準備 | 設定実装済み・クラウドと実機は未検証 |
