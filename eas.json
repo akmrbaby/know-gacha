@@ -13,6 +13,12 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "map-lab": {
+      "extends": "preview",
+      "env": {
+        "EXPO_PUBLIC_GRAPH_LAB": "1"
+      }
     }
   },
   "submit": {
