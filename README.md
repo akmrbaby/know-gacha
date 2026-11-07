@@ -72,7 +72,7 @@ OSの明暗設定に合わせて配色が変わります。対応iOSのMap操作
 
 #9のiPhone／Android実機確認は未実施です。Web確認・ネイティブバンドル生成と、実機の操作感・触覚・ガラス確認は区別しています。[UI統合の設計・検証記録](docs/native-ui-integration.md)を参照してください。SDK 58対応のExpo Goで確認できます。既存の開発・リリースビルドを使う場合は、追加したネイティブ依存を含むビルドを作り直してください。
 
-Mapホームの設計と検証結果は [docs/map-home.md](docs/map-home.md) に記録しています。#8の実機確認は未実施です。
+Mapホームの設計と検証結果は [docs/map-home.md](docs/map-home.md) に記録しています。#8は iPhone / iOS 27.2 / Expo Goでユーザーから実機確認OKの報告を受領しています。
 
 ## 検証
 
