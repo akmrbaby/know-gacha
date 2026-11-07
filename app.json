@@ -2,6 +2,7 @@
   "expo": {
     "name": "KnowGacha",
     "slug": "know-gacha",
+    "owner": "akmrbaby",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
