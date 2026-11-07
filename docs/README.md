@@ -2,6 +2,8 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [map-device-evaluation.md](map-device-evaluation.md) | #7→#14 実機比較の手順・計測・評価記録 | iPhoneのエッジ表示は確認済み、全操作・性能比較は#14へ移管 |
+| [map-interaction.md](map-interaction.md) | #7 動的配置・直接操作の試作と移管記録 | 5〜10件の試作を区切り、文字は#12、通常Map・大量表示は#13、実機検証は#14へ移管 |
 | [knowledge-graph-demo.md](knowledge-graph-demo.md) | #6 共有概念・公開範囲・件数別デモ | 実装・自動検証・Web確認済み、実機未検証 |
 | [ios-ci.md](ios-ci.md) | iOS内部配布・GitHub Actionsの設定と初回準備 | 設定実装済み・クラウドと実機は未検証 |
 | [proposal.md](proposal.md) | アプリ全体の構想・長期候補 | 企画案。SwiftUI等の技術想定より現行のExpo環境を優先 |
