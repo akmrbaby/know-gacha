@@ -16,6 +16,14 @@ const { demoGraph, demoOrder, demoView } = load('src/knowledge/demo.ts');
 const { graphForAcquired, graphCounts, neighborhood } = load('src/knowledge/model.ts');
 const { fitCamera, WORLD_CENTER, WORLD_SIZE } = load('src/graph/camera.ts');
 const { baseGraph } = load('src/knowledge/base.ts');
+const { visibleLabels } = load('src/graph/labels.ts');
+
+test('screen label collisions preserve priority, account for measured large text, and cull offscreen labels', () => {
+  const box = (id, x, y, width = 80, height = 24) => ({ id, x, y, width, height });
+  assert.deepEqual(visibleLabels([box('selected', 30, 30), box('neighbor', 50, 40), box('other', 200, 30), box('offscreen', 500, 30)], 390, 844), { selected: true, other: true });
+  assert.deepEqual(visibleLabels([box('large-text', 30, 30, 180, 90), box('below', 30, 100), box('clear', 30, 130)], 390, 844), { 'large-text': true, clear: true });
+  assert.deepEqual(visibleLabels([box('partly-visible', -20, -10), box('outside', -200, 30)], 390, 844), { 'partly-visible': true });
+});
 
 test('normal Map joins acquired knowledge through one sourced photography concept without exposing unopened knowledge', () => {
   const first = graphForAcquired(baseGraph, ['ethnography']);

@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [map-labels.md](map-labels.md) | #12 ズームから独立した文字描画と表示優先度 | 実装・Web検証済み、iPhone 16 Pro / iOS 27.2 / Expo Goで鮮明さ・文字拡大等のユーザー確認OK |
 | [map-home.md](map-home.md) | #8 Mapホーム・開封と探索の統合 | 実装・Webの開封／関係探索／位置復元確認済み、実機未検証 |
 | [native-ui-integration.md](native-ui-integration.md) | #9 Map・開封・読書へのUI統合 | 実装・Web確認・iOS/Androidバンドル生成済み、実機未検証 |
 | [native-ui-foundation.md](native-ui-foundation.md) | #9 UI基盤・並行開発の境界 | テーマ・共通操作・確認画面を実装、Web検証済み、実機未検証 |
