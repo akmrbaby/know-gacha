@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [native-ui-integration.md](native-ui-integration.md) | #9 Map・開封・読書へのUI統合 | 実装・Web確認・iOS/Androidバンドル生成済み、実機未検証 |
 | [native-ui-foundation.md](native-ui-foundation.md) | #9 UI基盤・並行開発の境界 | テーマ・共通操作・確認画面を実装、Web検証済み、実機未検証 |
 | [map-device-evaluation.md](map-device-evaluation.md) | #7 実機比較の手順・計測の読み方・評価記録 | 手順実装済み、iPhone実機の結果は未取得 |
 | [map-interaction.md](map-interaction.md) | #7 動的配置・直接操作・段階的実機評価 | 5〜10件の動的配置・直接ドラッグを実装、Web一部検証済み、実機評価は未完了 |

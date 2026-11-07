@@ -1,8 +1,21 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router/react-navigation';
 import { StatusBar } from 'expo-status-bar';
-import { colors } from '../components/ui';
+import { useColorScheme } from 'react-native';
+import { useThemeColors } from '../theme';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { ProgressProvider } from '../state/ProgressProvider';
 export default function Layout() {
-    return <GestureHandlerRootView style={{ flex: 1 }}><ProgressProvider><StatusBar style="dark"/><Stack screenOptions={{ headerStyle: { backgroundColor: colors.paper }, headerTintColor: colors.ink, headerShadowVisible: false, contentStyle: { backgroundColor: colors.paper } }}><Stack.Screen name="(tabs)" options={{ headerShown: false }}/><Stack.Screen name="history" options={{ title: '開封履歴' }}/><Stack.Screen name="word/[id]" options={{ title: '言葉のノート' }}/></Stack></ProgressProvider></GestureHandlerRootView>;
+  const colors = useThemeColors();
+  const dark = useColorScheme() === 'dark';
+  const reduced = useReducedMotion();
+  const navigation = dark ? DarkTheme : DefaultTheme;
+  return <GestureHandlerRootView style={{ flex: 1 }}><ThemeProvider value={{ ...navigation, colors: { ...navigation.colors, background: colors.background, card: colors.surface, text: colors.text, primary: colors.accent, border: colors.separator } }}>
+    <ProgressProvider><StatusBar style={dark ? 'light' : 'dark'} /><Stack screenOptions={{ animation: reduced === false ? 'default' : 'none', headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="history" options={{ title: '開封履歴' }} />
+      <Stack.Screen name="word/[id]" options={{ title: '言葉のノート' }} />
+    </Stack></ProgressProvider>
+  </ThemeProvider></GestureHandlerRootView>;
 }

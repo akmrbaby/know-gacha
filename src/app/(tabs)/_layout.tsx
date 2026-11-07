@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
-import { colors } from '../../components/ui';
+import { AppIcon } from '../../components/native-ui/AppIcon';
+import { useThemeColors } from '../../theme';
 export default function TabLayout() {
-  return <Tabs screenOptions={{ headerShown: false, headerStyle: { backgroundColor: colors.paper }, headerTintColor: colors.ink, headerShadowVisible: false, tabBarActiveTintColor: colors.ink, tabBarInactiveTintColor: colors.muted, tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.line }, tabBarLabelStyle: { fontSize: 12 } }}>
-    <Tabs.Screen name="index" options={{ title: 'Gacha', tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>▤</Text> }} />
-    <Tabs.Screen name="graph" options={{ title: 'Map', tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>⌘</Text> }} />
+  const colors = useThemeColors();
+  return <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: colors.accent, tabBarInactiveTintColor: colors.secondaryText, tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.separator } }}>
+    <Tabs.Screen name="index" options={{ title: 'Gacha', tabBarIcon: ({ color }) => <AppIcon name="gacha" color={color} /> }} />
+    <Tabs.Screen name="graph" options={{ title: 'Map', tabBarIcon: ({ color }) => <AppIcon name="map" color={color} /> }} />
   </Tabs>;
 }

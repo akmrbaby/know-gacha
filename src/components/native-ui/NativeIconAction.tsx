@@ -16,8 +16,8 @@ export function NativeIconAction({ label, children, onPress, selected, expanded,
   return <Pressable accessibilityRole="button" accessibilityLabel={label}
     accessibilityState={{ disabled, selected, expanded }} aria-pressed={selected} aria-expanded={expanded} disabled={disabled} onPress={onPress}
     style={({ pressed }) => [styles.control, {
-      backgroundColor: colors.surface,
-      borderColor: selected ? colors.accent : colors.surface,
+      backgroundColor: selected ? colors.surface : 'transparent',
+      borderColor: selected ? colors.accent : 'transparent',
       opacity: disabled ? metrics.disabledOpacity : pressed ? metrics.pressedOpacity : 1,
     }, style]}>
     <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden>
