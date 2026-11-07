@@ -3,6 +3,7 @@
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
 | [knowledge-graph-demo.md](knowledge-graph-demo.md) | #6 共有概念・公開範囲・件数別デモ | 実装・自動検証・Web確認済み、実機未検証 |
+| [ios-ci.md](ios-ci.md) | iOS内部配布・GitHub Actionsの設定と初回準備 | 設定実装済み・クラウドと実機は未検証 |
 | [proposal.md](proposal.md) | アプリ全体の構想・長期候補 | 企画案。SwiftUI等の技術想定より現行のExpo環境を優先 |
 | [ux-design-v0.3.md](ux-design-v0.3.md) | Gachaと全画面Mapへの再設計 | 実装済み・自動検証済み、実機未検証。新しい付与ルールは保留 |
 | [ux-design-v0.2.md](ux-design-v0.2.md) | 開封演出・読書・知識グラフの設計と実装記録 | 試作実装済み・実機フィードバックをv0.3へ反映 |
