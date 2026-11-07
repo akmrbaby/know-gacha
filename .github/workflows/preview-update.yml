@@ -1,0 +1,75 @@
+name: iOS preview update
+
+on:
+  push:
+    branches: [preview]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-preview-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.ref == 'refs/heads/preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPO_NO_TELEMETRY: '1'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check Expo token
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo '::error::Add EXPO_TOKEN in repository Actions secrets.'
+            exit 1
+          fi
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx expo lint
+      - name: Check EAS project linkage
+        run: |
+          npx expo config --type public --json > /tmp/expo-config.json
+          node <<'NODE'
+          const config = require('/tmp/expo-config.json');
+          const id = config.extra?.eas?.projectId;
+          if (!id || !config.owner || config.updates?.url !== `https://u.expo.dev/${id}`) {
+            throw new Error('Link the real Expo project and owner first. See docs/preview-setup.md.');
+          }
+          NODE
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Publish iOS preview update
+        run: |
+          eas update --channel preview --platform ios --environment preview --message "PoC ${GITHUB_SHA}" --non-interactive --json > /tmp/preview-update.json
+      - name: Show update links
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const config = require('/tmp/expo-config.json');
+          const updates = JSON.parse(fs.readFileSync('/tmp/preview-update.json', 'utf8'));
+          const groups = [...new Set(updates.map(update => update.group))];
+          if (!groups.length || groups.some(group => !group)) throw new Error('No update group returned.');
+          const links = groups.map(group => `- [Published update](https://expo.dev/accounts/${encodeURIComponent(config.owner)}/projects/${encodeURIComponent(config.slug)}/updates/${group})`);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+            '## KnowGacha iOS preview',
+            `Commit: ${process.env.GITHUB_SHA}`,
+            ...links,
+            '',
+            'Open the installed KnowGacha preview app online, wait for the download, then fully close and reopen it.',
+            'These dashboard URLs show publication details; they are not Expo Go launch URLs.',
+            'The installed app must have the same runtime fingerprint and use the preview channel.',
+            ''
+          ].join('\n'));
+          NODE
