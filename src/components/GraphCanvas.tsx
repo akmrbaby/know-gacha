@@ -10,7 +10,7 @@ import { fitCamera, focusCamera, MAX_SCALE, MIN_SCALE, WORLD_CENTER, WORLD_SIZE,
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import type { LayoutMeasurement } from '../graph/measurement';
 import { useGraphLayout } from '../hooks/useGraphLayout';
-import { colors } from './ui';
+import { useThemeColors } from '../theme';
 
 export type CameraRequest = { id?: string; kind: 'focus' | 'fit' | 'in' | 'out'; token: number };
 type Props = {
@@ -20,6 +20,7 @@ type Props = {
 };
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, graph = baseGraph, dynamic = false, measurement }: Props) {
+  const theme = useThemeColors();
   const worldSize = graph === baseGraph ? 2400 : WORLD_SIZE;
   const worldCenter = worldSize / 2;
   const reduced = useReducedMotion();
@@ -151,7 +152,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   return <GestureDetector gesture={gesture}>
     <View testID="atlas-canvas" style={StyleSheet.absoluteFill}>
       <Svg pointerEvents="none" width={width} height={height} style={StyleSheet.absoluteFill}>
-        <Defs><Pattern id="atlas-dots" width="26" height="26" patternUnits="userSpaceOnUse"><Circle cx="1" cy="1" r="1" fill="#CCD5CC" opacity="0.55" /></Pattern></Defs>
+        <Defs><Pattern id="atlas-dots" width="26" height="26" patternUnits="userSpaceOnUse"><Circle cx="1" cy="1" r="1" fill={theme.dot} opacity="0.55" /></Pattern></Defs>
         <Rect width="100%" height="100%" fill="url(#atlas-dots)" />
         {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} cameraX={x} cameraY={y} scale={scale} selected={selected === edge.id} connected={edge.sourceId === selected || edge.targetId === selected} hasSelection={!!selected} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
       </Svg>
@@ -165,7 +166,8 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
 function Connection({ edge, graph, positions, cameraX, cameraY, scale, selected, connected, hasSelection, appear, index, reduced }: { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; scale: SharedValue<number>; graph: KnowledgeGraph; edge: Relation; selected: boolean; connected: boolean; hasSelection: boolean; appear: boolean; index: number; reduced: boolean }) {
   const progress = useSharedValue(appear && !reduced ? 0 : 1);
   useEffect(() => { if (appear && !reduced) { progress.set(0); progress.set(withDelay(180 + index * 80, withTiming(1, { duration: 550 }))); } else if (reduced) progress.set(1); }, [progress, reduced, index, appear]);
-  const color = selected || connected ? graph.nodes[edge.sourceId].color : '#587565';
+  const theme = useThemeColors();
+  const color = selected || connected ? graph.nodes[edge.sourceId].color : theme.edge;
   const animated = useAnimatedProps(() => {
     const a = positions.value[edge.sourceId], b = positions.value[edge.targetId];
     const ax = cameraX.value + a.x * scale.value, ay = cameraY.value + a.y * scale.value;
@@ -182,6 +184,7 @@ function Connection({ edge, graph, positions, cameraX, cameraY, scale, selected,
 }
 function AtlasNode({ id, graph, positions, selected, scale, appear, reduced, onSelect }: { positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
+  const theme = useThemeColors();
   const look = graph.nodes[id], main = look.kind === 'knowledge';
   const emergence = useSharedValue(appear && !reduced ? 0 : 1);
   useEffect(() => { if (appear && !reduced) { emergence.set(0); emergence.set(withSpring(1, { damping: 18, stiffness: 150 })); } else if (reduced) emergence.set(1); }, [emergence, reduced, appear]);
@@ -190,22 +193,23 @@ function AtlasNode({ id, graph, positions, selected, scale, appear, reduced, onS
   const label = useAnimatedStyle(() => ({ opacity: labelOpacity.value }));
   return <Animated.View style={[atlas.nodeAnchor, { left: worldCenter - 90, top: worldCenter - 32 }, node]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`${graph.nodes[id].name}、${main ? '開封済み教材' : '周辺語'}`} accessibilityState={{ selected }} onAccessibilityTap={() => onSelect(id)} accessibilityActions={[{ name: 'activate' }]} onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'activate') onSelect(id); }} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
-      <View style={atlas.orbSlot}><View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : colors.card, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }]}>
+      <View style={atlas.orbSlot}><View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }]}>
         {main && <Text accessible={false} style={{ color: '#FFFDF5', fontSize: 30 }}>{look.mark}</Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}
       </View></View>
-      <Animated.View style={[atlas.label, label]}><Text style={{ fontSize: main ? 15 : 12, lineHeight: main ? 22 : 19, fontWeight: main ? '700' : '500', color: colors.ink, textAlign: 'center' }}>{graph.nodes[id].name}</Text></Animated.View>
+      <Animated.View style={[atlas.label, { backgroundColor: theme.surface }, label]}><Text style={{ fontSize: main ? 15 : 12, lineHeight: main ? 22 : 19, fontWeight: main ? '700' : '500', color: theme.text, textAlign: 'center' }}>{graph.nodes[id].name}</Text></Animated.View>
     </Pressable>
   </Animated.View>;
 }
 function EdgeLabel({ edge, graph, positions, scale, selected }: { positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; edge: Relation; scale: SharedValue<number>; selected: boolean }) {
   const worldCenter = graph === baseGraph ? 1200 : WORLD_CENTER;
+  const theme = useThemeColors();
   const opacity = useLabelOpacity(scale, selected, 1.1, 0.9);
   const style = useAnimatedStyle(() => {
     const a = positions.value[edge.sourceId], b = positions.value[edge.targetId];
     return { opacity: opacity.value, transform: [{ translateX: (a.x + b.x) / 2 }, { translateY: (a.y + b.y) / 2 }] };
   });
-  return <Animated.View pointerEvents="none" style={[atlas.edgeLabel, { left: worldCenter - 65, top: worldCenter - 12 }, style]}><Text style={{ color: colors.muted, fontSize: 10, lineHeight: 16, textAlign: 'center' }}>{edge.label}</Text></Animated.View>;
+  return <Animated.View pointerEvents="none" style={[atlas.edgeLabel, { backgroundColor: theme.surface, left: worldCenter - 65, top: worldCenter - 12 }, style]}><Text style={{ color: theme.secondaryText, fontSize: 10, lineHeight: 16, textAlign: 'center' }}>{edge.label}</Text></Animated.View>;
 }
 // Separate show/hide thresholds keep labels stable near a zoom boundary.
 function useLabelOpacity(scale: SharedValue<number>, always: boolean, show: number, hide: number) {
@@ -219,6 +223,6 @@ const atlas = StyleSheet.create({
   world: { position: 'absolute', width: WORLD_SIZE, height: WORLD_SIZE, left: 0, top: 0, transformOrigin: 'top left' },
   nodeAnchor: { position: 'absolute', width: 180, alignItems: 'center', transformOrigin: '90px 32px' },
   orb: { alignItems: 'center', justifyContent: 'center' },
-  label: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, backgroundColor: '#FAF9F0', maxWidth: 180 },
-  edgeLabel: { position: 'absolute', width: 130, padding: 3, backgroundColor: '#FAF9F0', borderRadius: 8 },
+  label: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, maxWidth: 180 },
+  edgeLabel: { position: 'absolute', width: 130, padding: 3, borderRadius: 8 },
 });

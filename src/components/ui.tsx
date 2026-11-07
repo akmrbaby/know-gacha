@@ -1,33 +1,36 @@
-import { type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-export const colors = { paper: '#F6F2E9', ink: '#263E36', muted: '#626B61', accent: '#9B4B31', card: '#FFFCF5', line: '#DDD9CC' };
-export function Page({ children }: {
-    children: ReactNode;
-}) {
-    return <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}><ScrollView contentContainerStyle={styles.page}>{children}</ScrollView></SafeAreaView>;
+import { legacyColors, metrics, palettes, spacing, typography, useThemeColors, type ThemeColors } from '../theme';
+import { NativeAction } from './native-ui/NativeAction';
+export const colors = legacyColors;
+function makeStyles(theme: ThemeColors) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: theme.background },
+    page: { padding: spacing.md, gap: spacing.lg, width: '100%', maxWidth: 680, alignSelf: 'center', paddingBottom: spacing.xl },
+    eyebrow: { ...typography.caption, fontWeight: '600', color: theme.accent },
+    title: { ...typography.title, color: theme.text },
+    heading: { ...typography.label, color: theme.text },
+    body: { ...typography.body, lineHeight: 29, color: theme.text },
+    small: { ...typography.caption, lineHeight: 24, color: theme.secondaryText },
+    card: { backgroundColor: theme.surface, borderRadius: metrics.radius, borderCurve: 'continuous', padding: spacing.md, gap: spacing.md },
+  });
 }
-export function Action({ title, onPress, disabled = false, secondary = false }: {
-    title: string;
-    onPress: () => void;
-    disabled?: boolean;
-    secondary?: boolean;
-}) {
-    return <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.button, secondary && styles.secondary, (pressed || disabled) && { opacity: 0.55 }]}><Text style={[styles.buttonText, secondary && { color: colors.ink }]}>{title}</Text></Pressable>;
+export const styles = makeStyles(palettes.light);
+export function useUI() {
+  const theme = useThemeColors();
+  return useMemo(() => ({ theme, styles: makeStyles(theme) }), [theme]);
 }
-export function Card({ children }: {
-    children: ReactNode;
-}) { return <View style={styles.card}>{children}</View>; }
-export const styles = StyleSheet.create({
-    safe: { flex: 1, backgroundColor: colors.paper },
-    page: { padding: 24, gap: 24, width: '100%', maxWidth: 680, alignSelf: 'center', paddingBottom: 48 },
-    eyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 2, color: colors.accent },
-    title: { fontSize: 34, fontWeight: '700', color: colors.ink, lineHeight: 46 },
-    heading: { fontSize: 21, fontWeight: '700', color: colors.ink, lineHeight: 32 },
-    body: { fontSize: 17, lineHeight: 31, color: colors.ink },
-    small: { fontSize: 13, lineHeight: 23, color: colors.muted },
-    card: { backgroundColor: colors.card, borderRadius: 20, padding: 24, borderWidth: 1, borderColor: colors.line, gap: 16 },
-    button: { backgroundColor: colors.ink, paddingVertical: 17, paddingHorizontal: 18, minHeight: 54, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-    secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line },
-    buttonText: { color: colors.card, fontSize: 16, fontWeight: '600', lineHeight: 25, textAlign: 'center' },
-});
+export function Page({ children }: { children: ReactNode }) {
+  const { styles } = useUI();
+  return <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}><ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.page}>{children}</ScrollView></SafeAreaView>;
+}
+export function Action({ title, onPress, disabled = false, secondary = false, loading = false }: {
+  title: string; onPress: () => void; disabled?: boolean; secondary?: boolean; loading?: boolean;
+}) {
+  return <NativeAction title={title} onPress={onPress} disabled={disabled} loading={loading} variant={secondary ? 'secondary' : 'primary'} />;
+}
+export function Card({ children }: { children: ReactNode }) {
+  const { styles } = useUI();
+  return <View style={styles.card}>{children}</View>;
+}

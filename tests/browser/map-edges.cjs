@@ -32,7 +32,7 @@ const assert=require('node:assert/strict');
   let strokes=await canvas.locator('path').evaluateAll(nodes=>nodes.map(node=>({width:Number(node.getAttribute('stroke-width')),opacity:Number(node.getAttribute('stroke-opacity'))})));
   assert.equal(strokes.filter(s=>s.opacity===1).length,3,'only the selected knowledge node’s three relations are highlighted');
   assert.ok(strokes.filter(s=>s.opacity===1).every(s=>s.width===2.2));
-  await page.getByRole('button',{name:/^つながり：/}).first().click();await page.waitForTimeout(200);
+  await page.getByTestId('map-sheet').getByRole('button').nth(1).click();await page.waitForTimeout(200);
   strokes=await canvas.locator('path').evaluateAll(nodes=>nodes.map(node=>({width:Number(node.getAttribute('stroke-width')),opacity:Number(node.getAttribute('stroke-opacity'))})));
   assert.equal(strokes.filter(s=>s.opacity===1 && s.width===2.8).length,1,'direct edge selection highlights one relation');
   await page.getByRole('button',{name:'詳細を閉じる',exact:true}).click();

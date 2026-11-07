@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, AppState, StyleSheet, Text, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
 import { colors } from './ui';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 export function Capsule({ opening = false, onFinish }: { opening?: boolean; onFinish?: () => void }) {
@@ -12,11 +11,10 @@ export function Capsule({ opening = false, onFinish }: { opening?: boolean; onFi
     if (!opening || reduced === null) return;
     if (reduced) { finish.current?.(); return; }
     let live = true;
-    const haptic = setTimeout(() => { if (live && AppState.currentState === 'active') void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); }, 250);
     const animation = Animated.timing(motion, { toValue: 1, duration: 900, useNativeDriver: true });
     animation.start(({ finished }) => { if (finished && live) finish.current?.(); });
     const subscription = AppState.addEventListener('change', (state) => { if (state !== 'active') { live = false; animation.stop(); finish.current?.(); } });
-    return () => { live = false; clearTimeout(haptic); animation.stop(); subscription.remove(); };
+    return () => { live = false; animation.stop(); subscription.remove(); };
   }, [opening, reduced, motion]);
   return <View accessible={false} style={capsule.stage}>
     <View style={capsule.shadow} />
