@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [ios-ci.md](ios-ci.md) | iOS内部配布・GitHub Actionsの設定と初回準備 | 設定実装済み・クラウドと実機は未検証 |
 | [proposal.md](proposal.md) | アプリ全体の構想・長期候補 | 企画案。SwiftUI等の技術想定より現行のExpo環境を優先 |
 | [ux-design-v0.2.md](ux-design-v0.2.md) | 開封演出・読書・知識グラフの設計と実装記録 | 試作実装済み・iPhoneでの新機能検証待ち |
 | [../README.md](../README.md) | 現在の起動方法・機能確認・接続トラブルの対処 | 現行実装の利用手順 |
