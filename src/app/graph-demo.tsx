@@ -28,7 +28,7 @@ export default function GraphDemo() {
   const reduced = useReducedMotion();
   const measurement = useMapMeasurement(JSON.stringify({
     acquired: count, nodes: view.ids.length, relations: view.edges.length,
-    mode: count <= 10 ? 'force-prototype-svg' : 'fixed-baseline-svg',
+    mode: 'force-viewport-svg',
     platform: Platform.OS, osVersion: Platform.Version, executionEnvironment: Constants.executionEnvironment,
     development: __DEV__, appVersion: Constants.expoConfig?.version ?? null,
     nativeBuildVersion: Constants.nativeBuildVersion, reducedMotion: reduced, viewport: size,
@@ -54,11 +54,11 @@ export default function GraphDemo() {
       <View style={demo.row}><Text accessibilityRole="header" style={styles.heading}>デモ · {counts.acquired}件</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/graph')} style={demo.control}><Text style={{ color: theme.text }}>デモを終了</Text></Pressable></View>
       <Text style={styles.small}>取得知識 {counts.acquired} · 周辺概念 {counts.concepts} · 関係 {counts.relations}</Text>
       <Text style={styles.small}>{count <= 10 ? '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : `内容確認用10件＋架空の検証用${count - 10}件 · 学習内容ではありません`}</Text>
-      <Text style={styles.small}>{count <= 10 ? '動的配置の試作 · ノードをドラッグ、背景をパン／ピンチ' : '固定配置の比較デモ · 動的配置は10件の実機評価後に拡張'}</Text>
-      <Text style={styles.small}>配置の距離は意味の近さや関係の強さを表しません。 · 線表示 v2</Text>
+      <Text style={styles.small}>動的配置 · ノードをドラッグ、背景をパン／ピンチ</Text>
+      <Text style={styles.small}>縮小時の数字は近くの点の数です。拡大・選択で個別の知識へ。配置の距離は意味の近さを表しません。</Text>
       <View style={demo.row}>{demoSizes.map((value) => <Pressable key={value} accessibilityRole="button" accessibilityLabel={`${value}件のデモ`} accessibilityState={{ selected: value === count }} onPress={() => changeCount(value)} style={[demo.control, value === count && demo.active]}><Text style={{ color: theme.text }}>{value}件</Text></Pressable>)}</View>
       <View style={demo.row}>
-        <Pressable accessibilityRole="button" disabled={count >= 10} onPress={addNext} style={[demo.control, count >= 10 && { opacity: 0.4 }]}><Text style={{ color: theme.text }}>次の1件を追加</Text></Pressable>
+        <Pressable accessibilityRole="button" disabled={count >= 500} onPress={addNext} style={[demo.control, count >= 500 && { opacity: 0.4 }]}><Text style={{ color: theme.text }}>次の1件を追加</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => setList(!list)} style={demo.control}><Text style={{ color: theme.text }}>{list ? 'Mapに戻る' : '一覧'}</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => { setNearby(false); setRequest({ kind: 'fit', token: (request?.token ?? 0) + 1 }); }} style={demo.control}><Text style={{ color: theme.text }}>全体</Text></Pressable>
       </View>
@@ -70,7 +70,7 @@ export default function GraphDemo() {
       <Text numberOfLines={2} style={[styles.small, { height: 36 }]}>{measurement.recording ? '計測中 · ノード／背景ドラッグ、ピンチ、指の切り替えを試してください。' : 'UIの呼び出し間隔と配置時間を記録。機種・操作感は別途記録してください。'}</Text>
     </View>
     <View style={demo.map} onLayout={(event) => { const { width, height } = event.nativeEvent.layout; setSize({ width, height }); }}>
-      <GraphCanvas measurement={measurement.probe} dynamic={count <= 10} graph={demoGraph} ids={view.ids} edges={view.edges} width={size.width} height={size.height} selected={selected} request={request} onSelect={choose} />
+      <GraphCanvas measurement={measurement.probe} dynamic graph={demoGraph} ids={view.ids} edges={view.edges} width={size.width} height={size.height} selected={selected} request={request} onSelect={choose} />
       {!!measurement.report && <View style={demo.report}><ScrollView style={{ maxHeight: 160 }}><Text selectable testID="map-measurement-report" style={styles.small}>{measurement.report}</Text></ScrollView></View>}
       {list && <FlatList testID="demo-list" style={demo.list} contentContainerStyle={{ padding: 16 }} data={visible.ids} keyExtractor={(id) => id} renderItem={({ item: id }) => <Pressable accessibilityRole="button" onPress={() => choose(id)} style={demo.listItem}><Text style={styles.body}>{demoGraph.nodes[id].name}</Text><Text style={styles.small}>{demoGraph.nodes[id].kind === 'knowledge' ? '取得済み' : '未取得の周辺概念'} · {demoGraph.nodes[id].provenance === 'fixture' ? '架空の検証用' : '出典あり'}</Text></Pressable>} />}
       {!!selected && !list && <MapSheet demo graph={demoGraph} edges={visible.edges} acquiredIds={demoOrder.slice(0, count)} selected={selected} height={size.height} onSelect={choose} onClose={() => { setSelected(''); setNearby(false); }} />}

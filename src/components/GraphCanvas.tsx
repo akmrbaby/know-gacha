@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures, useTapGesture } from 'react-native-gesture-handler';
-import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useDerivedValue, useSharedValue, withDecay, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
+import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useDerivedValue, useSharedValue, withDecay, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
+import { lineInViewport, viewportNodes } from '../graph/viewport';
 import { visibleLabels, type LabelBox } from '../graph/labels';
 import { baseGraph } from '../knowledge/base';
 import type { GraphRelation as Relation, KnowledgeGraph, Position } from '../knowledge/model';
@@ -35,6 +36,19 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const peripheral = useZoomDetail(scale, 0.65, 0.5);
   const relations = useZoomDetail(scale, 1.1, 0.9);
   const relatedIds = useMemo(() => Object.fromEntries(edges.flatMap(edge => edge.id === selected || edge.sourceId === selected || edge.targetId === selected ? [[edge.sourceId, true], [edge.targetId, true]] : [])), [edges, selected]);
+  const [rendered, setRendered] = useState<Record<string, number>>(() => viewportNodes(ids, graph.positions, initial, width, height, {}));
+  const renderedIds = useSharedValue(Object.keys(rendered));
+  useEffect(() => {
+    function refresh() {
+      const next = viewportNodes(ids, positions.get(), { x: x.get(), y: y.get(), scale: scale.get() }, width, height, { ...relatedIds, [selected]: true });
+      setRendered(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+      renderedIds.set(Object.keys(next));
+    }
+    refresh();
+    const timer = setInterval(refresh, 120);
+    return () => clearInterval(timer);
+  }, [ids, positions, x, y, scale, width, height, relatedIds, selected, renderedIds]);
+  const renderedEdges = edges.filter(edge => rendered[edge.sourceId] && rendered[edge.targetId]);
   const labelOrder = useMemo(() => ids.map(id => {
     const main = graph.nodes[id].kind === 'knowledge', related = !!relatedIds[id] || id === selected;
     return { id, main, related, priority: id === selected ? 0 : related ? 1 : main ? 3 : 4 };
@@ -43,6 +57,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     const boxes: (LabelBox & { priority: number })[] = [], points = positions.value, sizes = labelSizes.value;
     const z = scale.value, cx = x.value, cy = y.value;
     for (const { id, main, related, priority } of labelOrder) {
+      if (z < 0.35 && !related) continue;
       if (!main && !related && (selected || !peripheral.value)) continue;
       const size = sizes[id] ?? { width: 180, height: 32 };
       boxes.push({ id, priority, x: cx + points[id].x * z - size.width / 2, y: cy + points[id].y * z + 41, ...size });
@@ -116,7 +131,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       if (dynamic && event.numberOfPointers === 1) {
         const wx = (event.x - x.value) / scale.value, wy = (event.y - y.value) / scale.value;
         let nearest = Infinity;
-        for (const id of ids) {
+        for (const id of renderedIds.value) {
           const p = positions.value[id];
           const distance = Math.hypot(wx - p.x, wy - p.y);
           if (distance < Math.max(32 * Math.min(2.1, 1 / scale.value), 26 / scale.value) && distance < nearest) {
@@ -170,7 +185,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       if (event.canceled || manipulated.value || pinching.value) return;
       const wx = (event.x - x.value) / scale.value, wy = (event.y - y.value) / scale.value;
       let closest = '', nearest = Infinity;
-      for (const id of ids) {
+      for (const id of renderedIds.value) {
         const node = { id, ...positions.value[id] };
         const distance = Math.hypot(wx - node.x, wy - node.y);
         if (distance < Math.max(48, 26 / scale.value) && distance < nearest) { closest = node.id; nearest = distance; }
@@ -193,35 +208,37 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       <Svg pointerEvents="none" width={width} height={height} style={StyleSheet.absoluteFill}>
         <Defs><Pattern id="atlas-dots" width="26" height="26" patternUnits="userSpaceOnUse"><Circle cx="1" cy="1" r="1" fill={theme.dot} opacity="0.55" /></Pattern></Defs>
         <Rect width="100%" height="100%" fill="url(#atlas-dots)" />
-        {edges.map((edge, index) => <Connection key={edge.id} edge={edge} graph={graph} positions={positions} cameraX={x} cameraY={y} scale={scale} selected={selected === edge.id} connected={edge.sourceId === selected || edge.targetId === selected} hasSelection={!!selected} appear={(newOwner === edge.sourceId || newOwner === edge.targetId)} index={index} reduced={reduced !== false} />)}
+        {(['normal', 'connected', 'selected'] as const).map(kind => <Connections key={kind} kind={kind} edges={edges} graph={graph} positions={positions} cameraX={x} cameraY={y} scale={scale} selected={selected} width={width} height={height} />)}
       </Svg>
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-        {edges.map((edge) => <EdgeLabel key={edge.id} edge={edge} positions={positions} cameraX={x} cameraY={y} scale={scale} visibility={visibility} labelSizes={labelSizes} />)}
-        {ids.map((id) => <AtlasNode key={id} id={id} graph={graph} positions={positions} selected={id === selected} visibility={visibility} labelSizes={labelSizes} cameraX={x} cameraY={y} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
+        {renderedEdges.map((edge) => <EdgeLabel key={edge.id} edge={edge} positions={positions} cameraX={x} cameraY={y} scale={scale} visibility={visibility} labelSizes={labelSizes} />)}
+        {Object.keys(rendered).filter(id => ids.includes(id)).map((id) => <AtlasNode count={rendered[id]} key={id} id={id} graph={graph} positions={positions} selected={id === selected} visibility={visibility} labelSizes={labelSizes} cameraX={x} cameraY={y} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
       </View>
     </View>
   </GestureDetector>;
 }
-function Connection({ edge, graph, positions, cameraX, cameraY, scale, selected, connected, hasSelection, appear, index, reduced }: { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; scale: SharedValue<number>; graph: KnowledgeGraph; edge: Relation; selected: boolean; connected: boolean; hasSelection: boolean; appear: boolean; index: number; reduced: boolean }) {
-  const progress = useSharedValue(appear && !reduced ? 0 : 1);
-  useEffect(() => { if (appear && !reduced) { progress.set(0); progress.set(withDelay(180 + index * 80, withTiming(1, { duration: 550 }))); } else if (reduced) progress.set(1); }, [progress, reduced, index, appear]);
+function Connections({ kind, edges, graph, positions, cameraX, cameraY, scale, selected, width, height }: { kind: 'normal' | 'connected' | 'selected'; edges: Relation[]; graph: KnowledgeGraph; positions: SharedValue<Record<string, Position>>; cameraX: SharedValue<number>; cameraY: SharedValue<number>; scale: SharedValue<number>; selected: string; width: number; height: number }) {
   const theme = useThemeColors();
-  const color = selected || connected ? graph.nodes[edge.sourceId].color : theme.edge;
   const animated = useAnimatedProps(() => {
-    const a = positions.value[edge.sourceId], b = positions.value[edge.targetId];
-    const ax = cameraX.value + a.x * scale.value, ay = cameraY.value + a.y * scale.value;
-    const bx = cameraX.value + b.x * scale.value, by = cameraY.value + b.y * scale.value;
-    const length = Math.hypot(bx - ax, by - ay) + 20;
-    const detail = Math.min(1, Math.max(0, (scale.value - 0.12) / 0.6));
-    const highlighted = selected || connected;
-    // The viewport-sized SVG draws in screen pixels; never allocate a world-sized native surface.
-    const width = selected ? 2.8 : connected ? 2.2 : 1 + detail * 0.6;
-    const opacity = highlighted ? 1 : hasSelection ? 0.18 : 0.38 + detail * 0.37;
-    return { d: `M ${ax} ${ay} L ${bx} ${by}`, strokeWidth: width, strokeOpacity: opacity, strokeDasharray: [length, length], strokeDashoffset: length * (1 - progress.value) };
+    let d = '';
+    const points = positions.value, z = scale.value, cx = cameraX.value, cy = cameraY.value;
+    for (const edge of edges) {
+      const category = edge.id === selected ? 'selected' : edge.sourceId === selected || edge.targetId === selected ? 'connected' : 'normal';
+      if (category !== kind) continue;
+      const a = points[edge.sourceId], b = points[edge.targetId];
+      const ax = cx + a.x * z, ay = cy + a.y * z, bx = cx + b.x * z, by = cy + b.y * z;
+      if (!lineInViewport(ax, ay, bx, by, width, height)) continue;
+      // Overview suppresses unselected lines; points and counts show the distribution.
+      if (kind === 'normal' && z < 0.35) continue;
+      d += `M ${ax} ${ay} L ${bx} ${by} `;
+    }
+    return { d, strokeWidth: kind === 'selected' ? 2.8 : kind === 'connected' ? 2.2 : 1 + Math.min(1, Math.max(0, (z - 0.12) / 0.6)) * 0.6, strokeOpacity: kind !== 'normal' ? 1 : selected ? 0.18 : 0.38 + Math.min(1, Math.max(0, (z - 0.12) / 0.6)) * 0.37 };
   });
-  return <AnimatedPath animatedProps={animated} stroke={color} fill="none" strokeLinecap="round" />;
+  const edge = edges.find(edge => edge.id === selected);
+  const color = graph.nodes[selected]?.color ?? (edge && graph.nodes[edge.sourceId]?.color) ?? theme.edge;
+  return <AnimatedPath animatedProps={animated} stroke={kind === 'normal' ? theme.edge : color} fill="none" strokeLinecap="round" />;
 }
-function AtlasNode({ id, graph, positions, selected, visibility, labelSizes, cameraX, cameraY, scale, appear, reduced, onSelect }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
+function AtlasNode({ count, id, graph, positions, selected, visibility, labelSizes, cameraX, cameraY, scale, appear, reduced, onSelect }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; count: number; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const theme = useThemeColors();
   const look = graph.nodes[id], main = look.kind === 'knowledge';
   const emergence = useSharedValue(appear && !reduced ? 0 : 1);
@@ -236,6 +253,7 @@ function AtlasNode({ id, graph, positions, selected, visibility, labelSizes, cam
         {main && <Animated.Text accessible={false} style={[{ color: '#FFFDF5' }, markSize]}>{look.mark}</Animated.Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}
       </Animated.View></View>
+      {count > 1 && <Text style={{ color: theme.text, backgroundColor: theme.surface, fontSize: 12 }}>{count}点</Text>}
       <Animated.View testID={`atlas-label-${id}`} pointerEvents="none" onLayout={event => { const { width, height } = event.nativeEvent.layout; labelSizes.set(previous => ({ ...previous, [id]: { width, height } })); }} style={[atlas.label, { backgroundColor: theme.surface }, label]}><Text style={{ fontSize: main ? 15 : 12, lineHeight: main ? 22 : 19, fontWeight: main ? '700' : '500', color: theme.text, textAlign: 'center' }}>{graph.nodes[id].name}</Text></Animated.View>
     </Pressable>
   </Animated.View>;
