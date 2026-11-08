@@ -4,7 +4,7 @@
 
 画面・文章・JavaScript・画像の互換性のある変更を、アプリの再インストールなしで実機へ届ける。画面や操作フロー、保存データの形式は変更しない。ネイティブ依存・権限・SDKの変更は新しいビルドで届ける。
 
-## 計画
+## 初期計画（手動配信、実装済み）
 
 - SDK 58対応のexpo-updatesを導入し、EAS CLIのupdate:configureでURL・runtimeVersion・チャンネルを設定する。
 - GitHub Actionsの「iOS Preview Update」からiOS / previewチャンネル / preview環境へ手動配信する。lint・型チェックを先に実行する。
@@ -23,14 +23,18 @@
 - `expo-updates ~58.0.21` をSDK互換の `expo install --npm` で導入した。
 - `eas-cli@27.5.0 update:configure --platform ios --environment preview --non-interactive` を実行し、既存プロジェクトのURLとiOSの `appVersion` ポリシーを生成した。既存の暗号化設定を保持した。
 - CLIが各ビルドプロファイルに同名のチャンネルを追加した。`map-lab`にも独自チャンネルが設定され、previewからの継承を上書きする。
-- `.github/workflows/ios-preview-update.yml` は手動実行のみ。入力した更新メッセージを環境変数経由で渡し、iOS / previewチャンネル / preview環境へ配信する。ActionはコミットSHA、EAS CLIは27.5.0に固定した。
-- productionへの配信と自動push配信は追加していない。
+- `.github/workflows/ios-preview-update.yml` はdevelopへのpushで自動配信し、手動実行も可能。自動実行ではコミットSHA、手動実行では入力した更新内容をメッセージとして環境変数経由で渡し、iOS / previewチャンネル / preview環境へ配信する。ActionはコミットSHA、EAS CLIは27.5.0に固定した。
+- productionへの配信は対象外。developへのpushで品質チェックと設定検証が成功した場合にpreviewへ配信する。
+
+## 自動配信への変更設計（2026-11-08）
+
+手動実行のみだった運用を、developへのpush（PRマージを含む）で自動配信する運用に変更する。品質チェック成功後、previewにだけ配信する。手動実行も残す。自動配信メッセージにはコミットSHAを使用する。既存のappVersionポリシーを保持し、配信前にUpdate URL・ポリシー・チャンネルを検証する。ネイティブ差分の自動判定は行わないため、ネイティブ変更時のversion更新は必須とする。
 
 ## 利用手順
 
 1. 変更をGitHubのデフォルトブランチ `develop` に反映する。
 2. Actions → **iOS Preview** → Run workflowで、この設定を含むブランチをビルドする。完成したアプリをiPhoneへ上書きインストールする。従来のUpdate未対応ビルドは更新を受信できない。
-3. 互換性のあるJS・画面・画像の変更を反映後、Actions → **iOS Preview Update** → Run workflowで対象ブランチと更新内容を指定する。既存の `EXPO_TOKEN` Secretを使う。
+3. 互換性のあるJS・画面・画像の変更をdevelopにマージすると、**iOS Preview Update** が自動で実行される。既存の `EXPO_TOKEN` Secretを使う。必要ならRun workflowで対象ブランチと更新内容を指定して手動実行もできる。
 4. iPhoneをオンラインにし、アプリを完全終了して起動する。更新がダウンロードされるまで待ち、反映しない場合はもう一度完全終了・起動する。通常は最大2回のコールド起動で確認する。
 
 削除してからインストールする必要はない。map-labへの更新配信はこのワークフローの対象外であり、map-labビルドはpreview更新を受信しない。
@@ -43,7 +47,7 @@ CLI標準の `appVersion` ポリシーを使用するため、ネイティブ依
 
 - Expoログインおよび公式CLIによるUpdate設定生成は成功。
 - lint・型チェック・iOS向けexportが成功。ワークフローYAMLの読み込み、ActionのSHA固定、チャンネル分離とUpdate設定の整合性をローカルで確認した。
-- クラウド配信およびUpdate対応ビルドの実機検証は未実施。初回の対応ビルドをインストールしてから、配信と受信を確認する。
+- 自動配信設定を追加。クラウドでの自動配信およびUpdate対応ビルドの実機検証は未実施。初回の対応ビルドをインストールしてから、配信と受信を確認する。
 
 ## 参考
 
