@@ -16,16 +16,21 @@ export function createLayout(graph: KnowledgeGraph, view: GraphView) {
 
   function update(next: GraphView) {
     const nextIds = new Set(next.ids);
+    const neighbors = new Map<string, string[]>();
+    for (const edge of next.edges) {
+      for (const [a, b] of [[edge.sourceId, edge.targetId], [edge.targetId, edge.sourceId]]) {
+        const list = neighbors.get(a) ?? []; list.push(b); neighbors.set(a, list);
+      }
+    }
+    const retained = [...particles.values()];
+    const center = retained.length ? { x: retained.reduce((sum, node) => sum + node.x, 0) / retained.length, y: retained.reduce((sum, node) => sum + node.y, 0) / retained.length } : { x: 0, y: 0 };
     const nodes = next.ids.map((id, index): Particle => {
       const existing = particles.get(id);
       if (existing) return existing;
       // Prefer a retained neighbor to a fixture coordinate for newly added nodes.
-      const neighbors = next.edges.flatMap((edge) => edge.sourceId === id ? [edge.targetId] : edge.targetId === id ? [edge.sourceId] : []);
-      const neighbor = neighbors.map((key) => particles.get(key)).find(Boolean);
+      const neighbor = (neighbors.get(id) ?? []).map((key) => particles.get(key)).find(Boolean);
       const radius = 100 * Math.sqrt(index + 1), angle = index * Math.PI * (3 - Math.sqrt(5));
-      const retained = [...particles.values()];
-      const center = retained.length ? { x: retained.reduce((sum, node) => sum + node.x, 0) / retained.length, y: retained.reduce((sum, node) => sum + node.y, 0) / retained.length } : { x: 0, y: 0 };
-      const seed = neighbor ? { x: neighbor.x + 90, y: neighbor.y + 90 } : { x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius };
+      const seed = !retained.length && graph.positions[id] ? graph.positions[id] : neighbor ? { x: neighbor.x + 90, y: neighbor.y + 90 } : { x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius };
       return { id, x: seed?.x ?? 0, y: seed?.y ?? 0, vx: 0, vy: 0 };
     });
     if (held && !nextIds.has(held)) held = undefined;

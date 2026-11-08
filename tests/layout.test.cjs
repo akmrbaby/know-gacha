@@ -62,3 +62,21 @@ test('filtering to a neighborhood removes old endpoints before relinking', async
   settle(layout);
   assert.deepEqual(Object.keys(layout.positions()), ['a']);
 });
+
+test('500-node layout stays finite, retains positions on addition and cools', async () => {
+  const create = await engine();
+  const ids = Array.from({length: 500}, (_, i) => `n${i}`);
+  const edges = ids.slice(1).map((id, i) => ({id: `e${i}`, sourceId: ids[i], targetId: id}));
+  const large = {nodes: {}, positions: {}, relations: edges};
+  const layout = create(large, {ids: ids.slice(0, 100), edges: edges.slice(0, 99)});
+  settle(layout);
+  const before = layout.positions();
+  layout.update({ids, edges});
+  for (const id of ids.slice(0, 100)) assert.deepEqual(layout.positions()[id], before[id]);
+  settle(layout);
+  layout.hold(ids[250], {x: 140, y: 180});
+  for (let i = 0; i < 5; i++) layout.tick();
+  assert.deepEqual(layout.positions()[ids[250]], {x: 140, y: 180});
+  layout.release(); settle(layout);
+  for (const p of Object.values(layout.positions())) assert.ok(Number.isFinite(p.x) && Number.isFinite(p.y));
+});

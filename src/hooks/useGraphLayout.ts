@@ -27,7 +27,7 @@ export function useGraphLayout(graph: KnowledgeGraph, view: GraphView, enabled: 
       const started = performance.now();
       let ticks = 0;
       const limit = settle ? 240 : 1;
-      for (; ticks < limit && layout.active; ticks++) layout.tick();
+      for (; ticks < limit && layout.active && (ticks === 0 || performance.now() - started < 4); ticks++) layout.tick();
       probe.current?.record(performance.now() - started, ticks);
     }
     runner.current = () => {
