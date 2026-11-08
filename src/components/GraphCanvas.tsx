@@ -73,6 +73,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     return visibleLabels(boxes.sort((a, b) => a.priority - b.priority), width, height);
   });
   const pinching = useSharedValue(false);
+  const pinchedThisPan = useSharedValue(false);
   const rebasePan = useSharedValue(false);
   const lastFocal = useSharedValue({ x: 0, y: 0 });
   const previousSize = useRef({ width, height });
@@ -125,6 +126,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     minDistance: 5, averageTouches: true,
     onBegin: (event) => {
       touching.set(true);
+      pinchedThisPan.set(pinching.value);
       cancelAnimation(x); cancelAnimation(y); cancelAnimation(scale);
       manipulated.set(false); grabbed.set('');
       if (event.numberOfPointers === 1) rebasePan.set(false);
@@ -155,7 +157,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     },
     onDeactivate: (event) => {
       if (grabbed.value) { releaseDrag(); return; }
-      if (event.canceled || pinching.value || rebasePan.value || reduced !== false) return;
+      if (event.canceled || pinchedThisPan.value || pinching.value || rebasePan.value || reduced !== false) return;
       x.set(withDecay({ velocity: event.velocityX, clamp: [-2500, 2500] }));
       y.set(withDecay({ velocity: event.velocityY, clamp: [-2500, 2500] }));
     },
@@ -166,10 +168,13 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       cancelAnimation(x); cancelAnimation(y); cancelAnimation(scale);
       manipulated.set(true); releaseDrag();
       pinching.set(true);
+      pinchedThisPan.set(true);
       rebasePan.set(true);
       lastFocal.set({ x: event.focalX, y: event.focalY });
     },
     onUpdate: (event) => {
+      // Lifting a finger can move the reported focal point to the remaining finger.
+      if (event.numberOfPointers < 2) return;
       const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale.value * event.scaleChange));
       const ratio = nextScale / scale.value;
       x.set(event.focalX - (lastFocal.value.x - x.value) * ratio);
@@ -177,7 +182,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       scale.set(nextScale);
       lastFocal.set({ x: event.focalX, y: event.focalY });
     },
-    onFinalize: () => { pinching.set(false); },
+    onFinalize: () => { pinching.set(false); rebasePan.set(true); },
   });
   const tap = useTapGesture({
     maxDistance: 8,
