@@ -1,0 +1,51 @@
+# EAS UpdateによるiOSプレビュー更新
+
+## 目的・範囲（実装前の設計）
+
+画面・文章・JavaScript・画像の互換性のある変更を、アプリの再インストールなしで実機へ届ける。画面や操作フロー、保存データの形式は変更しない。ネイティブ依存・権限・SDKの変更は新しいビルドで届ける。
+
+## 計画
+
+- SDK 58対応のexpo-updatesを導入し、EAS CLIのupdate:configureでURL・runtimeVersion・チャンネルを設定する。
+- GitHub Actionsの「iOS Preview Update」からiOS / previewチャンネル / preview環境へ手動配信する。lint・型チェックを先に実行する。
+- map-labはpreviewと異なるチャンネルに分け、実験フラグを含む更新を通常版へ届けない。
+- 初回だけUpdate対応ビルドをインストールする。以降はアプリを完全終了・起動し、ダウンロード後の次回起動で反映を確認する。
+
+## 受け入れ条件
+
+- 更新先はpreviewに固定され、productionには配信しない。
+- ネイティブとの互換性はruntimeVersionで区切る。
+- lint・型チェック・iOSバンドル生成が成功する。
+- 未実施のビルド・配信・実機反映を確認済みと扱わない。
+
+## 実装済み
+
+- `expo-updates ~58.0.21` をSDK互換の `expo install --npm` で導入した。
+- `eas-cli@27.5.0 update:configure --platform ios --environment preview --non-interactive` を実行し、既存プロジェクトのURLとiOSの `appVersion` ポリシーを生成した。既存の暗号化設定を保持した。
+- CLIが各ビルドプロファイルに同名のチャンネルを追加した。`map-lab`にも独自チャンネルが設定され、previewからの継承を上書きする。
+- `.github/workflows/ios-preview-update.yml` は手動実行のみ。入力した更新メッセージを環境変数経由で渡し、iOS / previewチャンネル / preview環境へ配信する。ActionはコミットSHA、EAS CLIは27.5.0に固定した。
+- productionへの配信と自動push配信は追加していない。
+
+## 利用手順
+
+1. 変更をGitHubのデフォルトブランチ `develop` に反映する。
+2. Actions → **iOS Preview** → Run workflowで、この設定を含むブランチをビルドする。完成したアプリをiPhoneへ上書きインストールする。従来のUpdate未対応ビルドは更新を受信できない。
+3. 互換性のあるJS・画面・画像の変更を反映後、Actions → **iOS Preview Update** → Run workflowで対象ブランチと更新内容を指定する。既存の `EXPO_TOKEN` Secretを使う。
+4. iPhoneをオンラインにし、アプリを完全終了して起動する。更新がダウンロードされるまで待ち、反映しない場合はもう一度完全終了・起動する。通常は最大2回のコールド起動で確認する。
+
+削除してからインストールする必要はない。map-labへの更新配信はこのワークフローの対象外であり、map-labビルドはpreview更新を受信しない。
+
+### ネイティブ変更時
+
+CLI標準の `appVersion` ポリシーを使用するため、ネイティブ依存・Expo SDK・権限等を変更したら、**app.jsonのexpo.versionを上げて**新規ビルド・上書きインストールを行う。バージョンを据え置くと互換性のない更新を旧ビルドへ届ける危険がある。JSのみの修正ではversionを据え置ける。
+
+## 検証状況
+
+- Expoログインおよび公式CLIによるUpdate設定生成は成功。
+- lint・型チェック・iOS向けexportが成功。ワークフローYAMLの読み込み、ActionのSHA固定、チャンネル分離とUpdate設定の整合性をローカルで確認した。
+- クラウド配信およびUpdate対応ビルドの実機検証は未実施。初回の対応ビルドをインストールしてから、配信と受信を確認する。
+
+## 参考
+
+- https://docs.expo.dev/eas-update/getting-started/
+- https://docs.expo.dev/eas-update/runtime-versions/

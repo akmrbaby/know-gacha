@@ -8,7 +8,13 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.akmrbaby.knowgacha"
+      "bundleIdentifier": "com.akmrbaby.knowgacha",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +42,9 @@
         "projectId": "4afd09c4-14e2-4b76-abf7-a610d9a3f2ef"
       }
     },
-    "owner": "akmrbaby"
+    "owner": "akmrbaby",
+    "updates": {
+      "url": "https://u.expo.dev/4afd09c4-14e2-4b76-abf7-a610d9a3f2ef"
+    }
   }
 }
