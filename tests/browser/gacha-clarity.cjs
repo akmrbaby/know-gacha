@@ -1,0 +1,62 @@
+// Optional UI flow check. Does not replace iPhone usability evaluation.
+const {chromium}=require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const url=process.env.MAP_TEST_URL || 'http://localhost:8088';
+  const button=name=>page.getByRole('button',{name,exact:true});
+  await page.goto(url+'/gacha');
+  await button('今日の知識をひらく').waitFor({timeout:120000});
+  assert.equal(await button('知識グラフのデモ').count(),0);
+  const main=page.getByTestId('gacha-main');
+  assert.equal(await main.getByRole('button').count(),1,'one main action before opening');
+  const box=await button('今日の知識をひらく').boundingBox();
+  assert.ok(box.y+box.height<780,'opening action fits the mobile viewport');
+  await page.screenshot({path:'/tmp/gacha-unopened.png'});
+  await button('今日の知識をひらく').dblclick();
+  await button('解説を読む').waitFor();
+  await page.waitForTimeout(400);
+  assert.equal(await button('今日の知識をひらく').count(),0);
+  const ledger=await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'));
+  assert.equal(JSON.parse(ledger).openings.length,1);
+  await page.screenshot({path:'/tmp/gacha-opened.png'});
+  await button('解説を読む').click();
+  await page.waitForURL('**/word/**');
+  await page.goBack();
+  await button('解説を読む').waitFor();
+  await page.reload();
+  await button('解説を読む').waitFor();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),ledger);
+  await button('Mapでつながりを見る').click();
+  await page.getByTestId('atlas-canvas').waitFor();
+  await page.getByRole('tab',{name:'Gacha',exact:true}).click();
+  await button('検証メニュー').click();
+  await page.getByRole('button',{name:'知識グラフのデモ 5・10・50・100・500件',exact:true}).click();
+  await page.getByRole('button',{name:'50件のデモ',exact:true}).waitFor();
+  await page.goto(url+'/gacha');
+  await button('解説を読む').waitFor();
+  await page.waitForTimeout(400);
+  await page.emulateMedia({colorScheme:'dark'});
+  await page.setViewportSize({width:320,height:844});
+  await page.addStyleTag({content:'[data-testid="gacha-main"] [dir="auto"] {font-size:28px !important;line-height:40px !important}'});
+  await page.screenshot({path:'/tmp/gacha-dark-large-text.png',fullPage:true});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal page overflow');
+  const exhausted=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  exhausted.on('pageerror',e=>errors.push(e.message));
+  await exhausted.addInitScript(()=>{
+   const ids=['photonics-electronics','ethnography','surrealism'];
+   localStorage.setItem('knowgacha.progress.v1',JSON.stringify({version:1,dayOffset:0,openings:ids.map((keywordId,i)=>({keywordId,date:`2026-01-0${i+1}`,openedAt:`2026-01-0${i+1}T12:00:00Z`}))}));
+  });
+  await exhausted.goto(url+'/gacha');
+  await exhausted.getByRole('button',{name:'解説を読む',exact:true}).waitFor();
+  await exhausted.getByText('コンプリート',{exact:true}).waitFor();
+  assert.equal(await exhausted.getByRole('button',{name:'今日の知識をひらく',exact:true}).count(),0);
+  assert.equal(await exhausted.getByText(/次の開封は明日/).count(),0);
+  await exhausted.screenshot({path:'/tmp/gacha-complete.png'});
+  assert.deepEqual(errors,[]);
+  console.log('PASS Gacha opening, single acquisition, reading, daily revisit, Map, demo, dark/large text and complete state (Web only)');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

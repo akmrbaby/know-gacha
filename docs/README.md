@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [gacha-clarity.md](gacha-clarity.md) | Gachaの情報量と操作の整理 | 実装・Web操作確認済み、実機評価は未完了 |
 | [map-scaling.md](map-scaling.md) | #13 通常Map・大量表示の動的配置と描画削減 | 実装・自動テスト・Web確認済み、実機評価と最終技術選定は未完了 |
 | [eas-update.md](eas-update.md) | EAS Updateの設計・配信・実機確認手順 | 設定・develop自動配信ワークフロー実装済み、配信・実機受信は未検証 |
 | [map-labels.md](map-labels.md) | #12 ズームから独立した文字描画と表示優先度 | 実装・Web検証済み、iPhone 16 Pro / iOS 27.2 / Expo Goで鮮明さ・文字拡大等のユーザー確認OK |
