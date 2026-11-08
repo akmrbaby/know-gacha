@@ -9,7 +9,7 @@ const assert = require('node:assert/strict');
   await page.goto((process.env.MAP_TEST_URL || 'http://127.0.0.1:8084') + '/graph-demo');
   await page.getByText('デモ · 5件',{exact:true}).waitFor({timeout:120000});
   const results=[];
-  for (const count of [5,10,100,500]) {
+  for (const count of [5,10,50,100,500]) {
    await page.getByRole('button',{name:`${count}件のデモ`,exact:true}).click();
    await page.waitForTimeout(2500);
    const canvas=page.getByTestId('atlas-canvas');

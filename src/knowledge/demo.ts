@@ -57,7 +57,7 @@ for (let index = 10; index < 500; index++) {
     explanation: '規模検証用に生成した接続です。知識の事実関係を表しません。', evidence: [], provenance: 'fixture' });
 }
 export const demoGraph: KnowledgeGraph = { nodes, positions, relations };
-export const demoSizes = [5, 10, 100, 500] as const;
+export const demoSizes = [5, 10, 50, 100, 500] as const;
 export function demoView(count: number) {
   if (!Number.isInteger(count) || count < 5 || count > 500) throw new Error('Demo count must be 5–500');
   return graphForAcquired(demoGraph, demoOrder.slice(0, count));
