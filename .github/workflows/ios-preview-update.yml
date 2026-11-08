@@ -1,6 +1,8 @@
 name: iOS Preview Update
 
 on:
+  push:
+    branches: [develop]
   workflow_dispatch:
     inputs:
       message:
@@ -28,10 +30,23 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - name: Check update configuration
+        run: |
+          node <<'NODE'
+          const { expo } = require('./app.json');
+          const { build } = require('./eas.json');
+          const expectedUrl = `https://u.expo.dev/${expo.extra?.eas?.projectId}`;
+          if (!expo.extra?.eas?.projectId || expo.updates?.url !== expectedUrl ||
+              expo.ios?.runtimeVersion?.policy !== 'appVersion' || !expo.version ||
+              build.preview?.channel !== 'preview' || build['map-lab']?.channel === 'preview') {
+            console.error('Invalid iOS preview Update configuration. Check URL, runtime version and channels.');
+            process.exit(1);
+          }
+          NODE
       - name: Publish iOS preview update
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          UPDATE_MESSAGE: ${{ inputs.message }}
+          UPDATE_MESSAGE: ${{ inputs.message || format('develop {0}', github.sha) }}
         run: |
           if [ -z "$EXPO_TOKEN" ]; then
             echo '::error::Add EXPO_TOKEN to repository Actions secrets.'
