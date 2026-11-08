@@ -4,6 +4,10 @@
 
 GitHubから品質チェックとiOS内部配布ビルドを実行する。アプリの画面・操作・保存データへの変更はない。TestFlight提出は対象外。EAS Updateの設定・配信手順は[eas-update.md](eas-update.md)を参照する。
 
+## パッケージ管理
+
+依存の管理はnpmに統一し、package-lock.jsonをコミットする。CIはnpm ciを使用する。package.jsonに残っていたYarnのpackageManager指定は、DependabotがYarnとして依存を解釈する原因となるため削除した。npmのバージョン固定は追加せず、ロックファイルとnpmコマンドを基準にする。Dependabotの再実行結果はマージ後に確認する。
+
 ## 実装済みの設定
 
 - `CI`: main/developへのpush、PR、手動実行でnpm ci・lint・型チェックを実行する。
