@@ -44,7 +44,7 @@ test('all fixture sizes are nested, have valid unique identities and determinist
   assert.equal(new Set(demoOrder).size, 500);
   assert.equal(new Set(demoGraph.relations.map((edge) => edge.id)).size, demoGraph.relations.length);
   let previous = [];
-  for (const count of [5, 6, 7, 8, 9, 10, 100, 500]) {
+  for (const count of [5, 6, 7, 8, 9, 10, 50, 100, 500]) {
     const view = demoView(count), counts = graphCounts(demoGraph, view);
     assert.equal(counts.acquired, count);
     assert.equal(counts.concepts, view.ids.length - count);
@@ -118,7 +118,7 @@ test('demo transitions are independent of the persisted acquisition ledger', () 
   const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
   const saved = JSON.stringify(state);
   Object.freeze(state.openings); Object.freeze(state);
-  for (const count of [5, 6, 7, 8, 9, 10, 100, 500, 5]) demoView(count);
+  for (const count of [5, 6, 7, 8, 9, 10, 50, 100, 500, 5]) demoView(count);
   assert.equal(JSON.stringify(state), saved);
   assert.deepEqual(restoreProgress(saved), state);
   assert.equal(demoOrder.slice(0, 10).filter((id) => demoGraph.nodes[id].provenance === 'sourced').length, 10);
