@@ -1,0 +1,40 @@
+name: iOS Preview Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 更新内容
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-preview-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Publish iOS preview update
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          UPDATE_MESSAGE: ${{ inputs.message }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo '::error::Add EXPO_TOKEN to repository Actions secrets.'
+            exit 1
+          fi
+          npx eas-cli@27.5.0 update --platform ios --channel preview --environment preview --message "$UPDATE_MESSAGE" --non-interactive
