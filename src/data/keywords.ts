@@ -1,9 +1,11 @@
+import { extra } from './additional-knowledge';
 export type Keyword = {
     id: string;
     name: string;
     category: string;
     introduction: string;
     summary: string;
+    evidence?: { title: string; url: string }[];
     sections: {
         title: string;
         body: string;
@@ -42,4 +44,5 @@ export const keywords: Keyword[] = [
         ],
     },
 ];
+keywords.push(...extra.map(node => ({ id: node.id, name: node.name, category: node.category, introduction: node.summary, summary: node.detail ?? node.summary, sections: [], evidence: node.evidence })));
 export const findKeyword = (id: string) => keywords.find((word) => word.id === id);

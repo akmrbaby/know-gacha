@@ -47,8 +47,8 @@ const assert=require('node:assert/strict');
   const exhausted=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
   exhausted.on('pageerror',e=>errors.push(e.message));
   await exhausted.addInitScript(()=>{
-   const ids=['photonics-electronics','ethnography','surrealism'];
-   localStorage.setItem('knowgacha.progress.v1',JSON.stringify({version:1,dayOffset:0,openings:ids.map((keywordId,i)=>({keywordId,date:`2026-01-0${i+1}`,openedAt:`2026-01-0${i+1}T12:00:00Z`}))}));
+   const ids=['photonics-electronics','ethnography','surrealism','optical-fiber','ccd','photography','dada','collage','user-research','user-centered-design'];
+   localStorage.setItem('knowgacha.progress.v1',JSON.stringify({version:1,dayOffset:0,openings:ids.map((keywordId,i)=>({keywordId,date:`2026-01-${String(i+1).padStart(2,'0')}`,openedAt:`2026-01-${String(i+1).padStart(2,'0')}T12:00:00Z`}))}));
   });
   await exhausted.goto(url+'/gacha');
   await exhausted.getByRole('button',{name:'解説を読む',exact:true}).waitFor();

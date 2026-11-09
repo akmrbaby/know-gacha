@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [gacha-allowance.md](gacha-allowance.md) | 通常ガチャの初期10回・権利管理・保存移行 | 実装・自動検証・Web10回開封済み、実機確認は未完了 |
 | [gacha-clarity.md](gacha-clarity.md) | Gachaの情報量と操作の整理 | 実装・Web操作確認済み、実機評価は未完了 |
 | [map-scaling.md](map-scaling.md) | #13 通常Map・大量表示の動的配置と描画削減 | 実装・自動テスト・Web確認済み、実機評価と最終技術選定は未完了 |
 | [eas-update.md](eas-update.md) | EAS Updateの設計・配信・実機確認手順 | 設定・develop自動配信ワークフロー実装済み、配信・実機受信は未検証 |

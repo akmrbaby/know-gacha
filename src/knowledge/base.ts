@@ -2,16 +2,17 @@ import { relatedConcepts, relations, positions, specimens, ownerOf } from '../da
 import { keywords } from '../data/keywords';
 import type { KnowledgeGraph, KnowledgeNode } from './model';
 
-// Adapter keeps the original three-word Gacha and saved IDs intact.
+// Adapter keeps the normal Gacha and saved IDs intact.
 const nodes: Record<string, KnowledgeNode> = {};
 for (const word of keywords) {
   const look = specimens[word.id];
   nodes[word.id] = { id: word.id, name: word.name, category: word.category, kind: 'knowledge', summary: word.introduction,
     detail: [word.summary, ...word.sections.map((section) => `${section.title}\n${section.body}`)].join('\n\n'),
-    evidence: relatedConcepts.filter((concept) => relations.some((edge) => edge.ownerId === word.id && (edge.sourceId === concept.id || edge.targetId === concept.id))).map((concept) => ({ title: concept.name, url: concept.sourceUrl })),
+    evidence: [...(word.evidence ?? []), ...relatedConcepts.filter((concept) => relations.some((edge) => edge.ownerId === word.id && (edge.sourceId === concept.id || edge.targetId === concept.id))).map((concept) => ({ title: concept.name, url: concept.sourceUrl }))],
     provenance: 'sourced', color: look.color, mark: look.mark };
 }
 for (const concept of relatedConcepts) {
+  if (nodes[concept.id]) continue;
   const look = specimens[ownerOf(concept.id)!];
   nodes[concept.id] = { id: concept.id, name: concept.name, category: '周辺概念', kind: 'concept', summary: concept.summary,
     evidence: [{ title: concept.name, url: concept.sourceUrl }], provenance: 'sourced', color: look.color, mark: '·' };
