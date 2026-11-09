@@ -92,7 +92,7 @@ export default function GraphScreen() {
       {ready && error && <NativeText accessibilityRole="alert">{error}</NativeText>}
     </ScrollView>}
     {ready && !panelOpen && !reveal && graph.ids.length > 0 && <View style={[map.daily, { backgroundColor: colors.surface }]}>
-      <NativeText variant="caption">{remaining ? '今日の知識は未開封' : exhausted ? 'すべての知識を開封済み · つながりを探索できます' : '本日は開封済み · 次の開封は明日'}</NativeText>
+      <NativeText variant="caption">{remaining ? `あと${remaining}回ひらけます` : exhausted ? 'すべての知識を開封済み · つながりを探索できます' : '本日は開封済み · 次の開封は明日'}</NativeText>
       {remaining ? <Action title="今日の知識をひらく" loading={busy} onPress={() => { void draw(); }} /> : today && <Action title="今日の知識をMapで見る" onPress={() => choose(today.keywordId)} />}
       {error && <NativeText accessibilityRole="alert">{error}</NativeText>}
       <NavigationRow title="開封履歴" onPress={() => router.push('/history')} />

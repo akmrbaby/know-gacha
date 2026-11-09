@@ -11,25 +11,45 @@ function load(file) {
   new Function('require', 'module', 'exports', source)((id) => load(path.resolve(path.dirname(filename), id + '.ts')), module, module.exports);
   return module.exports;
 }
-const { emptyProgress, localDate, openForDate, restoreProgress } = load('src/state/progress.ts');
+const { emptyProgress, localDate, openForDate, restoreProgress, allowance } = load('src/state/progress.ts');
 test('local calendar date handles month/year rollover without UTC conversion', () => {
   assert.equal(localDate(new Date(2026, 11, 31, 23, 59), 1), '2027-01-01');
   assert.equal(localDate(new Date(2026, 0, 1, 0, 1)), '2026-01-01');
 });
-test('same day is stable after serialization; another day selects an unopened word', () => {
-  const first = openForDate(emptyProgress(), '2026-11-07', () => 0);
-  const restored = restoreProgress(JSON.stringify(first));
-  assert.deepEqual(openForDate(restored, '2026-11-07', () => 0.99), first);
-  const second = openForDate(restored, '2026-11-08', () => 0);
-  assert.equal(second.openings.length, 2);
-  assert.notEqual(second.openings[0].keywordId, second.openings[1].keywordId);
-});
-test('three words exhaust the pool, and revisiting an older date keeps its word', () => {
+test('initial ten draws consume one daily then nine welcome grants and survive restore', () => {
   let state = emptyProgress();
-  for (let day = 7; day <= 9; day++) state = openForDate(state, `2026-11-0${day}`, () => 0.99);
-  assert.equal(new Set(state.openings.map((item) => item.keywordId)).size, 3);
-  assert.equal(openForDate(state, '2026-11-10'), state);
-  assert.equal(openForDate(state, '2026-11-07'), state);
+  assert.equal(allowance(state, '2026-11-09').total, 10);
+  for(let i=0;i<10;i++) {
+    state = restoreProgress(JSON.stringify(openForDate(state,'2026-11-09',()=>0)));
+    assert.equal(state.openings.length,i+1);
+    assert.equal(allowance(state,'2026-11-09').total,9-i);
+  }
+  assert.equal(new Set(state.openings.map(item=>item.keywordId)).size,10);
+  assert.equal(state.openings[0].grant,'daily');
+  assert.equal(state.openings.filter(item=>item.grant==='welcome').length,9);
+  assert.equal(openForDate(state,'2026-11-09'),state);
+  assert.equal(openForDate(state,'2026-11-10'),state,'content exhaustion does not consume a grant');
+});
+test('future two-welcome configuration starts with three; daily refresh does not refill welcome', () => {
+  let state=emptyProgress(2);
+  assert.deepEqual(allowance(state,'2026-11-09'),{daily:1,bonus:2,total:3});
+  for(let i=0;i<3;i++) state=openForDate(state,'2026-11-09',()=>0);
+  assert.equal(openForDate(state,'2026-11-09'),state);
+  assert.deepEqual(allowance(state,'2026-11-10'),{daily:1,bonus:0,total:1});
+  state=openForDate(state,'2026-11-10',()=>0);
+  assert.equal(state.openings.length,4);
+  assert.equal(restoreProgress(JSON.stringify(state)).initialBonus,2);
+});
+test('legacy migration preserves history and rejects duplicated daily use and overspent bonus', () => {
+ const legacy={version:1,dayOffset:2,openings:[{keywordId:'ethnography',date:'2026-11-08',openedAt:'2026-11-08T12:00:00Z'}]};
+ const migrated=restoreProgress(JSON.stringify(legacy));
+ assert.equal(migrated.version,2); assert.equal(migrated.dayOffset,2);
+ assert.equal(migrated.openings[0].keywordId,'ethnography');
+ assert.deepEqual(allowance(migrated,'2026-11-08'),{daily:0,bonus:9,total:9});
+ const state=openForDate(migrated,'2026-11-08',()=>0);
+ assert.equal(restoreProgress(JSON.stringify(state)).openings.length,2);
+ assert.throws(()=>restoreProgress(JSON.stringify({...state,initialBonus:0})));
+ assert.throws(()=>restoreProgress(JSON.stringify({...state,openings:state.openings.map(item=>({...item,grant:'daily'}))})));
 });
 test('restoration preserves day offset and rejects corrupt/duplicate records', () => {
   assert.deepEqual(restoreProgress(null), emptyProgress());
@@ -48,12 +68,12 @@ const visibleGraph = (ids) => graphForAcquired(baseGraph, ids);
 test('the atlas reveals only opened clusters, with no daily unlock for related concepts', () => {
   assert.deepEqual(visibleGraph([]), { ids: [], edges: [] });
   const one = visibleGraph([keywords[0].id]);
-  assert.equal(one.ids.length, 3);
-  assert.equal(one.edges.length, 2);
+  assert.equal(one.ids.length, 4);
+  assert.equal(one.edges.length, 3);
   assert.ok(!one.ids.includes(keywords[1].id));
   const all = visibleGraph(keywords.map((word) => word.id));
-  assert.equal(all.ids.length, 10);
-  assert.equal(all.edges.length, 8);
+  assert.equal(all.ids.length, 17);
+  assert.equal(all.edges.length, 18);
   const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
   visibleGraph(state.openings.map((item) => item.keywordId));
   assert.equal(restoreProgress(JSON.stringify(state)).openings.length, 1);
@@ -61,7 +81,7 @@ test('the atlas reveals only opened clusters, with no daily unlock for related c
 test('every edge has valid directed endpoints, a distinct id, and finite fixed coordinates', () => {
   const nodes = [...keywords, ...relatedConcepts];
   const ids = new Set(nodes.map((node) => node.id));
-  assert.equal(ids.size, 10);
+  assert.equal(ids.size, 17);
   assert.equal(new Set(relations.map((edge) => edge.id)).size, relations.length);
   for (const edge of relations) {
     assert.ok(ids.has(edge.sourceId) && ids.has(edge.targetId));
@@ -102,14 +122,13 @@ test('fit includes all visible node centers and focus leaves the collapsed sheet
     assert.ok(Math.abs(midpoint * focused.scale + focused.x - width / 2) < 1e-9);
   }
 });
-test('Gacha remaining count agrees with daily consumption and exhausted content after restore', () => {
-  let state = emptyProgress();
-  assert.equal(availability(state, '2026-11-07').remaining, 1);
-  for (let day = 7; day <= 9; day++) {
-    const date = `2026-11-0${day}`;
-    state = restoreProgress(JSON.stringify(openForDate(state, date, () => 0)));
-    assert.equal(availability(state, date).remaining, 0);
-  }
-  assert.equal(availability(state, '2026-11-10').remaining, 0);
-  assert.equal(availability(state, '2026-11-10').exhausted, true);
+test('Gacha remaining count agrees with saved grants and exhausted content',()=>{
+ let state=emptyProgress();
+ for(let i=0;i<10;i++) {
+  assert.equal(availability(state,'2026-11-09').remaining,10-i);
+  state=restoreProgress(JSON.stringify(openForDate(state,'2026-11-09',()=>0)));
+ }
+ assert.equal(availability(state,'2026-11-09').exhausted,true);
+ assert.equal(availability(state,'2026-11-10').remaining,0);
+ assert.equal(availability(state,'2026-11-09').today.keywordId,state.openings.at(-1).keywordId);
 });

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Capsule } from '../../components/Capsule';
+import { INITIAL_BONUS } from '../../state/progress';
 import { keywords } from '../../data/keywords';
 import { Specimen } from '../../components/Specimen';
 import { Action } from '../../components/ui';
@@ -21,15 +22,14 @@ export default function Gacha() {
   const [development, setDevelopment] = useState(false);
   const [resultReady, setResultReady] = useState<string | null>(null);
   const lock = useRef(false);
-  const drawnDate = useRef<string | null>(null);
   const { today, exhausted, remaining } = availability(progress, date);
   async function draw() {
-    if (lock.current || !remaining || drawnDate.current === date) return;
+    if (lock.current || !remaining) return;
     lock.current = true;
     setResultReady(null);
     try {
       const id = await open();
-      if (id) { drawnDate.current = date; selectionFeedback(); setReveal({ id, phase: 'opening' }); }
+      if (id) { selectionFeedback(); setReveal({ id, phase: 'opening' }); }
     } finally { lock.current = false; }
   }
   function read(id: string) { setReveal(null); router.push({ pathname: '/word/[id]', params: { id } }); }
@@ -41,7 +41,7 @@ export default function Gacha() {
     const timer = setTimeout(() => setResultReady(displayedId), 350);
     return () => clearTimeout(timer);
   }, [displayedId, opening]);
-  const status = !ready ? '読み込み中' : opening ? '開封中' : exhausted ? 'コンプリート' : remaining ? '未開封' : '開封済み';
+  const status = !ready ? '読み込み中' : opening ? '開封中' : exhausted ? 'コンプリート' : remaining ? `残り${remaining}回` : '開封済み';
   return <SafeAreaView style={[gacha.screen, { backgroundColor: colors.background }]}>
     <ScrollView contentContainerStyle={gacha.content}>
       <View style={gacha.brand}>
@@ -67,15 +67,16 @@ export default function Gacha() {
         </> : displayedId ? <>
           {!today && exhausted && <NativeText variant="caption">最近出会った知識</NativeText>}
           <Specimen id={displayedId} compact />
-          <Action title="解説を読む" disabled={resultReady !== displayedId} onPress={() => read(displayedId)} />
+          <Action title="解説を読む" secondary={remaining > 0} disabled={resultReady !== displayedId} onPress={() => read(displayedId)} />
+          {remaining > 0 && <Action title={`次の知識をひらく（残り${remaining}回）`} disabled={resultReady !== displayedId} loading={busy} onPress={() => { void draw(); }} />}
           <NavigationRow title="Mapでつながりを見る" onPress={() => {
             setReveal(null);
             router.navigate({ pathname: '/graph', params: { focus: displayedId, fresh: String(Date.now()) } });
           }} />
-          <NativeText variant="caption">{exhausted ? 'すべての知識を開封しました。何度でも読み返せます。' : '次の開封は明日。今日の知識は何度でも読めます。'}</NativeText>
+          <NativeText variant="caption">{exhausted ? 'すべての知識を開封しました。何度でも読み返せます。' : remaining ? `あと${remaining}回ひらけます。` : '当日分は明日1回追加されます。'}</NativeText>
         </> : <>
           <Capsule />
-          <NativeText style={{ textAlign: 'center' }}>1日1回、新しい言葉に出会えます。</NativeText>
+          <NativeText style={{ textAlign: 'center' }}>残り{remaining}回、新しい言葉に出会えます。</NativeText>
           <Action title="今日の知識をひらく" loading={busy} onPress={() => { void draw(); }} />
         </>}
         {ready && error && <NativeText accessibilityRole="alert" selectable>{error}</NativeText>}
@@ -86,9 +87,9 @@ export default function Gacha() {
           <NavigationRow title={development ? '検証メニューを閉じる' : '検証メニュー'} onPress={() => setDevelopment(!development)} />
           {development && <View style={gacha.tools}>
             <NavigationRow title="知識グラフのデモ" description="5・10・50・100・500件" onPress={() => router.push('/graph-demo')} />
+            <Action title={`初期${INITIAL_BONUS + 1}回からやり直す`} secondary disabled={busy} onPress={() => Alert.alert('初期状態からやり直しますか？', `この端末の開封履歴と残り回数を初期化します。初回特典${INITIAL_BONUS}回＋当日分1回から確認できます。`, [{text:'キャンセル',style:'cancel'},{text:'初期化する',style:'destructive',onPress:()=>{setReveal(null);setResultReady(null);void reset();}}])} />
             {__DEV__ && <>
               <Action title="翌日扱いにする" secondary disabled={busy} onPress={() => { setReveal(null); void nextDay(); }} />
-              <Action title="進捗を初期化する" secondary disabled={busy} onPress={() => Alert.alert('進捗を初期化しますか？', 'この端末の開封履歴と開発用日付を消去します。', [{ text: 'キャンセル', style: 'cancel' }, { text: '初期化する', style: 'destructive', onPress: () => { setReveal(null); drawnDate.current = null; void reset(); } }])} />
             </>}
           </View>}
         </View>}

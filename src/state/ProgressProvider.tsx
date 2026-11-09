@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { graphLabEnabled } from '../graph/lab';
 import { AppState } from 'react-native';
 import { emptyProgress, localDate, openForDate, restoreProgress, STORAGE_KEY, type Progress } from './progress';
 type State = {
@@ -72,13 +73,15 @@ export function ProgressProvider({ children }: {
     }
     async function open() {
         const today = localDate(new Date(), __DEV__ ? current.current.dayOffset : 0);
+        const currentBefore = current.current;
+        const countBefore = currentBefore.openings.length;
         const next = await change((value) => openForDate(value, today));
-        return next?.openings.find((item) => item.date === today)?.keywordId;
+        return next && next !== currentBefore && next.openings.length > countBefore ? next.openings.at(-1)?.keywordId : undefined;
     }
     async function nextDay() { if (__DEV__)
         await change((value) => ({ ...value, dayOffset: value.dayOffset + 1 })); }
-    async function reset() { if (__DEV__)
-        await change(emptyProgress); }
+    async function reset() { if (graphLabEnabled)
+        await change(() => emptyProgress()); }
     return <Context.Provider value={{ progress, date, ready, busy, error, retry: () => { setError(null); void load(); }, open, nextDay, reset }}>{children}</Context.Provider>;
 }
 export function useProgress() {

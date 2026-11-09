@@ -23,6 +23,7 @@ export default function Word() {
       <NativeText variant="label" accessibilityRole="header">この言葉のつながり</NativeText>
       {relations.filter(edge => edge.ownerId === word.id).map(edge => <NavigationRow key={edge.id} title={conceptName(edge.sourceId === word.id ? edge.targetId : edge.sourceId)} description={edge.label} onPress={() => router.navigate({ pathname: '/graph', params: { focus: edge.id, fresh: String(Date.now()) } })} />)}
     </View>
+    {word.evidence && <View style={{gap:spacing.sm}}><NativeText variant="label">参考資料</NativeText>{word.evidence.map(item => <NativeText key={item.url} selectable>{item.title}{'\n'}{item.url}</NativeText>)}</View>}
     <NativeText variant="caption">試作用原稿 · 公開用の校閲・出典確認は未実施です。</NativeText>
     <NavigationRow title="地図でつながりを見る" onPress={() => router.navigate({ pathname: '/graph', params: { focus: word.id, fresh: String(Date.now()) } })} />
     <NavigationRow title="開封履歴" onPress={() => router.push('/history')} />

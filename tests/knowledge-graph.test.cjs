@@ -25,12 +25,12 @@ test('screen label collisions preserve priority, account for measured large text
   assert.deepEqual(visibleLabels([box('partly-visible', -20, -10), box('outside', -200, 30)], 390, 844), { 'partly-visible': true });
 });
 
-test('normal Map joins acquired knowledge through one sourced photography concept without exposing unopened knowledge', () => {
+test('normal Map joins acquired photography knowledge without exposing unopened knowledge', () => {
   const first = graphForAcquired(baseGraph, ['ethnography']);
-  assert.ok(first.ids.includes('photography'));
+  assert.ok(!first.ids.includes('photography'));
   assert.ok(!first.ids.includes('surrealism'));
   assert.ok(!first.edges.some(edge => edge.sourceId === 'surrealism'));
-  const second = graphForAcquired(baseGraph, ['ethnography', 'surrealism']);
+  const second = graphForAcquired(baseGraph, ['ethnography', 'surrealism', 'photography']);
   assert.equal(second.ids.filter(id => id === 'photography').length, 1);
   for (const id of ['ethnography', 'surrealism']) {
     const edge = second.edges.find(edge => edge.sourceId === id && edge.targetId === 'photography');

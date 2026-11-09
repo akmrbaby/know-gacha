@@ -1,8 +1,8 @@
 import { keywords } from '../data/keywords';
-import { type Progress } from '../state/progress';
-// Keep the existing daily grant rule until a different allowance is agreed.
+import { allowance, type Progress } from '../state/progress';
 export function availability(progress: Progress, date: string) {
-  const today = progress.openings.find((item) => item.date === date);
-  const exhausted = progress.openings.length >= keywords.length;
-  return { today, exhausted, remaining: today || exhausted ? 0 : 1 };
+  const today = progress.openings.findLast(item => item.date === date);
+  const unread = keywords.length - progress.openings.length;
+  const balance = allowance(progress, date);
+  return { today, exhausted: unread <= 0, remaining: Math.min(unread, balance.total), ...balance };
 }

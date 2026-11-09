@@ -1,3 +1,4 @@
+import { extra, light, extraRelations } from './additional-knowledge';
 import { keywords } from './keywords';
 export type RelatedConcept = { id: string; name: string; summary: string; sourceUrl: string };
 export type Relation = { id: string; sourceId: string; targetId: string; ownerId: string; label: string; explanation: string; evidence?: { title: string; url: string }[] };
@@ -21,20 +22,25 @@ export const relations: Relation[] = [
   { id: 'surrealism-automatism', ownerId: 'surrealism', sourceId: 'surrealism', targetId: 'automatism', label: '表現の方法の一つ', explanation: 'シュルレアリスムは夢や無意識に関心を寄せ、自動記述を表現の方法の一つとして実践しました。運動全体がこの方法だけで説明できるわけではありません。' },
   { id: 'breton-surrealism', ownerId: 'surrealism', sourceId: 'andre-breton', targetId: 'surrealism', label: '運動を主導した人物の一人', explanation: 'ブルトンは1924年にシュルレアリスム宣言を発表し、運動を主導しました。シュルレアリスムには多くの作家が関わっています。' },
 ];
+relations.push(...extraRelations.map(edge => ({...edge, ownerId: edge.sourceId})));
+relatedConcepts.push({id: light.id, name: light.name, summary: light.summary, sourceUrl: light.evidence[0].url});
 export const specimens: Record<string, { mark: string; color: string; tint: string }> = {
   'photonics-electronics': { mark: '◇', color: '#286D73', tint: '#E5F0EB' },
   ethnography: { mark: '◎', color: '#8B592F', tint: '#F5EBDC' },
   surrealism: { mark: '✳', color: '#775B86', tint: '#EEE7F2' },
 };
+for (const node of extra) specimens[node.id] = {mark: node.mark, color: node.color, tint: '#E5F0EB'};
 export type Position = { x: number; y: number };
 export const positions: Record<string, Position> = {};
 // Fixed, version 2: a spatial atlas; distances have no semantic weight.
 const clusterCenters = [{ x: -270, y: -220 }, { x: 300, y: -70 }, { x: -150, y: 340 }];
+positions.light = {x: -340, y: 0};
 keywords.forEach((word, index) => {
-  const { x, y } = clusterCenters[index];
+  const { x, y } = clusterCenters[index] ?? { x: (index % 4 - 1.5) * 330, y: 800 + Math.floor((index - 3) / 4) * 330 };
   positions[word.id] = { x, y };
   relations.filter((edge) => edge.ownerId === word.id && edge.targetId !== 'photography').forEach((edge, i) => {
     const other = edge.sourceId === word.id ? edge.targetId : edge.sourceId;
+    if (keywords.some(word => word.id === other) || positions[other]) return;
     positions[other] = { x: x + (i === 0 ? -145 : 145), y: y + (i === 0 ? 155 : 185) };
   });
 });
