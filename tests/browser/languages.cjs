@@ -4,6 +4,10 @@ const {chromium}=require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');cons
  const page=await browser.newPage({locale:'en-US',viewport:{width:390,height:844},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{Math.random=()=>0;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='knowgacha.locale.v1'&&window.failLocaleSave)throw new Error('test failure');return original.call(this,key,value);};});
  const button=name=>page.getByRole('button',{name,exact:true});
+ const settings=()=>page.getByRole('button',{name:/^(Open settings|設定を開く)$/}).click();
+ const selected=name=>page.waitForFunction(name=>document.querySelector('[aria-label="'+name+'"]')?.getAttribute('aria-pressed')==='true',name);
+ const back=()=>page.getByRole('link',{name:/back|戻る/i}).click();
+ const chooseLanguage=async name=>{await settings();await button(name).click();await selected(name);await back();};
  await page.goto(url+'/gacha');await button('Open a discovery').waitFor({timeout:120000});
  await page.getByText('10 draws left',{exact:true}).waitFor();
  assert.ok(!/[\u3040-\u30ff\u3400-\u9fff]/.test(await page.getByTestId('gacha-main').innerText()));
@@ -11,11 +15,11 @@ const {chromium}=require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');cons
  await page.getByText('Integrated photonics and electronics',{exact:true}).waitFor();
  await button('Open another (9 left)').waitFor();
  const progress=await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'));
- await button('日本語').click();await button('解説を読む').waitFor();
+ await chooseLanguage('日本語');await button('解説を読む').waitFor();
  assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),progress);
  await page.reload();await button('解説を読む').waitFor();
  assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.locale.v1')),'ja');
- await button('English').click();await button('Read more').click();await page.waitForURL('**/word/**');
+ await chooseLanguage('English');await button('Read more').click();await page.waitForURL('**/word/**');
  await page.getByText('Why use light?',{exact:true}).waitFor();
  await page.getByText('References',{exact:true}).waitFor();
  await page.getByText('Japanese source',{exact:true}).waitFor();await page.getByText('English source',{exact:true}).first().waitFor();
@@ -25,9 +29,9 @@ const {chromium}=require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');cons
  await button('Open details').click();await page.getByText('Connections to this topic',{exact:true}).waitFor();await button('Close details').click();
  await page.screenshot({path:'/workspace/scratch/english-map.png'});
  await page.getByRole('tab',{name:'Gacha',exact:true}).click();
- await page.evaluate(()=>window.failLocaleSave=true);await button('日本語').click();await page.getByRole('alert').waitFor();
- await button('Read more').waitFor();assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.locale.v1')),'en');
- await page.evaluate(()=>window.failLocaleSave=false);await button('日本語').click();await button('解説を読む').waitFor();await button('English').click();await button('Read more').waitFor();
+ await settings();await page.evaluate(()=>window.failLocaleSave=true);await button('日本語').click();await page.getByRole('alert').waitFor();
+ await selected('English');assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.locale.v1')),'en');
+ await page.evaluate(()=>window.failLocaleSave=false);await button('日本語').click();await selected('日本語');await back();await button('解説を読む').waitFor();await chooseLanguage('English');await button('Read more').waitFor();
  assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),progress);
  await page.setViewportSize({width:320,height:844});await page.emulateMedia({colorScheme:'dark'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.screenshot({path:'/workspace/scratch/english-gacha-dark.png',fullPage:true});

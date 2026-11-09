@@ -138,5 +138,7 @@
   "架空の検証用データです。実際の学習内容ではありません。": "Synthetic test data. This is not actual learning content.",
   "点・線の密度と探索の見通しを調べるために生成した短文です。事実を説明する教材ではありません。": "A synthetic passage for testing node and edge density and navigation. It does not explain factual learning content.",
   "架空の接続": "Synthetic connection",
-  "規模検証用に生成した接続です。知識の事実関係を表しません。": "A connection generated for scale testing. It does not represent a factual relationship."
+  "規模検証用に生成した接続です。知識の事実関係を表しません。": "A connection generated for scale testing. It does not represent a factual relationship.",
+  "設定": "Settings",
+  "設定を開く": "Open settings"
 }
