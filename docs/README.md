@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [brand-launch.md](brand-launch.md) | アイコンと起動演出 | 実装・Web起動確認・iOS export済み、新ビルドで実機確認が必要 |
 | [color-refresh.md](color-refresh.md) | アイボリー・ティール・コーラルの配色 | 明暗の配色調整・Web確認済み、実機未確認 |
 | [map-exploration-ui.md](map-exploration-ui.md) | Mapの開封案内・選択・詳細と強調表示 | 実装・Web操作確認済み、実機未検証 |
 | [gacha-allowance.md](gacha-allowance.md) | 通常ガチャの初期10回・権利管理・保存移行 | 実装・自動検証・Web10回開封済み、実機確認は未完了 |

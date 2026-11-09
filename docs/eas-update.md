@@ -53,3 +53,6 @@ CLI標準の `appVersion` ポリシーを使用するため、ネイティブ依
 
 - https://docs.expo.dev/eas-update/getting-started/
 - https://docs.expo.dev/eas-update/runtime-versions/
+
+### アイコン・起動画面を含む1.0.1
+`expo-splash-screen`とネイティブ起動設定を追加したため、version 1.0.1で新しいプレビュービルドを一度作成し、既存アプリへ上書きインストールする。1.0.0のビルドへこのJS更新を届けないようruntimeVersionをappVersionで分離している。以後、互換性のある1.0.1のJS修正はpreview更新で配信できる。
