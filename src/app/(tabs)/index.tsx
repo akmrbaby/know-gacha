@@ -106,8 +106,8 @@ export default function GraphScreen() {
     {active && <AppSheet isPresented={panelOpen || !!reveal} title={reveal ? '今日の知識をひらく' : sheetTitle} closeLabel={reveal ? 'Mapで見る' : validSelected ? '詳細を閉じる' : '一覧を閉じる'} onClose={() => {
       if (reveal) { setSelected(reveal); setRequest({ id: reveal, kind: 'focus', token: Date.now() }); setReveal(null); }
       setPanelOpen(false);
-    }} testID={reveal ? 'map-reveal' : validSelected ? 'map-sheet' : 'map-list'}>
-      {reveal ? <View style={map.list}><Capsule key={reveal} opening onFinish={finishReveal} /><Action title="演出をスキップしてMapで見る" onPress={finishReveal} /></View> : validSelected && !list ? <MapSheet embedded edges={graph.edges} acquiredIds={acquiredIds} selected={validSelected} height={size.height} onSelect={choose} onClose={() => setPanelOpen(false)} /> : <ScrollView nestedScrollEnabled style={map.scroll} contentContainerStyle={[map.list, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+    }} testID={reveal ? 'map-reveal' : validSelected ? 'map-sheet' : 'map-list'} contentKey={reveal ?? (list ? 'list' : validSelected) ?? 'list'}>
+      {reveal ? <View style={map.list}><Capsule key={reveal} opening onFinish={finishReveal} /><Action title="演出をスキップしてMapで見る" onPress={finishReveal} /></View> : validSelected && !list ? <MapSheet embedded edges={graph.edges} acquiredIds={acquiredIds} selected={validSelected} height={size.height} onSelect={choose} onClose={() => setPanelOpen(false)} /> : <View style={[map.list, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         {acquiredIds.map(id => <View key={id}>
           <NavigationRow title={conceptName(id)} description="開封済み" onPress={() => choose(id)} />
           {graph.edges.filter(edge => edge.sourceId === id || edge.targetId === id).map(edge => <View key={edge.id} style={map.related}>
@@ -117,7 +117,7 @@ export default function GraphScreen() {
         </View>)}
         <NavigationRow title="開封履歴" onPress={() => {setPanelOpen(false);router.push('/history');}} />
         <NativeText variant="caption">周辺語・関係は試作用原稿です。配置の距離は意味の近さを表しません。</NativeText>
-      </ScrollView>}
+      </View>}
     </AppSheet>}
   </View>;
 }
@@ -131,7 +131,6 @@ const map = StyleSheet.create({
   error: {position:'absolute',left:spacing.md,right:spacing.md,bottom:80,padding:spacing.sm,borderRadius:12},
   zoom: { justifyContent: 'flex-end' },
   empty: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
-  scroll: { flex: 1 },
   list: { padding: spacing.md, gap: spacing.md },
   related: { paddingLeft: spacing.md },
 });

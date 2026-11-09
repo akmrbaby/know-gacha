@@ -13,6 +13,7 @@
 | [map-labels.md](map-labels.md) | #12 ズームから独立した文字描画と表示優先度 | 実装・Web検証済み、iPhone 16 Pro / iOS 27.2 / Expo Goで鮮明さ・文字拡大等のユーザー確認OK |
 | [map-home.md](map-home.md) | #8 Mapホーム・開封と探索の統合 | 実装・Webの開封／関係探索／位置復元確認済み、実機未検証 |
 | [native-ui-integration.md](native-ui-integration.md) | #9 Map・開封・読書へのUI統合 | 実装・Web確認・iOS/Androidバンドル生成済み、実機未検証 |
+| [detail-sheet-scroll.md](detail-sheet-scroll.md) | 詳細シートの本文末尾が読めない問題 | 実装・Web操作確認・iOS export済み、iPhoneでの確認が必要 |
 | [native-ui-foundation.md](native-ui-foundation.md) | #9 UI基盤・並行開発の境界 | テーマ・共通操作・確認画面を実装、Web検証済み、実機未検証 |
 | [map-device-evaluation.md](map-device-evaluation.md) | #7→#14 実機比較の手順・計測・評価記録 | previewで50・100件を確認する導線を追加、実機操作・性能比較は未検証 |
 | [map-interaction.md](map-interaction.md) | #7 動的配置・直接操作の試作と移管記録 | 5〜10件の試作を区切り、文字は#12、通常Map・大量表示は#13、実機検証は#14へ移管 |
