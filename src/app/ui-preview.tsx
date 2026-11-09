@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/I18nProvider';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
@@ -13,13 +14,14 @@ import { metrics, spacing, typography, useThemeColors, type ThemeMode } from '..
 const words = ['セレンディピティ', '認知バイアス', '創発'];
 
 export default function UiPreview() {
+  const {t}=useI18n();
   const [mode, setMode] = useState<ThemeMode>('light');
   const [count, setCount] = useState(0);
   const [searching, setSearching] = useState(false);
   const [query, setQuery] = useState('');
   const [saved, setSaved] = useState(false);
   const colors = useThemeColors(mode);
-  const matches = words.filter((word) => word.includes(query.trim()));
+  const matches = words.filter((word) => t(word).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   return <SafeAreaView style={[styles.screen, { backgroundColor: colors.background }]}>
     <Stack.Screen options={{ headerShown: false }} />
     <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
@@ -41,8 +43,8 @@ export default function UiPreview() {
             <PreviewIcon name="close" color={colors.text} />
           </NativeIconAction>
         </NativeToolbar>
-        {searching && <TextInput accessibilityLabel="検索する言葉" value={query} onChangeText={setQuery}
-          placeholder="言葉を入力" placeholderTextColor={colors.secondaryText} selectionColor={colors.accent}
+        {searching && <TextInput accessibilityLabel={t('検索する言葉')} value={query} onChangeText={setQuery}
+          placeholder={t('言葉を入力')} placeholderTextColor={colors.secondaryText} selectionColor={colors.accent}
           returnKeyType="search" style={[styles.input, { color: colors.text, borderColor: colors.separator, backgroundColor: colors.surface }]} />}
         <NativeText mode={mode} selectable accessibilityLiveRegion="polite">{matches.length ? matches.join('・') : '一致する言葉はありません'}</NativeText>
         <NativeText mode={mode} variant="caption" accessibilityLiveRegion="polite">{saved ? '確認用の知識を保存しました' : '確認用の知識は未保存です'}</NativeText>

@@ -1,5 +1,6 @@
+import { Text } from '../i18n/Text';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, AppState, StyleSheet, Text, View } from 'react-native';
+import { Animated, AppState, StyleSheet, View } from 'react-native';
 import { useThemeColors } from '../theme';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 export function Capsule({ opening = false, onFinish }: { opening?: boolean; onFinish?: () => void }) {

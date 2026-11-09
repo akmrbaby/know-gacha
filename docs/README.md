@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [languages.md](languages.md) | 日本語・英語の表示・教材・参考資料 | 実装・自動検証・Web確認・iOS export済み、1.0.2の新ビルドで実機確認が必要 |
 | [brand-launch.md](brand-launch.md) | アイコンと起動演出 | 実装・Web起動確認・iOS export済み、新ビルドで実機確認が必要 |
 | [color-refresh.md](color-refresh.md) | アイボリー・ティール・コーラルの配色 | 明暗の配色調整・Web確認済み、実機未確認 |
 | [map-exploration-ui.md](map-exploration-ui.md) | Mapの開封案内・選択・詳細と強調表示 | 実装・Web操作確認済み、実機未検証 |

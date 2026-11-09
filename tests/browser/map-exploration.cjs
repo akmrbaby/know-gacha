@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try{
-  const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,reducedMotion:'reduce'});
+  const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},hasTouch:true,reducedMotion:'reduce'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
   await page.addInitScript(()=>{
    const ids=['photonics-electronics','ethnography','surrealism','optical-fiber','ccd','photography','dada','collage','user-research','user-centered-design'];

@@ -2,7 +2,7 @@
   "expo": {
     "name": "KnowGacha ― 脳ガチャ ―",
     "slug": "know-gacha",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -41,6 +41,17 @@
             "backgroundColor": "#153D3A",
             "image": "./assets/splash-icon.png"
           }
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": [
+            "ja",
+            "en"
+          ],
+          "supportsRTL": false,
+          "forcesRTL": false
         }
       ]
     ],

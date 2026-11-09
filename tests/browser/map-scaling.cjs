@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 (async () => {
  const browser = await chromium.launch({headless:true});
  try {
-  const page = await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  const page = await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'reduce'});
   const errors=[]; page.on('pageerror', error => errors.push(error.message));
   await page.goto((process.env.MAP_TEST_URL || 'http://127.0.0.1:8084') + '/graph-demo');
   await page.getByText('デモ · 5件',{exact:true}).waitFor({timeout:120000});

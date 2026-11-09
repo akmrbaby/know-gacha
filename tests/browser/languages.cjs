@@ -1,0 +1,38 @@
+const {chromium}=require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');const assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({headless:true});try{
+ const url=process.env.MAP_TEST_URL || 'http://localhost:8104';
+ const page=await browser.newPage({locale:'en-US',viewport:{width:390,height:844},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{Math.random=()=>0;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='knowgacha.locale.v1'&&window.failLocaleSave)throw new Error('test failure');return original.call(this,key,value);};});
+ const button=name=>page.getByRole('button',{name,exact:true});
+ await page.goto(url+'/gacha');await button('Open a discovery').waitFor({timeout:120000});
+ await page.getByText('10 draws left',{exact:true}).waitFor();
+ assert.ok(!/[\u3040-\u30ff\u3400-\u9fff]/.test(await page.getByTestId('gacha-main').innerText()));
+ await button('Open a discovery').dblclick();await button('Read more').waitFor();await page.waitForTimeout(400);
+ await page.getByText('Integrated photonics and electronics',{exact:true}).waitFor();
+ await button('Open another (9 left)').waitFor();
+ const progress=await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'));
+ await button('日本語').click();await button('解説を読む').waitFor();
+ assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),progress);
+ await page.reload();await button('解説を読む').waitFor();
+ assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.locale.v1')),'ja');
+ await button('English').click();await button('Read more').click();await page.waitForURL('**/word/**');
+ await page.getByText('Why use light?',{exact:true}).waitFor();
+ await page.getByText('References',{exact:true}).waitFor();
+ await page.getByText('Japanese source',{exact:true}).waitFor();await page.getByText('English source',{exact:true}).first().waitFor();
+ await page.screenshot({path:'/workspace/scratch/english-reading.png',fullPage:true});
+ await page.getByRole('link',{name:/^(?:Back(?:, back)?|Go back)$/}).click();await page.waitForURL('**/gacha');await button('Explore connections').click();await page.getByTestId('map-preview').waitFor();
+ await page.getByRole('button',{name:'Integrated photonics and electronics, Acquired topic',exact:true}).waitFor();
+ await button('Open details').click();await page.getByText('Connections to this topic',{exact:true}).waitFor();await button('Close details').click();
+ await page.screenshot({path:'/workspace/scratch/english-map.png'});
+ await page.getByRole('tab',{name:'Gacha',exact:true}).click();
+ await page.evaluate(()=>window.failLocaleSave=true);await button('日本語').click();await page.getByRole('alert').waitFor();
+ await button('Read more').waitFor();assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.locale.v1')),'en');
+ await page.evaluate(()=>window.failLocaleSave=false);await button('日本語').click();await button('解説を読む').waitFor();await button('English').click();await button('Read more').waitFor();
+ assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),progress);
+ await page.setViewportSize({width:320,height:844});await page.emulateMedia({colorScheme:'dark'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await page.screenshot({path:'/workspace/scratch/english-gacha-dark.png',fullPage:true});
+ await page.goto(url+'/graph-demo');await page.getByText('Demo · 5 topics',{exact:true}).waitFor();await page.getByRole('button',{name:'50-topic demo',exact:true}).click();await page.getByText('Demo · 50 topics',{exact:true}).waitFor();
+ assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),progress);
+ for(const locale of ['ja-JP','fr-FR']){const p=await browser.newPage({locale,viewport:{width:390,height:844},reducedMotion:'reduce'});await p.goto(url+'/gacha');await p.getByRole('button',{name:locale==='ja-JP'?'今日の知識をひらく':'Open a discovery',exact:true}).waitFor();await p.close();}
+ assert.deepEqual(errors,[]);console.log('PASS device Japanese/English/fallback, manual switch and restore, unchanged grants/history, articles, original source links with languages, Map labels/details, back, save failure and small dark screen');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});

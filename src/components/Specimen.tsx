@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native';
+import { Text } from '../i18n/Text';
+import { View } from 'react-native';
 import { specimens } from '../data/graph';
 import { findKeyword } from '../data/keywords';
 import { useUI } from './ui';

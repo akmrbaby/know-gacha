@@ -1,7 +1,9 @@
+import { useI18n } from '../i18n/I18nProvider';
+import { Text } from '../i18n/Text';
 import { router, Stack } from 'expo-router';
 import { useMemo, useState } from 'react';
 import Constants from 'expo-constants';
-import { FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { GraphCanvas, type CameraRequest } from '../components/GraphCanvas';
 import { MapSheet } from '../components/MapSheet';
 import { Action, useUI } from '../components/ui';
@@ -13,6 +15,7 @@ import { graphLabEnabled } from '../graph/lab';
 import { graphCounts, neighborhood } from '../knowledge/model';
 
 export default function GraphDemo() {
+  const {t}=useI18n();
   const { theme, styles } = useUI();
   const demo = makeStyles(theme);
   // No provider mutations or storage: navigating away discards this demonstration.
@@ -47,16 +50,16 @@ export default function GraphDemo() {
     setCount(next); setNearby(false);
     setSelected(''); setList(false);
   }
-  if (!graphLabEnabled) return <View style={demo.unavailable}><Text style={styles.body}>デモは比較検証用ビルドで利用できます。</Text><Action title="Mapへ" onPress={() => router.replace('/graph')} /></View>;
+  if (!graphLabEnabled) return <View style={demo.unavailable}><Text style={styles.body}>デモは比較検証用ビルドで利用できます。</Text><Action title="Mapへ" onPress={() => router.replace('/')} /></View>;
   return <View style={{ flex: 1, backgroundColor: theme.background }}>
-    <Stack.Screen options={{ title: '知識グラフ · デモ', headerBackVisible: false }} />
+    <Stack.Screen options={{ title: t('知識グラフ · デモ'), headerBackVisible: false }} />
     <View style={demo.controls}>
-      <View style={demo.row}><Text accessibilityRole="header" style={styles.heading}>デモ · {counts.acquired}件</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/graph')} style={demo.control}><Text style={{ color: theme.text }}>デモを終了</Text></Pressable></View>
+      <View style={demo.row}><Text accessibilityRole="header" style={styles.heading}>デモ · {counts.acquired}件</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={demo.control}><Text style={{ color: theme.text }}>デモを終了</Text></Pressable></View>
       <Text style={styles.small}>取得知識 {counts.acquired} · 周辺概念 {counts.concepts} · 関係 {counts.relations}</Text>
       <Text style={styles.small}>{count <= 10 ? '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : `内容確認用10件＋架空の検証用${count - 10}件 · 学習内容ではありません`}</Text>
       <Text style={styles.small}>動的配置 · ノードをドラッグ、背景をパン／ピンチ</Text>
       <Text style={styles.small}>縮小時の数字は近くの点の数です。拡大・選択で個別の知識へ。配置の距離は意味の近さを表しません。</Text>
-      <View style={demo.row}>{demoSizes.map((value) => <Pressable key={value} accessibilityRole="button" accessibilityLabel={`${value}件のデモ`} accessibilityState={{ selected: value === count }} onPress={() => changeCount(value)} style={[demo.control, value === count && demo.active]}><Text style={{ color: theme.text }}>{value}件</Text></Pressable>)}</View>
+      <View style={demo.row}>{demoSizes.map((value) => <Pressable key={value} accessibilityRole="button" accessibilityLabel={t(`${value}件のデモ`)} accessibilityState={{ selected: value === count }} onPress={() => changeCount(value)} style={[demo.control, value === count && demo.active]}><Text style={{ color: theme.text }}>{value}件</Text></Pressable>)}</View>
       <View style={demo.row}>
         <Pressable accessibilityRole="button" disabled={count >= 500} onPress={addNext} style={[demo.control, count >= 500 && { opacity: 0.4 }]}><Text style={{ color: theme.text }}>次の1件を追加</Text></Pressable>
         <Pressable accessibilityRole="button" onPress={() => setList(!list)} style={demo.control}><Text style={{ color: theme.text }}>{list ? 'Mapに戻る' : '一覧'}</Text></Pressable>

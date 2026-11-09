@@ -1,5 +1,6 @@
+import { ReferenceLink } from './ReferenceLink';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { baseGraph } from '../knowledge/base';
 import type { GraphRelation, KnowledgeGraph } from '../knowledge/model';
@@ -8,12 +9,11 @@ import { findKeyword } from '../data/keywords';
 import { AppSheet } from './native-ui/AppSheet';
 import { NavigationRow } from './native-ui/NavigationRow';
 import { NativeText } from './native-ui/NativeText';
-import { Action, useUI } from './ui';
+import { Action } from './ui';
 
 export function MapSheet({ selected, onSelect, onClose, graph = baseGraph, edges, acquiredIds, demo = false, embedded = false }: {
   graph?: KnowledgeGraph; edges: GraphRelation[]; acquiredIds: string[]; demo?: boolean; embedded?: boolean; selected: string; height: number; onSelect: (id: string) => void; onClose: () => void;
 }) {
-  const { styles } = useUI();
   const insets = useSafeAreaInsets();
   const edge = edges.find(item => item.id === selected), node = graph.nodes[selected];
   const acquired = acquiredIds.includes(selected);
@@ -40,7 +40,7 @@ export function MapSheet({ selected, onSelect, onClose, graph = baseGraph, edges
       {demo && acquired && node?.detail && <NativeText selectable>{node.detail}</NativeText>}
       {reference.length > 0 && <View style={sheet.references}>
         <NativeText variant="caption">参考資料</NativeText>
-        {reference.map(item => <Link key={item.url} href={item.url} style={[styles.body, sheet.link]}>{item.title} ↗</Link>)}
+        {reference.map(item => <ReferenceLink key={item.url} title={item.title} url={item.url} />)}
       </View>}
       <NativeText variant="caption">{demo ? (edge?.provenance ?? node?.provenance) === 'fixture' ? '架空の検証用データ · 学習内容ではありません' : '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : '試作用原稿 · 周辺語の閲覧は回数を消費しません。'}</NativeText>
     </ScrollView>;
