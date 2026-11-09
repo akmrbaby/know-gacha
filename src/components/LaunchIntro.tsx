@@ -1,3 +1,4 @@
+import { useI18n } from '../i18n/I18nProvider';
 import { useEffect, useState } from 'react';
 import { Animated, AppState, Platform, StyleSheet, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -12,6 +13,7 @@ function hideNativeSplash() {
   if (Platform.OS !== 'web') void SplashScreen.hideAsync().catch(() => {});
 }
 export function LaunchIntro() {
+  const {ready:languageReady,t}=useI18n();
   const { ready, error } = useProgress();
   const reduced = useReducedMotion();
   const [progress] = useState(() => new Animated.Value(0));
@@ -34,7 +36,7 @@ export function LaunchIntro() {
     return () => animation.stop();
   }, [ended, reduced, progress]);
   useEffect(() => {
-    if (!(ready && animationDone) && !error) return;
+    if (!(ready && languageReady && animationDone) && !error) return;
     if (reduced !== false || error) {
       const timer = setTimeout(() => setEnded(true), 0);
       return () => clearTimeout(timer);
@@ -42,10 +44,10 @@ export function LaunchIntro() {
     const animation = Animated.timing(fade,{toValue:0,duration:120,useNativeDriver:true});
     animation.start(({finished})=>{if(finished)setEnded(true);});
     return () => animation.stop();
-  }, [ready, animationDone, error, reduced, fade]);
+  }, [ready, languageReady, animationDone, error, reduced, fade]);
   useEffect(() => { if (ended) hideNativeSplash(); }, [ended]);
   if (ended) return null;
-  return <View testID="launch-intro" accessibilityLabel="KnowGachaを起動しています" accessible style={styles.overlay} onLayout={hideNativeSplash}>
+  return <View testID="launch-intro" accessibilityLabel={t('KnowGachaを起動しています')} accessible style={styles.overlay} onLayout={hideNativeSplash}>
     <Animated.View style={{opacity:fade}}>
       <BrandMark progress={reduced === true ? undefined : progress} />
     </Animated.View>

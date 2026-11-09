@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/I18nProvider';
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { metrics, useThemeColors, type ThemeMode } from '../../theme';
@@ -12,8 +13,9 @@ export function NativeIconAction({ label, children, onPress, selected, expanded,
   mode?: ThemeMode;
   style?: StyleProp<ViewStyle>;
 }) {
+  const {t}=useI18n();
   const colors = useThemeColors(mode);
-  return <Pressable accessibilityRole="button" accessibilityLabel={label}
+  return <Pressable accessibilityRole="button" accessibilityLabel={t(label)}
     accessibilityState={{ disabled, selected, expanded }} aria-pressed={selected} aria-expanded={expanded} disabled={disabled} onPress={onPress}
     style={({ pressed }) => [styles.control, {
       backgroundColor: selected ? colors.surface : 'transparent',

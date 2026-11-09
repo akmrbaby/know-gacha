@@ -1,3 +1,5 @@
+import { LanguageSelector } from '../../components/LanguageSelector';
+import { useI18n } from '../../i18n/I18nProvider';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
@@ -16,6 +18,7 @@ import { spacing, useThemeColors } from '../../theme';
 import { selectionFeedback } from '../../ui/feedback';
 
 export default function Gacha() {
+  const {t}=useI18n();
   const colors = useThemeColors();
   const { progress, date, ready, busy, error, retry, open, nextDay, reset } = useProgress();
   const [reveal, setReveal] = useState<{ id: string; phase: 'opening' | 'result' } | null>(null);
@@ -71,7 +74,7 @@ export default function Gacha() {
           {remaining > 0 && <Action title={`次の知識をひらく（残り${remaining}回）`} disabled={resultReady !== displayedId} loading={busy} onPress={() => { void draw(); }} />}
           <NavigationRow title="Mapでつながりを見る" onPress={() => {
             setReveal(null);
-            router.navigate({ pathname: '/graph', params: { focus: displayedId, fresh: String(Date.now()) } });
+            router.navigate({ pathname: '/', params: { focus: displayedId, fresh: String(Date.now()) } });
           }} />
           <NativeText variant="caption">{exhausted ? 'すべての知識を開封しました。何度でも読み返せます。' : remaining ? `あと${remaining}回ひらけます。` : '当日分は明日1回追加されます。'}</NativeText>
         </> : <>
@@ -87,12 +90,13 @@ export default function Gacha() {
           <NavigationRow title={development ? '検証メニューを閉じる' : '検証メニュー'} onPress={() => setDevelopment(!development)} />
           {development && <View style={gacha.tools}>
             <NavigationRow title="知識グラフのデモ" description="5・10・50・100・500件" onPress={() => router.push('/graph-demo')} />
-            <Action title={`初期${INITIAL_BONUS + 1}回からやり直す`} secondary disabled={busy} onPress={() => Alert.alert('初期状態からやり直しますか？', `この端末の開封履歴と残り回数を初期化します。初回特典${INITIAL_BONUS}回＋当日分1回から確認できます。`, [{text:'キャンセル',style:'cancel'},{text:'初期化する',style:'destructive',onPress:()=>{setReveal(null);setResultReady(null);void reset();}}])} />
+            <Action title={`初期${INITIAL_BONUS + 1}回からやり直す`} secondary disabled={busy} onPress={() => Alert.alert(t('初期状態からやり直しますか？'), t(`この端末の開封履歴と残り回数を初期化します。初回特典${INITIAL_BONUS}回＋当日分1回から確認できます。`), [{text:t('キャンセル'),style:'cancel'},{text:t('初期化する'),style:'destructive',onPress:()=>{setReveal(null);setResultReady(null);void reset();}}])} />
             {__DEV__ && <>
               <Action title="翌日扱いにする" secondary disabled={busy} onPress={() => { setReveal(null); void nextDay(); }} />
             </>}
           </View>}
         </View>}
+        <LanguageSelector />
       </View>}
     </ScrollView>
   </SafeAreaView>;

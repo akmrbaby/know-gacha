@@ -1,5 +1,7 @@
+import { useI18n } from '../i18n/I18nProvider';
+import { Text } from '../i18n/Text';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { GestureDetector, usePanGesture, usePinchGesture, useSimultaneousGestures, useTapGesture } from 'react-native-gesture-handler';
 import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAnimatedStyle, useDerivedValue, useSharedValue, withDecay, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
@@ -247,6 +249,7 @@ function Connections({ kind, edges, graph, positions, cameraX, cameraY, scale, s
 }
 function AtlasNode({ dimmed, connected, count, id, graph, positions, selected, visibility, labelSizes, cameraX, cameraY, scale, appear, reduced, onSelect }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; dimmed: boolean; connected: boolean; count: number; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const theme = useThemeColors();
+  const {t}=useI18n();
   const look = graph.nodes[id], main = look.kind === 'knowledge';
   const emergence = useSharedValue(appear && !reduced ? 0 : 1);
   useEffect(() => { if (appear && !reduced) { emergence.set(0); emergence.set(withTiming(1, { duration: 150 })); } else if (reduced) emergence.set(1); }, [emergence, reduced, appear]);
@@ -255,7 +258,7 @@ function AtlasNode({ dimmed, connected, count, id, graph, positions, selected, v
   const orbSize = useAnimatedStyle(() => { const size = (main ? 64 : 28) * Math.min(1, 2.1 * scale.get()); return { width: size, height: size }; });
   const markSize = useAnimatedStyle(() => ({ fontSize: 30 * Math.min(1, 2.1 * scale.get()) }));
   return <Animated.View style={[atlas.nodeAnchor, { left: -90, top: -32 }, node]}>
-    <Pressable accessibilityRole="button" accessibilityLabel={`${graph.nodes[id].name}、${main ? '開封済み教材' : '周辺語'}`} accessibilityState={{ selected }} onAccessibilityTap={() => onSelect(id)} accessibilityActions={[{ name: 'activate' }]} onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'activate') onSelect(id); }} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
+    <Pressable accessibilityRole="button" accessibilityLabel={t(`${graph.nodes[id].name}、${main ? '開封済み教材' : '周辺語'}`)} accessibilityState={{ selected }} onAccessibilityTap={() => onSelect(id)} accessibilityActions={[{ name: 'activate' }]} onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'activate') onSelect(id); }} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
       <View style={atlas.orbSlot}><Animated.View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, (selected || connected) && { outlineWidth: selected ? 3 : 2, outlineColor: look.color, outlineOffset: 6 }, orbSize]}>
         {main && <Animated.Text accessible={false} style={[{ color: knowledgeColors.onNode }, markSize]}>{look.mark}</Animated.Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}

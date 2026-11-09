@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try{
-  const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'reduce'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const url=process.env.MAP_TEST_URL || 'http://localhost:8088';
   const button=name=>page.getByRole('button',{name,exact:true});
@@ -44,7 +44,7 @@ const assert=require('node:assert/strict');
   await page.addStyleTag({content:'[data-testid="gacha-main"] [dir="auto"] {font-size:28px !important;line-height:40px !important}'});
   await page.screenshot({path:'/tmp/gacha-dark-large-text.png',fullPage:true});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal page overflow');
-  const exhausted=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  const exhausted=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'reduce'});
   exhausted.on('pageerror',e=>errors.push(e.message));
   await exhausted.addInitScript(()=>{
    const ids=['photonics-electronics','ethnography','surrealism','optical-fiber','ccd','photography','dada','collage','user-research','user-centered-design'];

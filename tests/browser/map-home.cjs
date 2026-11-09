@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try{
-  const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+  const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'reduce'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const url=process.env.MAP_TEST_URL || 'http://localhost:8095';
   const button=name=>page.getByRole('button',{name,exact:true});
@@ -28,7 +28,7 @@ const assert=require('node:assert/strict');
   await button('詳細を開く').click();await button('言葉のノートで読む').click();await page.waitForURL('**/word/**');
   await page.goBack();await page.getByTestId('atlas-canvas').waitFor();
   assert.equal(JSON.parse(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'))).openings.length,2);
-  const animated=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'no-preference'});animated.on('pageerror',e=>errors.push(e.message));
+  const animated=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'no-preference'});animated.on('pageerror',e=>errors.push(e.message));
   await animated.goto(url);await animated.getByRole('button',{name:'最初の知識をひらく',exact:true}).click();await animated.getByTestId('map-preview').waitFor();
   assert.equal(await animated.getByRole('dialog').count(),0);
   assert.equal(JSON.parse(await animated.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'))).openings.length,1);

@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n/I18nProvider';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -24,6 +25,7 @@ import { selectionFeedback } from '../../ui/feedback';
 const sessionStarted = Date.now();
 const appeared = new Set<string>();
 export default function GraphScreen() {
+  const {t}=useI18n();
   const colors = useThemeColors();
   const { progress, date, ready, busy, error, retry, open } = useProgress();
   const { focus, fresh } = useLocalSearchParams<{ focus?: string; fresh?: string }>();
@@ -92,7 +94,7 @@ export default function GraphScreen() {
       {ready && error && <NativeText accessibilityRole="alert">{error}</NativeText>}
     </ScrollView>}
     {ready && !panelOpen && !reveal && !validSelected && graph.ids.length > 0 && <View pointerEvents="box-none" style={map.bottom}>
-      <Pressable accessibilityRole="button" accessibilityLabel={remaining ? `残り${remaining}回、ガチャをひらく` : today ? '今日の知識を選択' : 'Gachaをひらく'} disabled={busy} onPress={() => remaining ? void draw() : today ? choose(today.keywordId) : router.navigate('/gacha')} style={[map.daily, { backgroundColor: colors.surface }]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={t(remaining ? `残り${remaining}回、ガチャをひらく` : today ? '今日の知識を選択' : 'Gachaをひらく')} disabled={busy} onPress={() => remaining ? void draw() : today ? choose(today.keywordId) : router.navigate('/gacha')} style={[map.daily, { backgroundColor: colors.surface }]}>
         <AppIcon name="gacha" /><NativeText variant="label">{remaining ? `残り${remaining}回` : today ? '今日の知識' : 'Gacha'}</NativeText>
       </Pressable>
       <NativeToolbar style={map.zoom}>

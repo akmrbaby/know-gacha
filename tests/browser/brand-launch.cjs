@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
  try{
   const url=process.env.MAP_TEST_URL || 'http://localhost:8101';
   for(const reduced of ['no-preference','reduce']){
-   const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:reduced});
+   const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:reduced});
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.addInitScript(()=>{
     window.launchTiming={shown:null,hidden:null};
@@ -27,7 +27,7 @@ const assert=require('node:assert/strict');
    await page.screenshot({path:`/tmp/brand-home-${reduced}.png`});
    assert.deepEqual(errors,[]);console.log(reduced,Math.round(duration)+'ms');await page.close();
   }
-  const broken=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'no-preference'});
+  const broken=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'no-preference'});
   await broken.addInitScript(()=>{if(!localStorage.getItem('knowgacha.progress.v1'))localStorage.setItem('knowgacha.progress.v1','{');});
   await broken.goto(url);await broken.getByRole('button',{name:'読み込みを再試行',exact:true}).waitFor({timeout:120000});
   await broken.getByTestId('launch-intro').waitFor({state:'detached'});
