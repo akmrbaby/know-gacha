@@ -1,5 +1,5 @@
 import { ReferenceLink } from './ReferenceLink';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { baseGraph } from '../knowledge/base';
@@ -22,7 +22,7 @@ export function MapSheet({ selected, onSelect, onClose, graph = baseGraph, edges
   const connected = edges.filter(item => item.sourceId === selected || item.targetId === selected);
   const name = (id: string) => graph.nodes[id]?.name ?? '';
   const title = edge ? `${name(edge.sourceId)} → ${name(edge.targetId)}` : name(selected);
-  const content = <ScrollView key={selected} nestedScrollEnabled style={sheet.scroll} contentContainerStyle={[sheet.content, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+  const content = <View style={[sheet.content, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
       <NativeText variant="caption">{edge ? 'つながりの理由' : acquired ? `${node?.category} · 取得済み` : '未取得の周辺概念'}</NativeText>
       {edge && <NativeText variant="label">{edge.label}</NativeText>}
       <NativeText selectable>{edge?.explanation ?? node?.summary}</NativeText>
@@ -43,7 +43,7 @@ export function MapSheet({ selected, onSelect, onClose, graph = baseGraph, edges
         {reference.map(item => <ReferenceLink key={item.url} title={item.title} url={item.url} />)}
       </View>}
       <NativeText variant="caption">{demo ? (edge?.provenance ?? node?.provenance) === 'fixture' ? '架空の検証用データ · 学習内容ではありません' : '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : '試作用原稿 · 周辺語の閲覧は回数を消費しません。'}</NativeText>
-    </ScrollView>;
-  return embedded ? content : <AppSheet title={title} closeLabel="詳細を閉じる" onClose={onClose} testID="map-sheet">{content}</AppSheet>;
+    </View>;
+  return embedded ? content : <AppSheet title={title} closeLabel="詳細を閉じる" onClose={onClose} testID="map-sheet" contentKey={selected}>{content}</AppSheet>;
 }
-const sheet = StyleSheet.create({ scroll: { flex: 1 }, content: { padding: spacing.md, gap: spacing.md }, references: { gap: spacing.sm }, link: { paddingVertical: spacing.sm, textDecorationLine: 'underline' } });
+const sheet = StyleSheet.create({ content: { padding: spacing.md, gap: spacing.md }, references: { gap: spacing.sm } });
