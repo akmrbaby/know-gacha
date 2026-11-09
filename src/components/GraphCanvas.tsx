@@ -111,7 +111,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       previousRequest.current = request;
       if (!request || request.kind === 'fit') move(fitCamera(ids, width, height, currentGraph));
       else if (request.kind === 'focus' && request.id) move(focusCamera(request.id, width, height, currentGraph));
-      else if (request.kind === 'in' || request.kind === 'out') move(zoomAt({ x: x.value, y: y.value, scale: scale.value }, width / 2, height / 2, scale.value * (request.kind === 'in' ? 1.25 : 0.8)));
+      else if (request.kind === 'in' || request.kind === 'out') move(zoomAt({ x: x.value, y: y.value, scale: scale.value }, width / 2, height / 2, scale.value * (request.kind === 'in' ? 1.6 : 1 / 1.6)));
     });
     return () => cancelAnimationFrame(frame);
     // A camera request is an explicit event. Ordinary selection/state renders must not reset the viewport.
