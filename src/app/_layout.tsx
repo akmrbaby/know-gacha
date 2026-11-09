@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 import { useThemeColors } from '../theme';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { LaunchIntro } from '../components/LaunchIntro';
 import { ProgressProvider } from '../state/ProgressProvider';
 export default function Layout() {
   const colors = useThemeColors();
@@ -16,6 +17,6 @@ export default function Layout() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="history" options={{ title: '開封履歴' }} />
       <Stack.Screen name="word/[id]" options={{ title: '言葉のノート' }} />
-    </Stack></ProgressProvider>
+    </Stack><LaunchIntro /></ProgressProvider>
   </ThemeProvider></GestureHandlerRootView>;
 }
