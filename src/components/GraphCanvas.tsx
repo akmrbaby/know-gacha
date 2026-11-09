@@ -5,6 +5,7 @@ import Animated, { cancelAnimation, useAnimatedProps, useAnimatedReaction, useAn
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import { lineInViewport, viewportNodes } from '../graph/viewport';
+import { knowledgeColors } from '../colors';
 import { visibleLabels, type LabelBox } from '../graph/labels';
 import { baseGraph } from '../knowledge/base';
 import type { GraphRelation as Relation, KnowledgeGraph, Position } from '../knowledge/model';
@@ -256,7 +257,7 @@ function AtlasNode({ dimmed, connected, count, id, graph, positions, selected, v
   return <Animated.View style={[atlas.nodeAnchor, { left: -90, top: -32 }, node]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`${graph.nodes[id].name}、${main ? '開封済み教材' : '周辺語'}`} accessibilityState={{ selected }} onAccessibilityTap={() => onSelect(id)} accessibilityActions={[{ name: 'activate' }]} onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'activate') onSelect(id); }} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
       <View style={atlas.orbSlot}><Animated.View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, (selected || connected) && { outlineWidth: selected ? 3 : 2, outlineColor: look.color, outlineOffset: 6 }, orbSize]}>
-        {main && <Animated.Text accessible={false} style={[{ color: '#FFFDF5' }, markSize]}>{look.mark}</Animated.Text>}
+        {main && <Animated.Text accessible={false} style={[{ color: knowledgeColors.onNode }, markSize]}>{look.mark}</Animated.Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}
       </Animated.View></View>
       {count > 1 && <Text style={{ color: theme.text, backgroundColor: theme.surface, fontSize: 12 }}>{count}点</Text>}

@@ -1,3 +1,4 @@
+import { knowledgeColors } from '../colors';
 import type { Evidence, GraphRelation, KnowledgeNode } from '../knowledge/model';
 
 const sources = {
@@ -10,15 +11,15 @@ const sources = {
   design: { title: 'GOV.UK: Understand users and their needs', url: 'https://www.gov.uk/service-manual/service-standard/point-1-understand-user-needs' },
 };
 export const extra: KnowledgeNode[] = [
-  { id: 'optical-fiber', name: '光ファイバー', category: '技術', summary: '細い繊維の中で光を導き、情報を運ぶ。', detail: '光通信では、光を導く繊維を伝送路として使います。光電融合そのものと同義ではなく、光による情報伝送を支える技術です。', evidence: [sources.optics], color: '#286D73', mark: '↝' },
-  { id: 'ccd', name: 'CCD', category: '技術', summary: '光を電子的にとらえる撮像用の半導体回路。', detail: 'CCDは光を電子的な信号として記録する撮像技術です。写真をフィルムだけでなく電子的に記録する道を広げました。すべてのデジタルカメラがCCDを使うわけではありません。', evidence: [sources.optics], color: '#286D73', mark: '▦' },
-  { id: 'photography', name: '写真', category: '芸術・技術', summary: '光を記録する仕組みと、表現としての写真。', detail: '写真は光をとらえて像を記録します。ここではCCDによる電子的記録と、MoMAが紹介するマン・レイの写真作品を入口に、技術と芸術の二つの側面をたどります。', evidence: [sources.optics, sources.surrealism], color: '#775B86', mark: '▣' },
-  { id: 'dada', name: 'ダダ', category: '芸術・思想', summary: '既存の芸術の秩序を問い、偶然や日用品も表現に取り込む。', detail: '第一次世界大戦期に生まれた芸術・文学の運動です。コラージュやフォトモンタージュ、日用品など、多様な素材と方法を用いました。', evidence: [sources.dada], color: '#775B86', mark: '＋' },
-  { id: 'collage', name: 'コラージュ', category: '芸術・思想', summary: '異なる断片を組み合わせて、一つの作品にする。', detail: '紙片などを組み合わせる表現です。MoMAはダダの実践として、ハンス・アルプが偶然を取り入れたコラージュなどを紹介しています。', evidence: [sources.collage], color: '#775B86', mark: '▧' },
-  { id: 'user-research', name: 'ユーザーリサーチ', category: '社会・デザイン', summary: '利用する人の行動や状況を調べ、設計の判断に役立てる。', detail: '人々の普段の環境を訪れ、行動を観察する方法があります。実際の道具や周囲の状況も含めて、サービスに必要なことを理解します。エスノグラフィー全体と同じ意味ではありません。', evidence: [sources.observation], color: '#8B592F', mark: '◎' },
-  { id: 'user-centered-design', name: 'ユーザー中心設計', category: '社会・デザイン', summary: '使う人の目的と状況を理解することから設計を進める。', detail: 'GOV.UKのサービス基準は、利用者とその課題を理解し、調査や試作を通じて仮説を確かめることを求めています。特定の解決策を先に決めるのではなく、人が達成したいことを起点にします。', evidence: [sources.design], color: '#8B592F', mark: '↗' },
+  { id: 'optical-fiber', name: '光ファイバー', category: '技術', summary: '細い繊維の中で光を導き、情報を運ぶ。', detail: '光通信では、光を導く繊維を伝送路として使います。光電融合そのものと同義ではなく、光による情報伝送を支える技術です。', evidence: [sources.optics], color: knowledgeColors.teal, mark: '↝' },
+  { id: 'ccd', name: 'CCD', category: '技術', summary: '光を電子的にとらえる撮像用の半導体回路。', detail: 'CCDは光を電子的な信号として記録する撮像技術です。写真をフィルムだけでなく電子的に記録する道を広げました。すべてのデジタルカメラがCCDを使うわけではありません。', evidence: [sources.optics], color: knowledgeColors.teal, mark: '▦' },
+  { id: 'photography', name: '写真', category: '芸術・技術', summary: '光を記録する仕組みと、表現としての写真。', detail: '写真は光をとらえて像を記録します。ここではCCDによる電子的記録と、MoMAが紹介するマン・レイの写真作品を入口に、技術と芸術の二つの側面をたどります。', evidence: [sources.optics, sources.surrealism], color: knowledgeColors.violet, mark: '▣' },
+  { id: 'dada', name: 'ダダ', category: '芸術・思想', summary: '既存の芸術の秩序を問い、偶然や日用品も表現に取り込む。', detail: '第一次世界大戦期に生まれた芸術・文学の運動です。コラージュやフォトモンタージュ、日用品など、多様な素材と方法を用いました。', evidence: [sources.dada], color: knowledgeColors.violet, mark: '＋' },
+  { id: 'collage', name: 'コラージュ', category: '芸術・思想', summary: '異なる断片を組み合わせて、一つの作品にする。', detail: '紙片などを組み合わせる表現です。MoMAはダダの実践として、ハンス・アルプが偶然を取り入れたコラージュなどを紹介しています。', evidence: [sources.collage], color: knowledgeColors.violet, mark: '▧' },
+  { id: 'user-research', name: 'ユーザーリサーチ', category: '社会・デザイン', summary: '利用する人の行動や状況を調べ、設計の判断に役立てる。', detail: '人々の普段の環境を訪れ、行動を観察する方法があります。実際の道具や周囲の状況も含めて、サービスに必要なことを理解します。エスノグラフィー全体と同じ意味ではありません。', evidence: [sources.observation], color: knowledgeColors.amber, mark: '◎' },
+  { id: 'user-centered-design', name: 'ユーザー中心設計', category: '社会・デザイン', summary: '使う人の目的と状況を理解することから設計を進める。', detail: 'GOV.UKのサービス基準は、利用者とその課題を理解し、調査や試作を通じて仮説を確かめることを求めています。特定の解決策を先に決めるのではなく、人が達成したいことを起点にします。', evidence: [sources.design], color: knowledgeColors.amber, mark: '↗' },
 ].map((node) => ({ ...node, kind: 'knowledge', provenance: 'sourced' }));
-export const light: KnowledgeNode = { id: 'light', name: '光', category: '周辺概念', kind: 'concept', summary: '情報の伝送にも、像の記録にも使われる。両者が同じ目的という意味ではありません。', evidence: [sources.optics, sources.photonics], provenance: 'sourced', color: '#286D73', mark: '·' };
+export const light: KnowledgeNode = { id: 'light', name: '光', category: '周辺概念', kind: 'concept', summary: '情報の伝送にも、像の記録にも使われる。両者が同じ目的という意味ではありません。', evidence: [sources.optics, sources.photonics], provenance: 'sourced', color: knowledgeColors.teal, mark: '·' };
 function relation(sourceId: string, targetId: string, type: string, label: string, explanation: string, evidence: Evidence[]): GraphRelation {
   return { id: `${sourceId}--${targetId}`, sourceId, targetId, type, label, explanation, evidence, provenance: 'sourced' };
 }

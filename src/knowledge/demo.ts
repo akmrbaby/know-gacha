@@ -1,3 +1,4 @@
+import { knowledgeColors } from '../colors';
 import { baseGraph } from './base';
 import { graphForAcquired, type KnowledgeGraph } from './model';
 
@@ -13,7 +14,7 @@ for (let index = 10; index < 500; index++) {
   demoOrder.push(id);
   nodes[id] = { id, name: `架空の知識 ${index + 1}`, category: '規模検証用', kind: 'knowledge',
     summary: '架空の検証用データです。実際の学習内容ではありません。', detail: '点・線の密度と探索の見通しを調べるために生成した短文です。事実を説明する教材ではありません。',
-    evidence: [], provenance: 'fixture', color: ['#286D73', '#8B592F', '#775B86'][index % 3], mark: '◇' };
+    evidence: [], provenance: 'fixture', color: [knowledgeColors.teal, knowledgeColors.amber, knowledgeColors.violet][index % 3], mark: '◇' };
   const column = index % 20, row = Math.floor(index / 20);
   positions[id] = { x: (column - 9.5) * 200, y: 850 + row * 160 };
   const targetId = demoOrder[index % 10 === 0 ? index - 10 : index - 1];
