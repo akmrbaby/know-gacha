@@ -85,7 +85,7 @@ export default function Gacha() {
         {ready && error && <NativeText accessibilityRole="alert" selectable>{error}</NativeText>}
       </View>
       {ready && !opening && <View>
-        <NavigationRow title="開封履歴" description={`${progress.openings.length} / ${keywords.length}語`} onPress={() => router.push('/history')} />
+        <NavigationRow title="開封履歴" description={`${keywords.filter(word => progress.openings.some(item => item.keywordId === word.id)).length} / ${keywords.length}語`} onPress={() => router.push('/history')} />
         {graphLabEnabled && <View>
           <NavigationRow title={development ? '検証メニューを閉じる' : '検証メニュー'} onPress={() => setDevelopment(!development)} />
           {development && <View style={gacha.tools}>

@@ -8,7 +8,7 @@ import { GraphCanvas, type CameraRequest } from '../components/GraphCanvas';
 import { MapSheet } from '../components/MapSheet';
 import { Action, useUI } from '../components/ui';
 import { type ThemeColors } from '../theme';
-import { demoGraph, demoOrder, demoSizes, demoView } from '../knowledge/demo';
+import { demoGraph, demoOrder, demoSizes, demoTopicCount, demoView } from '../knowledge/demo';
 import { useMapMeasurement } from '../hooks/useMapMeasurement';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { graphLabEnabled } from '../graph/lab';
@@ -56,7 +56,7 @@ export default function GraphDemo() {
     <View style={demo.controls}>
       <View style={demo.row}><Text accessibilityRole="header" style={styles.heading}>デモ · {counts.acquired}件</Text><Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={demo.control}><Text style={{ color: theme.text }}>デモを終了</Text></Pressable></View>
       <Text style={styles.small}>取得知識 {counts.acquired} · 周辺概念 {counts.concepts} · 関係 {counts.relations}</Text>
-      <Text style={styles.small}>{count <= 10 ? '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : `内容確認用10件＋架空の検証用${count - 10}件 · 学習内容ではありません`}</Text>
+      <Text style={styles.small}>{count <= demoTopicCount ? '出典確認済みのデモ原稿 · 公開前の校閲は未実施' : `内容確認用${demoTopicCount}件＋架空の検証用${count - demoTopicCount}件 · 学習内容ではありません`}</Text>
       <Text style={styles.small}>動的配置 · ノードをドラッグ、背景をパン／ピンチ</Text>
       <Text style={styles.small}>縮小時の数字は近くの点の数です。拡大・選択で個別の知識へ。配置の距離は意味の近さを表しません。</Text>
       <View style={demo.row}>{demoSizes.map((value) => <Pressable key={value} accessibilityRole="button" accessibilityLabel={t(`${value}件のデモ`)} accessibilityState={{ selected: value === count }} onPress={() => changeCount(value)} style={[demo.control, value === count && demo.active]}><Text style={{ color: theme.text }}>{value}件</Text></Pressable>)}</View>

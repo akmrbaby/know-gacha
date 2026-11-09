@@ -1,6 +1,7 @@
+import { curated } from '../data/curated-knowledge';
 import ui from './ui-en.json';
 import content from './content-en.json';
-import { keywords } from '../data/keywords';
+import { allKeywords as keywords } from '../data/keywords';
 import { baseGraph } from '../knowledge/base';
 export type Locale = 'ja' | 'en';
 export function resolveLocale(languageCode?: string | null): Locale { return languageCode?.toLowerCase().split(/[-_]/)[0] === 'ja' ? 'ja' : 'en'; }
@@ -33,7 +34,7 @@ const patterns: [RegExp,(...parts:string[])=>string][] = [
  [/^つながり (\d+)件$/,n=>counted(n,'connection')],
  [/^(\d+)点$/,n=>counted(n,'node')],
  [/^架空の知識 (\d+)$/,n=>`Synthetic topic ${n}`],
- [/^内容確認用10件＋架空の検証用(\d+)件 · 学習内容ではありません$/,n=>`10 draft topics + ${n} synthetic test topics · Not learning content`],
+ [/^内容確認用(\d+)件＋架空の検証用(\d+)件 · 学習内容ではありません$/,(n,m)=>`${n} draft topics + ${m} synthetic test topics · Not learning content`],
  [/^取得知識 (\d+) · 周辺概念 (\d+) · 関係 (\d+)$/,(a,b,c)=>`${a} topics · ${b} concepts · ${c} connections`],
  [/^操作した回数：(\d+)$/,n=>`Actions: ${n}`]
 ];
@@ -43,7 +44,10 @@ export function translate(message:string, locale:Locale): string {
   for(const [pattern,render] of patterns) {const match=message.match(pattern);if(match)return render(...match.slice(1));}
   return message.replace(fragments,key=>english[key]).replaceAll('、',', ').replaceAll('・',' · ');
 }
+// Language tags are recorded for the actual curated URLs, not guessed from a DOI host.
+const curatedEnglishSources = new Set(curated.flatMap(word => (word.evidence ?? []).map(item => item.url)));
 export function sourceLanguage(url:string):Locale|null {
+  if (curatedEnglishSources.has(url)) return 'en';
   try {const host=new URL(url).hostname.replace(/^www\./,'');if(host==='flets.com')return 'ja';if(['nobelprize.org','intel.com','moma.org','gov.uk','tate.org.uk','vam.ac.uk','anthroencyclopedia.com'].some(domain=>host===domain||host.endsWith('.'+domain)))return 'en';} catch {}
   return null;
 }

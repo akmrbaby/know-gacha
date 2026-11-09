@@ -27,7 +27,7 @@ test('screen label collisions preserve priority, account for measured large text
 
 test('normal Map joins acquired photography knowledge without exposing unopened knowledge', () => {
   const first = graphForAcquired(baseGraph, ['ethnography']);
-  assert.ok(!first.ids.includes('photography'));
+  assert.ok(first.ids.includes('photography'),'retired topic is now available as a peripheral concept');
   assert.ok(!first.ids.includes('surrealism'));
   assert.ok(!first.edges.some(edge => edge.sourceId === 'surrealism'));
   const second = graphForAcquired(baseGraph, ['ethnography', 'surrealism', 'photography']);
@@ -76,17 +76,12 @@ test('all fixture sizes are nested, have valid unique identities and determinist
     }
   }
 });
-test('a shared concept connects separate knowledge without duplicated nodes; sixth acquisition bridges art and technology', () => {
-  const five = demoView(5), six = demoView(6);
-  assert.equal(five.ids.filter((id) => id === 'light').length, 1);
-  assert.ok(!five.ids.includes('photography'));
-  assert.ok(six.edges.some((edge) => edge.sourceId === 'surrealism' && edge.targetId === 'photography'));
-  const incident = six.edges.filter((edge) => edge.sourceId === 'light' || edge.targetId === 'light');
-  assert.ok(incident.some((edge) => edge.sourceId === 'photonics-electronics'));
-  assert.ok(incident.some((edge) => edge.sourceId === 'photography'));
+test('shared peripheral concepts bridge disciplines without duplicated nodes', () => {
   const ten = demoView(10);
-  assert.equal(ten.ids.filter((id) => id === 'fieldnotes').length, 1);
-  assert.ok(ten.edges.filter((edge) => edge.targetId === 'fieldnotes').length >= 2);
+  assert.equal(ten.ids.filter(id=>id==='photography').length,1);
+  for(const id of ['ethnography','surrealism'])assert.ok(ten.edges.some(e=>e.sourceId===id&&e.targetId==='photography'));
+  assert.equal(ten.ids.filter(id=>id==='perception-action').length,1);
+  assert.ok(ten.edges.filter(e=>e.targetId==='perception-action').length>=3);
 });
 test('visibility never exposes unacquired knowledge relationships or links between two unacquired concepts', () => {
   assert.deepEqual(graphForAcquired(demoGraph, ['unknown']), { ids: [], edges: [] });
@@ -122,6 +117,6 @@ test('demo transitions are independent of the persisted acquisition ledger', () 
   assert.equal(JSON.stringify(state), saved);
   assert.deepEqual(restoreProgress(saved), state);
   assert.equal(demoOrder.slice(0, 10).filter((id) => demoGraph.nodes[id].provenance === 'sourced').length, 10);
-  assert.equal(demoOrder.filter((id) => demoGraph.nodes[id].provenance === 'fixture').length, 490);
+  assert.equal(demoOrder.filter((id) => demoGraph.nodes[id].provenance === 'fixture').length, 470);
   for (const count of [0, 4, 501, 5.5, NaN]) assert.throws(() => demoView(count));
 });

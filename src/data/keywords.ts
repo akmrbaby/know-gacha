@@ -1,4 +1,5 @@
 import { extra } from './additional-knowledge';
+import { curated } from './curated-knowledge';
 export type Keyword = {
     id: string;
     name: string;
@@ -44,5 +45,8 @@ export const keywords: Keyword[] = [
         ],
     },
 ];
-keywords.push(...extra.map(node => ({ id: node.id, name: node.name, category: node.category, introduction: node.summary, summary: node.detail ?? node.summary, sections: [], evidence: node.evidence })));
-export const findKeyword = (id: string) => keywords.find((word) => word.id === id);
+keywords.push(...curated);
+// Retired draw candidates remain readable under their original saved IDs.
+export const legacyKeywords: Keyword[] = extra.filter(node => ['optical-fiber', 'photography', 'collage', 'user-research'].includes(node.id)).map(node => ({ id: node.id, name: node.name, category: node.category, introduction: node.summary, summary: node.detail ?? node.summary, sections: [], evidence: node.evidence }));
+export const allKeywords = [...keywords, ...legacyKeywords];
+export const findKeyword = (id: string) => allKeywords.find((word) => word.id === id);

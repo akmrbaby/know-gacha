@@ -1,43 +1,892 @@
 {
   "topics": {
-    "photonics-electronics": {"name":"Integrated photonics and electronics","category":"Technology","introduction":"Electronics computes; light carries information. What happens when their strengths meet?","summary":"Integrating photonics and electronics brings optical technology together with electronic circuits. Electronics is well suited to computation and control, while light can carry large amounts of information. Bringing them closer aims to improve the speed and energy efficiency of communication within information systems.","sections":[{"title":"Why use light?","body":"Data centers do more than compute: they move enormous amounts of data between devices and chips. High-speed electrical connections face challenges including transmission losses and heat. Bringing optical communication inside devices is one approach to these problems."},{"title":"Passing information between light and electronics","body":"For example, a signal produced by an electronic circuit can be converted into light, sent through an optical fiber, and converted back into an electrical signal at the receiver. Research and development aim to place the components that perform these conversions close to electronic circuits, or integrate them together."},{"title":"Not every calculation becomes optical","body":"Integrating photonics and electronics does not mean replacing all computation with light. Conversion also requires energy and components. Deciding where to transmit information optically and where to process it electronically is an essential part of the design."}]},
-    "ethnography":{"name":"Ethnography","category":"Society & culture","introduction":"Look beyond what people do to understand what feels ordinary to them.","summary":"Ethnography involves engaging with people's lives and activities, using observation and dialogue to understand and describe actions and meanings in context. It developed in cultural anthropology and is now also used in fields such as organizational and design research.","sections":[{"title":"Entering everyday life","body":"Questionnaire answers alone may not reveal everyday behavior or unspoken rules. Researchers spend time in the field, combining participant observation—observing while taking part in activities—with interviews and the examination of records and other materials."},{"title":"What a cup of tea can reveal","body":"Consider a workplace tea break. What looks like a simple pause may also be a chance to discuss work or offer advice to a newcomer. This is a fictional illustration: it shows how ethnography asks what an action means in its setting, rather than only counting how often it happens."},{"title":"Questioning the observer's perspective","body":"An observation does not automatically become the only truth. An account depends on whom the researcher engaged with and how they interpreted events. Consent, privacy, and reflection on the researcher's own position are essential."}]},
-    "surrealism":{"name":"Surrealism","category":"Art & ideas","introduction":"Let the strangeness of dreams unsettle familiar reality.","summary":"Surrealism is an artistic and literary movement that explored dreams and the unconscious, seeking expression beyond the limits of reason and convention. André Breton's 1924 Surrealist Manifesto was an important milestone.","sections":[{"title":"More than strange paintings","body":"Surrealism is known for paintings that combine things in seemingly impossible ways, but it also spread into poetry, writing, photography, and film. Beyond novelty, it questioned ways of seeing reality that are usually taken for granted."},{"title":"Writing before conscious editing","body":"One practice was automatic writing: letting words emerge while holding back the impulse to organize them logically or polish the language. It reflected an interest in the unconscious, but the resulting writing should not be treated as a scientific measurement of the mind."},{"title":"New encounters between familiar things","body":"An everyday object can take on a different meaning when it appears somewhere unexpected. Surrealism used such encounters and displacements to explore possibilities beyond ordinary arrangements. Methods varied across works and artists."}]},
-    "optical-fiber":{"name":"Optical fiber","category":"Technology","introduction":"A thin strand guides light to carry information.","summary":"In optical communication, a fiber that guides light serves as a transmission medium. It is not synonymous with integrating photonics and electronics; it is one technology that supports the transmission of information using light.","sections":[]},
-    "ccd":{"name":"CCD","category":"Technology","introduction":"A semiconductor circuit that captures light electronically for imaging.","summary":"A CCD records light as electronic signals. It helped make it possible to record photographs electronically rather than only on film. Not every digital camera uses a CCD.","sections":[]},
-    "photography":{"name":"Photography","category":"Art & technology","introduction":"A way to record light, and a medium for expression.","summary":"Photography records light to form images. Here, electronic recording using CCDs and Man Ray's photographic works introduced by MoMA offer two starting points for exploring its technological and artistic aspects.","sections":[]},
-    "dada":{"name":"Dada","category":"Art & ideas","introduction":"Questioning established art through chance, everyday objects, and unexpected materials.","summary":"Dada was an artistic and literary movement that emerged during the First World War. Its practitioners used diverse materials and methods, including collage, photomontage, and everyday objects.","sections":[]},
-    "collage":{"name":"Collage","category":"Art & ideas","introduction":"Bringing different fragments together into one work.","summary":"Collage combines fragments of material, such as pieces of paper. MoMA presents Hans Arp's chance-based collages among the practices associated with Dada.","sections":[]},
-    "user-research":{"name":"User research","category":"Society & design","introduction":"Studying people's behavior and circumstances to inform design decisions.","summary":"One approach visits people in their usual environments and observes their activities. Tools and surroundings help reveal what a service needs to support. User research is not equivalent to ethnography as a whole.","sections":[]},
-    "user-centered-design":{"name":"User-centered design","category":"Society & design","introduction":"Design begins with understanding people's goals and circumstances.","summary":"The GOV.UK Service Standard calls for understanding users and their problems, then testing assumptions through research and prototypes. It starts with what people need to achieve, rather than choosing a solution in advance.","sections":[]}
+    "photonics-electronics": {
+      "name": "Integrated photonics and electronics",
+      "category": "Technology",
+      "introduction": "Electronics computes; light carries information. What happens when their strengths meet?",
+      "summary": "Integrating photonics and electronics brings optical technology together with electronic circuits. Electronics is well suited to computation and control, while light can carry large amounts of information. Bringing them closer aims to improve the speed and energy efficiency of communication within information systems.",
+      "sections": [
+        {
+          "title": "Why use light?",
+          "body": "Data centers do more than compute: they move enormous amounts of data between devices and chips. High-speed electrical connections face challenges including transmission losses and heat. Bringing optical communication inside devices is one approach to these problems."
+        },
+        {
+          "title": "Passing information between light and electronics",
+          "body": "For example, a signal produced by an electronic circuit can be converted into light, sent through an optical fiber, and converted back into an electrical signal at the receiver. Research and development aim to place the components that perform these conversions close to electronic circuits, or integrate them together."
+        },
+        {
+          "title": "Not every calculation becomes optical",
+          "body": "Integrating photonics and electronics does not mean replacing all computation with light. Conversion also requires energy and components. Deciding where to transmit information optically and where to process it electronically is an essential part of the design."
+        }
+      ]
+    },
+    "ethnography": {
+      "name": "Ethnography",
+      "category": "Society & culture",
+      "introduction": "Look beyond what people do to understand what feels ordinary to them.",
+      "summary": "Ethnography involves engaging with people's lives and activities, using observation and dialogue to understand and describe actions and meanings in context. It developed in cultural anthropology and is now also used in fields such as organizational and design research.",
+      "sections": [
+        {
+          "title": "Entering everyday life",
+          "body": "Questionnaire answers alone may not reveal everyday behavior or unspoken rules. Researchers spend time in the field, combining participant observation—observing while taking part in activities—with interviews and the examination of records and other materials."
+        },
+        {
+          "title": "What a cup of tea can reveal",
+          "body": "Consider a workplace tea break. What looks like a simple pause may also be a chance to discuss work or offer advice to a newcomer. This is a fictional illustration: it shows how ethnography asks what an action means in its setting, rather than only counting how often it happens."
+        },
+        {
+          "title": "Questioning the observer's perspective",
+          "body": "An observation does not automatically become the only truth. An account depends on whom the researcher engaged with and how they interpreted events. Consent, privacy, and reflection on the researcher's own position are essential."
+        }
+      ]
+    },
+    "surrealism": {
+      "name": "Surrealism",
+      "category": "Art & ideas",
+      "introduction": "Let the strangeness of dreams unsettle familiar reality.",
+      "summary": "Surrealism is an artistic and literary movement that explored dreams and the unconscious, seeking expression beyond the limits of reason and convention. André Breton's 1924 Surrealist Manifesto was an important milestone.",
+      "sections": [
+        {
+          "title": "More than strange paintings",
+          "body": "Surrealism is known for paintings that combine things in seemingly impossible ways, but it also spread into poetry, writing, photography, and film. Beyond novelty, it questioned ways of seeing reality that are usually taken for granted."
+        },
+        {
+          "title": "Writing before conscious editing",
+          "body": "One practice was automatic writing: letting words emerge while holding back the impulse to organize them logically or polish the language. It reflected an interest in the unconscious, but the resulting writing should not be treated as a scientific measurement of the mind."
+        },
+        {
+          "title": "New encounters between familiar things",
+          "body": "An everyday object can take on a different meaning when it appears somewhere unexpected. Surrealism used such encounters and displacements to explore possibilities beyond ordinary arrangements. Methods varied across works and artists."
+        }
+      ]
+    },
+    "optical-fiber": {
+      "name": "Optical fiber",
+      "category": "Technology",
+      "introduction": "A thin strand guides light to carry information.",
+      "summary": "In optical communication, a fiber that guides light serves as a transmission medium. It is not synonymous with integrating photonics and electronics; it is one technology that supports the transmission of information using light.",
+      "sections": []
+    },
+    "ccd": {
+      "name": "CCD",
+      "category": "Semiconductors and imaging",
+      "introduction": "How can light become a stored image?",
+      "summary": "A CCD collects light-generated charge and transfers it for readout, turning a pattern of light into electrical signals.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "In an imaging CCD, pixels collect charge generated by light. Controlled voltages move those charges toward a readout circuit."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine a grid of rain collectors passing their contents along to one measuring station. This analogy separates collection from readout."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Image quality also depends on noise and optics. CMOS sensors are widely used too; digital cameras do not all contain CCDs."
+        }
+      ]
+    },
+    "photography": {
+      "name": "Photography",
+      "category": "Art & technology",
+      "introduction": "A way to record light, and a medium for expression.",
+      "summary": "Photography records light to form images. Here, electronic recording using CCDs and Man Ray's photographic works introduced by MoMA offer two starting points for exploring its technological and artistic aspects.",
+      "sections": []
+    },
+    "dada": {
+      "name": "Dada",
+      "category": "Art and ideas",
+      "introduction": "What if art questions how art itself is defined?",
+      "summary": "Dada was an art and literary movement that questioned established values through chance, fragments, and ordinary objects.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Against the background of World War I, artists challenged conventions of making and exhibiting art."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Consider an everyday object displayed in a museum: what makes it a work? The question shifts attention toward context and institutions."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Dada had no single uniform style. Arbitrary making alone does not explain its diverse historical practices."
+        }
+      ]
+    },
+    "collage": {
+      "name": "Collage",
+      "category": "Art & ideas",
+      "introduction": "Bringing different fragments together into one work.",
+      "summary": "Collage combines fragments of material, such as pieces of paper. MoMA presents Hans Arp's chance-based collages among the practices associated with Dada.",
+      "sections": []
+    },
+    "user-research": {
+      "name": "User research",
+      "category": "Society & design",
+      "introduction": "Studying people's behavior and circumstances to inform design decisions.",
+      "summary": "One approach visits people in their usual environments and observes their activities. Tools and surroundings help reveal what a service needs to support. User research is not equivalent to ethnography as a whole.",
+      "sections": []
+    },
+    "user-centered-design": {
+      "name": "User-centered design (UCD)",
+      "category": "Design",
+      "introduction": "What changes when design starts with the people using it?",
+      "summary": "User-centered design iterates between understanding users, designing, and evaluating whether people can achieve their goals.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Research and evaluation belong throughout design, rather than only at the end. Prototypes help test assumptions about use."
+        },
+        {
+          "title": "A concrete example",
+          "body": "For a ticket machine, observing destination searches and hands occupied by luggage may suggest changes that a feature request misses."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "UCD and human-centered design (HCD) are closely related terms. Neither simply means implementing every request or optimizing sales alone."
+        }
+      ]
+    },
+    "affordance": {
+      "name": "Affordance",
+      "category": "Ecological psychology",
+      "introduction": "What possibilities for action does an environment offer?",
+      "summary": "An affordance is a possibility for action arising in the relationship between an environment and an agent.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "The same step can afford sitting or climbing differently for different bodies. The unit of analysis is the relationship."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine a stair climbable by an adult but too high for a toddler. Identical dimensions need not offer identical actions."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "An available action and a cue making it noticeable can differ. Affordance is broader than a shape that looks clickable."
+        }
+      ]
+    },
+    "umwelt": {
+      "name": "Umwelt",
+      "category": "Biology and philosophy",
+      "introduction": "Can different creatures inhabit different worlds in one place?",
+      "summary": "Umwelt describes a living being’s meaningful world of perception and action, associated with Jakob von Uexküll.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Organisms attend and respond to different cues. Understanding one requires asking what matters within its perceptual and practical world."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine walking with a dog: you attend to signs while it stops at scents. A shared street can carry different meanings."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "We cannot directly inhabit another animal’s experience. The concept invites careful observation, not unrestricted anthropomorphism."
+        }
+      ]
+    },
+    "predictive-processing": {
+      "name": "Predictive processing",
+      "category": "Cognitive science",
+      "introduction": "Does the brain perceive by predicting?",
+      "summary": "Predictive processing explains perception and learning through predictions about sensory input and the errors those predictions generate.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Prediction errors can update models. How uncertainty is weighted matters; the account is more specific than saying belief creates reality."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine hearing a familiar order in a noisy café. Contextual expectations can help interpret an ambiguous sound."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "This is a family of models, not a completed theory of everything the brain does. Illustrations do not establish a neural mechanism."
+        }
+      ]
+    },
+    "embodied-cognition": {
+      "name": "Embodied cognition",
+      "category": "Cognitive science",
+      "introduction": "How do bodies and environments participate in thinking?",
+      "summary": "Embodied cognition is a research program emphasizing the roles of bodies and environmental interaction in cognition.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Bodies can shape how tasks are solved. Researchers disagree about whether bodily contributions merely support cognition or partly constitute it."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine arranging furniture mentally versus moving small models. Acting on the models changes how comparisons can be made."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "It does not imply that movement always improves thinking. Claims need a specified task, body, environment, and evidence."
+        }
+      ]
+    },
+    "cognitive-dissonance": {
+      "name": "Cognitive dissonance",
+      "category": "Social psychology",
+      "introduction": "What happens when actions and beliefs conflict?",
+      "summary": "Cognitive dissonance is an uncomfortable state associated with inconsistency among relevant cognitions or behavior.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "People may reduce dissonance by changing behavior or revising attitudes and interpretations, rather than always choosing one route."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine making an expensive purchase after deciding to save. One might reinterpret its value or change later spending."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Contradictory remarks alone do not diagnose dissonance. Other explanations exist, and another person’s mental state cannot simply be inferred."
+        }
+      ]
+    },
+    "exaptation": {
+      "name": "Exaptation",
+      "category": "Evolutionary biology",
+      "introduction": "Did a trait originate for the role it plays today?",
+      "summary": "Exaptation describes a trait used for a role for which it was not originally selected.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "A feature may be co-opted from another selected function or from a nonadaptive origin. Present usefulness and historical origin are distinct questions."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Feathers predating flight provide an entry point: their current aerodynamic use alone cannot establish their original role."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "A history of co-option needs comparative or fossil evidence. An imaginative alternative use does not prove an evolutionary account."
+        }
+      ]
+    },
+    "niche-construction": {
+      "name": "Niche construction",
+      "category": "Evolutionary ecology",
+      "introduction": "Can organisms change the environments in which they evolve?",
+      "summary": "Niche construction concerns organisms modifying environments and thereby affecting selection on themselves or other organisms.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Persistent environmental modifications can create ecological inheritance, influencing conditions encountered by later generations."
+        },
+        {
+          "title": "A concrete example",
+          "body": "A beaver dam changes water flow and habitat conditions. Organismal activity alters conditions for more than its builder."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Environmental modification does not automatically demonstrate evolutionary change. Ecological effects and subsequent genetic change require distinct evidence."
+        }
+      ]
+    },
+    "neutral-theory": {
+      "name": "Neutral theory of molecular evolution",
+      "category": "Evolutionary biology",
+      "introduction": "How does chance contribute to molecular evolution?",
+      "summary": "Motoo Kimura’s neutral theory emphasizes genetic drift of selectively neutral changes in molecular evolution.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Random sampling across generations can change variant frequencies even without a selective advantage."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine repeatedly sampling equally likely colored beads to fill the next bag. One color can spread without being superior."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "The theory does not deny adaptation or claim that every mutation is neutral. Its scope concerns patterns of molecular change."
+        }
+      ]
+    },
+    "endosymbiosis": {
+      "name": "Endosymbiotic theory",
+      "category": "Evolutionary biology",
+      "introduction": "Do our cells contain descendants of once-independent organisms?",
+      "summary": "Endosymbiotic theory explains the bacterial ancestry of mitochondria and chloroplasts through integration within host cells.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Their DNA, membranes, and evolutionary relationships provide evidence. Modern organelles have become deeply integrated with their hosts."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Mitochondria involved in cellular energy carry this history. A cell can be understood partly through the integration of lineages."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Not every cellular structure has this origin. Details of early integration and eukaryotic origins remain active research questions."
+        }
+      ]
+    },
+    "dissipative-structures": {
+      "name": "Dissipative structures",
+      "category": "Nonequilibrium thermodynamics",
+      "introduction": "Can a continuing flow of energy sustain order?",
+      "summary": "Dissipative structures are ordered patterns sustained in open systems away from equilibrium through flows of energy or matter.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Stable patterns can be dynamic. Local order is compatible with the second law when exchange with the surroundings is included."
+        },
+        {
+          "title": "A concrete example",
+          "body": "A fluid heated from below can develop organized convection patterns, sustained by the continuing thermal conditions."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Not every flow produces order. Extending the concept to organizations requires care rather than assuming physical laws transfer unchanged."
+        }
+      ]
+    },
+    "phase-transition": {
+      "name": "Phase transition",
+      "category": "Physics",
+      "introduction": "How can changing conditions transform a whole system?",
+      "summary": "A phase transition changes a system’s macroscopic state as conditions vary, including changes of state and magnetic ordering.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Interactions among many components produce collective behavior. An order parameter can describe a change at the system level."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Freezing does not turn water molecules into another molecule. Their collective arrangement and motion change."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Transitions differ in character and mechanism. Calling a social change a phase transition needs either a clear model or an explicit metaphor."
+        }
+      ]
+    },
+    "emergence": {
+      "name": "Emergence",
+      "category": "Complex systems and philosophy",
+      "introduction": "How can interactions produce properties of a whole?",
+      "summary": "Emergence concerns novel system-level properties or patterns arising through interactions among components.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Knowing component properties and explaining collective behavior are different tasks. Models can investigate the interactions producing a pattern."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine people each adjusting distance from the person ahead, producing a moving wave without anyone planning that wave."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Emergence is not a substitute for explanation. Practical unpredictability and stronger claims of irreducibility need to be distinguished."
+        }
+      ]
+    },
+    "path-dependence": {
+      "name": "Path dependence",
+      "category": "Economics and institutions",
+      "introduction": "How do past choices shape what can be chosen now?",
+      "summary": "Path dependence means that outcomes depend on the sequence of earlier events, not only present conditions.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Accumulated skills, equipment, and compatibility can reinforce earlier choices and raise switching costs."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine a town using one charging connector. A new option may struggle while compatible chargers and users remain scarce."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Persistence does not prove inefficiency. Historical influence must be distinguished from current reasons for preferring a system."
+        }
+      ]
+    },
+    "transaction-costs": {
+      "name": "Transaction costs",
+      "category": "Economics",
+      "introduction": "Why do firms exist when people can trade in markets?",
+      "summary": "Transaction costs include finding partners, negotiating, and enforcing agreements. Coase used them to examine firms and markets.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Trading requires information and coordination beyond the price itself. Internal organization and repeated market contracting have different costs."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine outsourcing each part of an event separately. Scheduling, communicating changes, and assigning responsibility also consume resources."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Internal management has costs too. Organizational boundaries also depend on uncertainty and contracting conditions."
+        }
+      ]
+    },
+    "gift-exchange": {
+      "name": "The gift",
+      "category": "Social anthropology",
+      "introduction": "What does a gift create between people?",
+      "summary": "Mauss’s account of gifts examines how giving, receiving, and reciprocating are bound up with social relationships and obligations.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Gifts can sustain relationships beyond a single transfer. Expectations of return depend on social context."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine inviting a friend to dinner after they help you move. Equating hours and food prices misses part of the relationship."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "This does not reduce generosity to hidden calculation. Obligation, intimacy, and unequal power can coexist in different ways."
+        }
+      ]
+    },
+    "liminality": {
+      "name": "Liminality",
+      "category": "Social anthropology",
+      "introduction": "What happens between leaving one status and entering another?",
+      "summary": "Liminality describes an in-between phase of transition, developed through studies of rites of passage.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Between separation and incorporation, ordinary distinctions can become unsettled. The transition itself becomes an object of study."
+        },
+        {
+          "title": "A concrete example",
+          "body": "The interval after graduation but before joining a new institution offers an illustrative entry point into in-betweenness."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Not every uncertain period is equivalent to a ritual transition. Broader applications should acknowledge the concept’s anthropological origins."
+        }
+      ]
+    },
+    "social-construction": {
+      "name": "Social constructionism",
+      "category": "Sociology and philosophy",
+      "introduction": "How do social practices establish familiar categories?",
+      "summary": "Social constructionism investigates how meanings and categories depend on social practices, language, and institutions.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "A category’s existence does not establish that nature uniquely fixes it. Classification and its consequences can be investigated."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Consider a paper ticket: its physical properties alone do not explain the institutional right to enter."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Social dependence does not mean reality is imaginary or freely changeable. Objects, processes, and material constraints must be specified."
+        }
+      ]
+    },
+    "imagined-communities": {
+      "name": "Imagined communities",
+      "category": "Politics and history",
+      "introduction": "How can strangers imagine belonging to one nation?",
+      "summary": "Benedict Anderson examined nations as communities imagined among people who will never meet most fellow members.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Print and shared languages helped shape ways of imagining collective membership. Nationhood becomes a historical question."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine distant readers treating a dated newspaper’s events as part of their shared society. Meeting is not the only basis of belonging."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "This is not a single-cause explanation of nation formation. Institutions, colonial histories, and regional differences also matter."
+        }
+      ]
+    },
+    "indexicality": {
+      "name": "Indexicality",
+      "category": "Linguistics",
+      "introduction": "What does language reveal about the situation of speaking?",
+      "summary": "Indexicality links expressions to the contexts in which they are used: “I,” “here,” and “now” depend on the occasion.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Identical words can refer differently across situations. Sociolinguistic approaches also examine how speech points to social relationships."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine finding “Meet here tomorrow.” Grammar alone cannot identify the meeting without knowing when and where it was written."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Speech does not reliably reveal a speaker’s identity by itself. Social interpretations remain contextual rather than fixed personal classifications."
+        }
+      ]
+    },
+    "linguistic-relativity": {
+      "name": "Linguistic relativity",
+      "category": "Linguistics and cognitive science",
+      "introduction": "Can language influence patterns of attention and thought?",
+      "summary": "Linguistic relativity investigates how language influences thought, without requiring that it completely determines what can be thought.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Languages differ in habitual distinctions. Researchers test how these relate to attention, memory, and other tasks."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Compare describing positions with left and right versus cardinal directions. The contrast invites questions about habitual attention."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "A missing word does not prove an inability to understand a concept. Cultural and task differences complicate causal claims."
+        }
+      ]
+    },
+    "performativity": {
+      "name": "Performativity",
+      "category": "Philosophy of language and social theory",
+      "introduction": "Can saying something help bring a social reality into being?",
+      "summary": "Austin’s work on speech acts offers an entry into performativity: utterances can do things such as promise or name.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "What an utterance says and what it does are distinct questions. Authority, procedures, and circumstances affect whether the act succeeds."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine an authorized chair declaring a meeting closed. The utterance can participate in ending the meeting."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Words do not make any wish real. Later uses, including Butler’s account of gender, require attention to their different theoretical contexts."
+        }
+      ]
+    },
+    "paradigm": {
+      "name": "Paradigm",
+      "category": "Philosophy of science",
+      "introduction": "What changes when a scientific community’s shared framework changes?",
+      "summary": "In Kuhn’s philosophy of science, paradigms concern shared exemplars and commitments shaping scientific problems and solutions.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Normal science solves puzzles within shared commitments. Encountering an anomaly and changing a framework are not identical events."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine learning exemplary solutions in a course. Those examples can shape which new problems seem worth asking."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Not every novelty is a paradigm shift. Kuhn’s account does not mean scientific evidence can simply be ignored."
+        }
+      ]
+    },
+    "bricolage": {
+      "name": "Bricolage",
+      "category": "Anthropology and ideas",
+      "introduction": "What can be made by recombining what is already at hand?",
+      "summary": "Lévi-Strauss used bricolage to examine working with an available repertoire of materials and signs.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "Knowledge can work by rearranging inherited resources rather than designing every element afresh. Their previous meanings can remain relevant."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine building a display from old boxes and spare fabric. Existing shapes constrain the design while suggesting unexpected arrangements."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "The concept is broader than thrift or craft skill. Its anthropological arguments about thought differ from later practical analogies."
+        }
+      ]
+    },
+    "rhizome": {
+      "name": "Rhizome",
+      "category": "Philosophy",
+      "introduction": "How might connections escape a single center or hierarchy?",
+      "summary": "Deleuze and Guattari developed rhizome as a philosophical concept for multiplicities and connections beyond a single organizing root.",
+      "sections": [
+        {
+          "title": "Understanding the concept",
+          "body": "It invites entry from the middle and connections among heterogeneous elements, questioning exhaustive organization under one hierarchy."
+        },
+        {
+          "title": "A concrete example",
+          "body": "Imagine following a reference from a book to music and then history. Exploration can grow through multiple entry points."
+        },
+        {
+          "title": "Scope and limits",
+          "body": "Rhizome is not a mathematical measure of networks, nor a guarantee that every decentralized arrangement is desirable."
+        }
+      ]
+    }
   },
-  "concepts":{
-    "optical-communication":{"name":"Optical communication","summary":"Technology that transmits information using light, including communication through optical fiber."},
-    "silicon-photonics":{"name":"Silicon photonics","summary":"Technology for building small optical circuits and components on a silicon platform."},
-    "participant-observation":{"name":"Participant observation","summary":"A research method that combines taking part in people's activities with observation to understand practices and meanings in context."},
-    "fieldnotes":{"name":"Fieldnotes","summary":"Notes recording events and conversations in the field, alongside the researcher's observations and interpretations."},
-    "automatism":{"name":"Automatic writing","summary":"An expressive method of recording words as they arise while holding back conscious editing."},
-    "andre-breton":{"name":"André Breton","summary":"A French poet and writer who was one of the leading figures of the Surrealist movement."},
-    "light":{"name":"Light","summary":"Light is used both to transmit information and to record images. This does not mean the two uses have the same purpose."}
+  "concepts": {
+    "optical-communication": {
+      "name": "Optical communication",
+      "summary": "Technology that transmits information using light, including communication through optical fiber."
+    },
+    "silicon-photonics": {
+      "name": "Silicon photonics",
+      "summary": "Technology for building small optical circuits and components on a silicon platform."
+    },
+    "participant-observation": {
+      "name": "Participant observation",
+      "summary": "A research method that combines taking part in people's activities with observation to understand practices and meanings in context."
+    },
+    "fieldnotes": {
+      "name": "Fieldnotes",
+      "summary": "Notes recording events and conversations in the field, alongside the researcher's observations and interpretations."
+    },
+    "automatism": {
+      "name": "Automatic writing",
+      "summary": "An expressive method of recording words as they arise while holding back conscious editing."
+    },
+    "andre-breton": {
+      "name": "André Breton",
+      "summary": "A French poet and writer who was one of the leading figures of the Surrealist movement."
+    },
+    "light": {
+      "name": "Light",
+      "summary": "Light is used both to transmit information and to record images. This does not mean the two uses have the same purpose."
+    },
+    "perception-action": {
+      "name": "Perception and action",
+      "summary": "Questions about perception and action can include both bodies and environments."
+    },
+    "evolutionary-processes": {
+      "name": "Evolutionary processes",
+      "summary": "Evolutionary change involves processes including selection and drift across generations."
+    },
+    "collective-patterns": {
+      "name": "Collective patterns",
+      "summary": "How do component properties and interactions produce system-level behavior?"
+    },
+    "institutions-norms": {
+      "name": "Institutions and norms",
+      "summary": "Social arrangements and expectations shape action and meaning, and can be studied historically."
+    },
+    "social-transitions": {
+      "name": "Social relationships and transitions",
+      "summary": "How do practices establish and transform social relationships and statuses?"
+    },
+    "utterance-context": {
+      "name": "Context of utterance",
+      "summary": "The circumstances of speaking include who, when, where, relationships, and procedures."
+    },
+    "scientific-community": {
+      "name": "Scientific community",
+      "summary": "Researchers share questions, methods, and exemplary solutions within communities."
+    },
+    "materials-context": {
+      "name": "Materials and context",
+      "summary": "The meanings of objects and signs can change through their arrangement and use."
+    }
   },
-  "connections":{
-    "ethnography-photography":{"label":"One way to document research","explanation":"Ethnographic practices can use photographs to record and interpret lives and activities. Photographs carry context and the photographer's perspective; photography alone does not replace the whole research process."},
-    "surrealism-photography":{"label":"An expressive medium","explanation":"Surrealism included photographic practices such as photomontage and photograms. Their aims differ from photography used in research. This connection does not claim a direct historical influence between Surrealism and anthropology."},
-    "photonics-communication":{"label":"A technology it uses","explanation":"Integrating photonics and electronics combines electronic circuits with optical information transmission. Optical communication supports the transfer of information between and within devices."},
-    "photonics-silicon":{"label":"One enabling technology","explanation":"Silicon photonics integrates optical components at a small scale and is one way to bring light and electronic circuits closer. It does not describe the whole field of integrating photonics and electronics."},
-    "ethnography-observation":{"label":"A major research method","explanation":"Ethnography uses participant observation to understand the context of people's lives and activities. Interviews and examination of documents and other materials are also used."},
-    "ethnography-notes":{"label":"A way to record research","explanation":"Fieldnotes record observed events, conversations, and the researcher's interpretations. Revisiting these records supports description and analysis."},
-    "surrealism-automatism":{"label":"An expressive method","explanation":"Surrealism explored dreams and the unconscious and practiced automatic writing as one form of expression. This method alone does not explain the entire movement."},
-    "breton-surrealism":{"label":"One of the movement's leaders","explanation":"Breton published the Surrealist Manifesto in 1924 and helped lead the movement, which involved many writers and artists."},
-    "photonics-electronics--light":{"label":"Used to transmit information","explanation":"Integrating photonics and electronics combines optical input and output with electronic circuits."},
-    "optical-fiber--optical-communication":{"label":"Provides a transmission medium","explanation":"Optical fiber guides light as a transmission medium in optical communication."},
-    "ccd--light":{"label":"Detects light for recording","explanation":"A CCD is a semiconductor imaging circuit that captures light electronically."},
-    "photography--light":{"label":"Records it as an image","explanation":"Electronic photography uses imaging sensors such as CCDs to capture light."},
-    "photography--ccd":{"label":"One electronic recording method","explanation":"CCDs are one technology used to record photographs electronically."},
-    "dada--collage":{"label":"One expressive method","explanation":"MoMA presents collage among Dada's methods, including Hans Arp's chance-based work."},
-    "dada--photography":{"label":"Uses photographic fragments too","explanation":"Dada includes photomontage, which combines fragments of photographs."},
-    "user-research--participant-observation":{"label":"Uses observation in context","explanation":"User research can also observe activities in everyday settings. The degree of participation varies across studies; the two methods are not identical."},
-    "user-research--fieldnotes":{"label":"Records observations in context","explanation":"GOV.UK's contextual research guidance describes recording what is seen and heard in notes. Recording also supports analysis in ethnography."},
-    "user-centered-design--user-research":{"label":"Deepens understanding of users","explanation":"The GOV.UK Service Standard calls for user research to understand what people need when designing a service."}
+  "connections": {
+    "ethnography-photography": {
+      "label": "One way to document research",
+      "explanation": "Ethnographic practices can use photographs to record and interpret lives and activities. Photographs carry context and the photographer's perspective; photography alone does not replace the whole research process."
+    },
+    "surrealism-photography": {
+      "label": "An expressive medium",
+      "explanation": "Surrealism included photographic practices such as photomontage and photograms. Their aims differ from photography used in research. This connection does not claim a direct historical influence between Surrealism and anthropology."
+    },
+    "photonics-communication": {
+      "label": "A technology it uses",
+      "explanation": "Integrating photonics and electronics combines electronic circuits with optical information transmission. Optical communication supports the transfer of information between and within devices."
+    },
+    "photonics-silicon": {
+      "label": "One enabling technology",
+      "explanation": "Silicon photonics integrates optical components at a small scale and is one way to bring light and electronic circuits closer. It does not describe the whole field of integrating photonics and electronics."
+    },
+    "ethnography-observation": {
+      "label": "A major research method",
+      "explanation": "Ethnography uses participant observation to understand the context of people's lives and activities. Interviews and examination of documents and other materials are also used."
+    },
+    "ethnography-notes": {
+      "label": "A way to record research",
+      "explanation": "Fieldnotes record observed events, conversations, and the researcher's interpretations. Revisiting these records supports description and analysis."
+    },
+    "surrealism-automatism": {
+      "label": "An expressive method",
+      "explanation": "Surrealism explored dreams and the unconscious and practiced automatic writing as one form of expression. This method alone does not explain the entire movement."
+    },
+    "breton-surrealism": {
+      "label": "One of the movement's leaders",
+      "explanation": "Breton published the Surrealist Manifesto in 1924 and helped lead the movement, which involved many writers and artists."
+    },
+    "photonics-electronics--light": {
+      "label": "Used to transmit information",
+      "explanation": "Integrating photonics and electronics combines optical input and output with electronic circuits."
+    },
+    "optical-fiber--optical-communication": {
+      "label": "Provides a transmission medium",
+      "explanation": "Optical fiber guides light as a transmission medium in optical communication."
+    },
+    "ccd--light": {
+      "label": "Detects light for recording",
+      "explanation": "A CCD is a semiconductor imaging circuit that captures light electronically."
+    },
+    "photography--light": {
+      "label": "Records it as an image",
+      "explanation": "Electronic photography uses imaging sensors such as CCDs to capture light."
+    },
+    "photography--ccd": {
+      "label": "One electronic recording method",
+      "explanation": "CCDs are one technology used to record photographs electronically."
+    },
+    "dada--collage": {
+      "label": "One expressive method",
+      "explanation": "MoMA presents collage among Dada's methods, including Hans Arp's chance-based work."
+    },
+    "dada--photography": {
+      "label": "Uses photographic fragments too",
+      "explanation": "Dada includes photomontage, which combines fragments of photographs."
+    },
+    "user-research--participant-observation": {
+      "label": "Uses observation in context",
+      "explanation": "User research can also observe activities in everyday settings. The degree of participation varies across studies; the two methods are not identical."
+    },
+    "user-research--fieldnotes": {
+      "label": "Records observations in context",
+      "explanation": "GOV.UK's contextual research guidance describes recording what is seen and heard in notes. Recording also supports analysis in ethnography."
+    },
+    "user-centered-design--user-research": {
+      "label": "Deepens understanding of users",
+      "explanation": "The GOV.UK Service Standard calls for user research to understand what people need when designing a service."
+    },
+    "affordance--perception-action": {
+      "label": "Possibilities for action",
+      "explanation": "Affordances relate possibilities for action to an agent and its environment."
+    },
+    "umwelt--perception-action": {
+      "label": "Meaning for an organism",
+      "explanation": "Umwelt asks what matters within an organism’s world of perception and action."
+    },
+    "predictive-processing--perception-action": {
+      "label": "Predictions and sensory errors",
+      "explanation": "Predictive processing studies perception and action through predictions and prediction errors."
+    },
+    "embodied-cognition--perception-action": {
+      "label": "Roles of body and environment",
+      "explanation": "Embodied cognition investigates contributions of sensorimotor activity and environment to cognition."
+    },
+    "exaptation--evolutionary-processes": {
+      "label": "Origin versus current use",
+      "explanation": "Exaptation distinguishes present use from an account of selection for that use."
+    },
+    "niche-construction--evolutionary-processes": {
+      "label": "Changing selective environments",
+      "explanation": "Organisms can modify selective environments, with effects across generations."
+    },
+    "neutral-theory--evolutionary-processes": {
+      "label": "Drift in molecular change",
+      "explanation": "Neutral theory emphasizes drift of neutral variants in molecular evolution."
+    },
+    "endosymbiosis--evolutionary-processes": {
+      "label": "Origins through integration",
+      "explanation": "Endosymbiotic theory examines organelle origins through integration of hosts and bacteria."
+    },
+    "dissipative-structures--collective-patterns": {
+      "label": "Order sustained by flows",
+      "explanation": "Flows and dissipation can sustain ordered patterns away from equilibrium."
+    },
+    "phase-transition--collective-patterns": {
+      "label": "System changes with conditions",
+      "explanation": "A phase transition changes a macroscopic state as conditions vary."
+    },
+    "emergence--collective-patterns": {
+      "label": "Wholes arising from interactions",
+      "explanation": "Emergence asks about collective properties, interactions, and levels of description."
+    },
+    "path-dependence--institutions-norms": {
+      "label": "History of institutions",
+      "explanation": "Path dependence examines persistence through earlier choices and accumulated investments."
+    },
+    "transaction-costs--institutions-norms": {
+      "label": "Arrangements supporting exchange",
+      "explanation": "Transaction costs illuminate differences between markets and organizations."
+    },
+    "social-construction--institutions-norms": {
+      "label": "How categories are established",
+      "explanation": "Social construction investigates categories through practices, language, and institutions."
+    },
+    "imagined-communities--institutions-norms": {
+      "label": "Imagining shared membership",
+      "explanation": "Imagined communities asks about historical conditions of shared national membership."
+    },
+    "gift-exchange--social-transitions": {
+      "label": "Relationships through gifts",
+      "explanation": "Gifts can sustain obligations and relationships beyond the transfer of an object."
+    },
+    "liminality--social-transitions": {
+      "label": "Between social statuses",
+      "explanation": "Liminality concerns the phase between statuses in transitions such as rites of passage."
+    },
+    "indexicality--utterance-context": {
+      "label": "Context-dependent meaning",
+      "explanation": "Expressions such as “I,” “here,” and “now” vary in reference across contexts."
+    },
+    "performativity--utterance-context": {
+      "label": "When uttering is acting",
+      "explanation": "Promises and declarations depend on appropriate circumstances and procedures."
+    },
+    "linguistic-relativity--utterance-context": {
+      "label": "Language and cognition",
+      "explanation": "Beyond context-dependent reference, linguistic relativity asks how linguistic habits influence cognition."
+    },
+    "paradigm--scientific-community": {
+      "label": "Shared exemplars and commitments",
+      "explanation": "Kuhn connects scientific practice with exemplars and commitments shared in a community."
+    },
+    "bricolage--materials-context": {
+      "label": "Reworking existing resources",
+      "explanation": "Bricolage recombines resources that retain traces of earlier uses and meanings."
+    },
+    "rhizome--materials-context": {
+      "label": "Connections in many directions",
+      "explanation": "Rhizome is a philosophical way of considering connections beyond a single central hierarchy."
+    },
+    "cognitive-dissonance--institutions-norms": {
+      "label": "Beliefs and behavior in conflict",
+      "explanation": "Social expectations and behavior can conflict. This comparison does not explain individual psychology solely from institutions."
+    },
+    "affordance--embodied-cognition": {
+      "label": "Two perspectives on body and environment",
+      "explanation": "Both offer entry points into body–environment relations, without making ecological psychology and embodied cognition identical."
+    },
+    "umwelt--affordance": {
+      "label": "Comparing organism–environment relations",
+      "explanation": "Umwelt concerns meaningful worlds; affordances concern possibilities for action. They are related questions, not synonyms."
+    },
+    "predictive-processing--embodied-cognition": {
+      "label": "A meeting point for accounts of cognition",
+      "explanation": "Some research brings these approaches together; their relationship varies with theoretical interpretation."
+    },
+    "phase-transition--emergence": {
+      "label": "Comparing collective changes and properties",
+      "explanation": "Collective changes offer an entry into emergence, without implying that all emergence is a phase transition."
+    },
+    "path-dependence--transaction-costs": {
+      "label": "Switching and coordination costs",
+      "explanation": "Switching can involve contracting and coordination costs. These concepts illuminate different aspects of persistence."
+    },
+    "social-construction--imagined-communities": {
+      "label": "Social formation of membership",
+      "explanation": "Historical national membership offers a case for asking how social categories form, without equating the two accounts."
+    },
+    "bricolage--rhizome": {
+      "label": "Comparing recombination and connections",
+      "explanation": "Recombination and noncentral connections can be compared; this edge claims neither synonymy nor direct influence."
+    }
   }
 }

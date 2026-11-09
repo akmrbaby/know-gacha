@@ -1,12 +1,13 @@
 import { relatedConcepts, relations, positions, specimens, ownerOf } from '../data/graph';
-import { keywords } from '../data/keywords';
+import { allKeywords as keywords, legacyKeywords } from '../data/keywords';
 import type { KnowledgeGraph, KnowledgeNode } from './model';
 
 // Adapter keeps the normal Gacha and saved IDs intact.
 const nodes: Record<string, KnowledgeNode> = {};
 for (const word of keywords) {
   const look = specimens[word.id];
-  nodes[word.id] = { id: word.id, name: word.name, category: word.category, kind: 'knowledge', summary: word.introduction,
+  const archived = legacyKeywords.some(item => item.id === word.id);
+  nodes[word.id] = { id: word.id, name: word.name, category: word.category, kind: archived ? 'concept' : 'knowledge', archived, summary: word.introduction,
     detail: [word.summary, ...word.sections.map((section) => `${section.title}\n${section.body}`)].join('\n\n'),
     evidence: [...(word.evidence ?? []), ...relatedConcepts.filter((concept) => relations.some((edge) => edge.ownerId === word.id && (edge.sourceId === concept.id || edge.targetId === concept.id))).map((concept) => ({ title: concept.name, url: concept.sourceUrl }))],
     provenance: 'sourced', color: look.color, mark: look.mark };

@@ -1,7 +1,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const ts=require('typescript');const cache={};
 function load(p){p=path.resolve(p);if(p.endsWith('.json'))return JSON.parse(fs.readFileSync(p,'utf8'));if(cache[p])return cache[p].exports;const m=cache[p]={exports:{}};new Function('require','module','exports',ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,esModuleInterop:true,resolveJsonModule:true}}).outputText)(id=>load(path.resolve(path.dirname(p),id+(id.endsWith('.json')?'':'.ts'))),m,m.exports);return m.exports;}
 const {translate:t,resolveLocale,sourceLanguage}=load('src/i18n/translate.ts');
-const {keywords}=load('src/data/keywords.ts');const {baseGraph}=load('src/knowledge/base.ts');
+const {allKeywords:keywords}=load('src/data/keywords.ts');const {baseGraph}=load('src/knowledge/base.ts');
 const ja=/[\u3040-\u30ff\u3400-\u9fff]/;
 test('device fallback, numeric messages and composite node labels',()=>{
  assert.equal(resolveLocale('ja-JP'),'ja');assert.equal(resolveLocale('en-US'),'en');assert.equal(resolveLocale('fr-FR'),'en');assert.equal(resolveLocale(null),'en');
@@ -11,7 +11,7 @@ test('device fallback, numeric messages and composite node labels',()=>{
  assert.equal(t('1 / 10語','en'),'1 / 10 topics');
  assert.equal(t('残り10回','ja'),'残り10回');
 });
-test('all ten topics, article sections, graph names and explanations have English',()=>{
+test('all current and archived topics, article sections, graph names and explanations have English',()=>{
  const before=JSON.stringify(baseGraph);
  for(const word of keywords)for(const text of [word.name,word.category,word.introduction,word.summary,...word.sections.flatMap(s=>[s.title,s.body])])assert.ok(!ja.test(t(text,'en')),word.id+' untranslated: '+text);
  for(const node of Object.values(baseGraph.nodes))for(const text of [node.name,node.summary,node.detail??''])assert.ok(!ja.test(t(text,'en')),node.id+' untranslated: '+text);
@@ -19,7 +19,7 @@ test('all ten topics, article sections, graph names and explanations have Englis
  assert.equal(JSON.stringify(baseGraph),before,'translations never mutate graph IDs, positions or source data');
 });
 test('reference URLs are preserved and unknown source languages are not guessed',()=>{
- assert.equal(sourceLanguage('https://flets.com/navigation/column/optical_cable/'),'ja');assert.equal(sourceLanguage('https://www.moma.org/collection/terms/surrealism'),'en');assert.equal(sourceLanguage('https://example.com'),null);assert.equal(sourceLanguage('bad url'),null);
+ assert.equal(sourceLanguage('https://flets.com/navigation/column/optical_cable/'),'ja');assert.equal(sourceLanguage('https://www.moma.org/collection/terms/surrealism'),'en');assert.equal(sourceLanguage('https://example.com'),null);assert.equal(sourceLanguage('bad url'),null);assert.equal(sourceLanguage('https://doi.org/10.1234/unknown-language'),null);
 });
 test('UI source messages have English catalog entries; numeric JSX fragments are formatted as a whole',()=>{
  const fragments=new Set(['残り','回、新しい言葉に出会えます。','語の知識','デモ ·','件','取得知識','· 周辺概念','· 関係','・','操作した回数：','点','日本語']);

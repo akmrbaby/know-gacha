@@ -14,7 +14,7 @@ const assert = require('node:assert/strict');
    await page.waitForTimeout(2500);
    const canvas=page.getByTestId('atlas-canvas');
    const nodes=await canvas.getByRole('button').count();
-   assert.ok(nodes>0 && nodes<=count+10);
+   assert.ok(nodes>0 && nodes<=count+20);
    assert.equal(await canvas.locator('path').count(),3,'bounded batched edge paths');
    results.push({count,mountedNodes:nodes,paths:3});
    if (count===500) {
