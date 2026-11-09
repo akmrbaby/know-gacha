@@ -1,6 +1,8 @@
 export type Evidence = { title: string; url: string };
 export type KnowledgeNode = {
   id: string; name: string; category: string; kind: 'knowledge' | 'concept';
+  // A former draw candidate can still be present in an existing acquisition ledger.
+  archived?: boolean;
   summary: string; detail?: string; evidence: Evidence[];
   provenance: 'sourced' | 'fixture';
   color: string; mark: string;
@@ -20,7 +22,7 @@ export type GraphView = { ids: string[]; edges: GraphRelation[] };
 
 // Acquiring content is separate from its graph definition. Unknown IDs never unlock anything.
 export function graphForAcquired(graph: KnowledgeGraph, acquiredIds: readonly string[]): GraphView {
-  const acquired = new Set(acquiredIds.filter((id) => graph.nodes[id]?.kind === 'knowledge'));
+  const acquired = new Set(acquiredIds.filter((id) => graph.nodes[id]?.kind === 'knowledge' || graph.nodes[id]?.archived));
   const ids = new Set(acquired);
   const edges = graph.relations.filter((edge) => {
     const a = graph.nodes[edge.sourceId], b = graph.nodes[edge.targetId];

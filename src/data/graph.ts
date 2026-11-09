@@ -1,6 +1,8 @@
 import { knowledgeColors } from '../colors';
 import { extra, light, extraRelations } from './additional-knowledge';
-import { keywords } from './keywords';
+import { allKeywords as keywords } from './keywords';
+import { curated } from './curated-knowledge';
+import { curatedConcepts, curatedRelations } from './curated-graph';
 export type RelatedConcept = { id: string; name: string; summary: string; sourceUrl: string };
 export type Relation = { id: string; sourceId: string; targetId: string; ownerId: string; label: string; explanation: string; evidence?: { title: string; url: string }[] };
 // 試作用原稿。参照先を添付し、公開前に校閲する。
@@ -23,6 +25,8 @@ export const relations: Relation[] = [
   { id: 'surrealism-automatism', ownerId: 'surrealism', sourceId: 'surrealism', targetId: 'automatism', label: '表現の方法の一つ', explanation: 'シュルレアリスムは夢や無意識に関心を寄せ、自動記述を表現の方法の一つとして実践しました。運動全体がこの方法だけで説明できるわけではありません。' },
   { id: 'breton-surrealism', ownerId: 'surrealism', sourceId: 'andre-breton', targetId: 'surrealism', label: '運動を主導した人物の一人', explanation: 'ブルトンは1924年にシュルレアリスム宣言を発表し、運動を主導しました。シュルレアリスムには多くの作家が関わっています。' },
 ];
+relatedConcepts.push(...curatedConcepts);
+relations.push(...curatedRelations);
 relations.push(...extraRelations.map(edge => ({...edge, ownerId: edge.sourceId})));
 relatedConcepts.push({id: light.id, name: light.name, summary: light.summary, sourceUrl: light.evidence[0].url});
 export const specimens: Record<string, { mark: string; color: string; tint: string }> = {
@@ -31,6 +35,10 @@ export const specimens: Record<string, { mark: string; color: string; tint: stri
   surrealism: { mark: '✳︎', color: knowledgeColors.violet, tint: '#EEE7F2' },
 };
 for (const node of extra) specimens[node.id] = {mark: node.mark, color: node.color, tint: '#E5F0EB'};
+for (const [index, word] of curated.entries()) {
+  const color = [knowledgeColors.teal, knowledgeColors.amber, knowledgeColors.violet][index % 3];
+  specimens[word.id] = { mark: ['◇', '◎', '✳︎'][index % 3], color, tint: '#E5F0EB' };
+}
 export type Position = { x: number; y: number };
 export const positions: Record<string, Position> = {};
 // Fixed, version 2: a spatial atlas; distances have no semantic weight.

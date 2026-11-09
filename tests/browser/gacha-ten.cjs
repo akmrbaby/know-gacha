@@ -30,7 +30,7 @@ const assert=require('node:assert/strict');
    assert.equal(new Set(state.openings.map(item=>item.keywordId)).size,i+1);
    if(i===4){await page.reload();await page.getByText('残り5回',{exact:true}).waitFor();}
   }
-  await page.getByText('コンプリート',{exact:true}).waitFor();
+  await page.getByText('当日分は明日1回追加されます。',{exact:true}).waitFor();
   assert.equal(await page.getByRole('button',{name:/次の知識をひらく/}).count(),0);
   const saved=await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'));
   const state=JSON.parse(saved);
@@ -42,12 +42,12 @@ const assert=require('node:assert/strict');
   await page.goBack();await button('Mapでつながりを見る').click();
   await page.getByTestId('atlas-canvas').waitFor();
   await page.getByRole('tab',{name:'Gacha',exact:true}).click();
-  await page.getByRole('button',{name:'開封履歴 10 / 10語',exact:true}).click();
+  await page.getByRole('button',{name:'開封履歴 10 / 30語',exact:true}).click();
   await page.waitForURL('**/history');
   for(const item of state.openings)assert.ok(item.keywordId);
-  await page.goto(url+'/gacha');await page.getByText('コンプリート',{exact:true}).waitFor();
+  await page.goto(url+'/gacha');await page.getByText('当日分は明日1回追加されます。',{exact:true}).waitFor();
   assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),saved);
   assert.deepEqual(errors,[]);
-  console.log('PASS normal Gacha: save failure preserves ten, ten individual draws, double tap, mid-session reload, unique real content, one daily + nine welcome, exhaustion, read/Map/history and restore');
+  console.log('PASS normal Gacha: save failure preserves ten, ten individual draws, double tap, mid-session reload, unique real content, one daily + nine welcome, daily allowance used, read/Map/history and restore');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

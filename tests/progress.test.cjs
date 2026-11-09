@@ -28,7 +28,7 @@ test('initial ten draws consume one daily then nine welcome grants and survive r
   assert.equal(state.openings[0].grant,'daily');
   assert.equal(state.openings.filter(item=>item.grant==='welcome').length,9);
   assert.equal(openForDate(state,'2026-11-09'),state);
-  assert.equal(openForDate(state,'2026-11-10'),state,'content exhaustion does not consume a grant');
+  assert.equal(openForDate(state,'2026-11-10',()=>0).openings.length,11,'new day adds one draw while content remains');
 });
 test('future two-welcome configuration starts with three; daily refresh does not refill welcome', () => {
   let state=emptyProgress(2);
@@ -60,7 +60,7 @@ test('restoration preserves day offset and rejects corrupt/duplicate records', (
   state.openings.push(state.openings[0]);
   assert.throws(() => restoreProgress(JSON.stringify(state)));
 });
-const { keywords } = load('src/data/keywords.ts');
+const { keywords, allKeywords, legacyKeywords } = load('src/data/keywords.ts');
 const { positions, relatedConcepts, relations, ownerOf } = load('src/data/graph.ts');
 const { baseGraph } = load('src/knowledge/base.ts');
 const { graphForAcquired } = load('src/knowledge/model.ts');
@@ -71,27 +71,27 @@ test('the atlas reveals only opened clusters, with no daily unlock for related c
   assert.equal(one.ids.length, 4);
   assert.equal(one.edges.length, 3);
   assert.ok(!one.ids.includes(keywords[1].id));
-  const all = visibleGraph(keywords.map((word) => word.id));
-  assert.equal(all.ids.length, 17);
-  assert.equal(all.edges.length, 18);
+  const all = visibleGraph(allKeywords.map((word) => word.id));
+  assert.equal(all.ids.length, Object.keys(baseGraph.nodes).length);
+  assert.equal(all.edges.length, baseGraph.relations.length);
   const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
   visibleGraph(state.openings.map((item) => item.keywordId));
   assert.equal(restoreProgress(JSON.stringify(state)).openings.length, 1);
 });
 test('every edge has valid directed endpoints, a distinct id, and finite fixed coordinates', () => {
-  const nodes = [...keywords, ...relatedConcepts];
+  const nodes = Object.values(baseGraph.nodes);
   const ids = new Set(nodes.map((node) => node.id));
-  assert.equal(ids.size, 17);
+  assert.equal(ids.size, Object.keys(baseGraph.nodes).length);
   assert.equal(new Set(relations.map((edge) => edge.id)).size, relations.length);
   for (const edge of relations) {
     assert.ok(ids.has(edge.sourceId) && ids.has(edge.targetId));
     assert.notEqual(edge.sourceId, edge.targetId);
-    assert.ok(keywords.some((word) => word.id === edge.ownerId));
+    assert.ok(!!baseGraph.nodes[edge.ownerId]);
     assert.ok(edge.label && edge.explanation);
   }
   for (const id of ids) {
     assert.ok(Number.isFinite(positions[id].x) && Number.isFinite(positions[id].y));
-    assert.ok(keywords.some((word) => word.id === ownerOf(id)));
+    assert.ok(!!baseGraph.nodes[ownerOf(id)]);
   }
 });
 const { fitCamera, focusCamera, zoomAt, MIN_SCALE, MAX_SCALE } = load('src/graph/camera.ts');
@@ -128,7 +128,42 @@ test('Gacha remaining count agrees with saved grants and exhausted content',()=>
   assert.equal(availability(state,'2026-11-09').remaining,10-i);
   state=restoreProgress(JSON.stringify(openForDate(state,'2026-11-09',()=>0)));
  }
- assert.equal(availability(state,'2026-11-09').exhausted,true);
- assert.equal(availability(state,'2026-11-10').remaining,0);
+ assert.equal(availability(state,'2026-11-09').exhausted,false);
+ assert.equal(availability(state,'2026-11-10').remaining,1);
  assert.equal(availability(state,'2026-11-09').today.keywordId,state.openings.at(-1).keywordId);
+});
+
+test('curated pool contains 30 substantial articles; retired IDs remain readable',()=>{
+ assert.equal(keywords.length,30);
+ assert.equal(new Set(allKeywords.map(word=>word.id)).size,34);
+ assert.deepEqual(legacyKeywords.map(word=>word.id).sort(),['collage','optical-fiber','photography','user-research']);
+ for(const word of keywords){
+  assert.equal(word.sections.length,3,word.id);
+  assert.ok(word.sections.every(section=>section.title&&section.body.length>50),word.id);
+  assert.ok(baseGraph.nodes[word.id].evidence.length,word.id);
+  for(const ref of baseGraph.nodes[word.id].evidence)assert.equal(new URL(ref.url).protocol,'https:');
+ }
+});
+test('old complete ten-topic ledger survives and 24 new topics remain drawable',()=>{
+ assert.deepEqual(visibleGraph(['light']),{ids:[],edges:[]},'ordinary peripheral concepts do not unlock acquisitions');
+ const oldIds=['photonics-electronics','ethnography','surrealism','optical-fiber','ccd','photography','dada','collage','user-research','user-centered-design'];
+ const old={...emptyProgress(),openings:oldIds.map((keywordId,i)=>({keywordId,date:'2026-11-01',openedAt:`2026-11-01T12:00:${String(i).padStart(2,'0')}Z`,grant:i?'welcome':'daily'}))};
+ let state=restoreProgress(JSON.stringify(old));
+ assert.deepEqual(state,old);
+ assert.equal(availability(state,'2026-11-01').remaining,0);
+ assert.equal(availability(state,'2026-11-02').remaining,1);
+ assert.equal(availability(state,'2026-11-02').exhausted,false);
+ for(let i=0;i<24;i++){
+  const date=localDate(new Date(2026,10,2),i);
+  state=restoreProgress(JSON.stringify(openForDate(state,date,()=>0)));
+  assert.ok(!legacyKeywords.some(word=>word.id===state.openings.at(-1).keywordId));
+ }
+ assert.equal(state.openings.length,34);
+ assert.equal(new Set(state.openings.map(item=>item.keywordId)).size,34);
+ assert.equal(availability(state,'2027-01-01').exhausted,true);
+ assert.equal(availability(state,'2027-01-01').remaining,0);
+ assert.equal(openForDate(state,'2027-01-01'),state,'exhaustion never consumes another daily grant');
+ assert.deepEqual(state.openings.slice(0,10),old.openings);
+ const view=visibleGraph(oldIds);
+ for(const id of oldIds)assert.ok(view.ids.includes(id),'old acquisition remains on the Map: '+id);
 });

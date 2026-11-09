@@ -2,14 +2,15 @@ import { knowledgeColors } from '../colors';
 import { baseGraph } from './base';
 import { graphForAcquired, type KnowledgeGraph } from './model';
 
-import { extra, light } from '../data/additional-knowledge';
-export const demoOrder = [...Object.keys(baseGraph.nodes).filter((id) => baseGraph.nodes[id].kind === 'knowledge')];
-const nodes = { ...baseGraph.nodes, ...Object.fromEntries([...extra, light].map((node) => [node.id, node])) };
+import { keywords } from '../data/keywords';
+export const demoTopicCount = keywords.length;
+export const demoOrder = keywords.map(word => word.id);
+const nodes = { ...baseGraph.nodes };
 const positions = { ...baseGraph.positions };
 // Fixed coordinates are presentation data, never semantic distance or force simulation.
 const relations = [...baseGraph.relations];
 // A deterministic artificial topology: local groups and a few bridges, no factual assertions.
-for (let index = 10; index < 500; index++) {
+for (let index = keywords.length; index < 500; index++) {
   const id = `fixture-${index + 1}`;
   demoOrder.push(id);
   nodes[id] = { id, name: `架空の知識 ${index + 1}`, category: '規模検証用', kind: 'knowledge',
