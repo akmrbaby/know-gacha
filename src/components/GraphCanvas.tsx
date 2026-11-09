@@ -57,7 +57,8 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     const boxes: (LabelBox & { priority: number })[] = [], points = positions.value, sizes = labelSizes.value;
     const z = scale.value, cx = x.value, cy = y.value;
     for (const { id, main, related, priority } of labelOrder) {
-      if (z < 0.35 && !related) continue;
+      if (selected && !related) continue;
+      if (z < 0.35 && !related && ids.length > 30) continue;
       if (!main && !related && (selected || !peripheral.value)) continue;
       const size = sizes[id] ?? { width: 180, height: 32 };
       boxes.push({ id, priority, x: cx + points[id].x * z - size.width / 2, y: cy + points[id].y * z + 41, ...size });
@@ -217,7 +218,7 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
       </Svg>
       <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
         {renderedEdges.map((edge) => <EdgeLabel key={edge.id} edge={edge} positions={positions} cameraX={x} cameraY={y} scale={scale} visibility={visibility} labelSizes={labelSizes} />)}
-        {Object.keys(rendered).filter(id => ids.includes(id)).map((id) => <AtlasNode count={rendered[id]} key={id} id={id} graph={graph} positions={positions} selected={id === selected} visibility={visibility} labelSizes={labelSizes} cameraX={x} cameraY={y} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
+        {Object.keys(rendered).filter(id => ids.includes(id)).map((id) => <AtlasNode dimmed={!!selected && id !== selected && !relatedIds[id]} connected={!!relatedIds[id]} count={rendered[id]} key={id} id={id} graph={graph} positions={positions} selected={id === selected} visibility={visibility} labelSizes={labelSizes} cameraX={x} cameraY={y} scale={scale} appear={newOwner === id} reduced={reduced !== false} onSelect={onSelect} />)}
       </View>
     </View>
   </GestureDetector>;
@@ -234,7 +235,7 @@ function Connections({ kind, edges, graph, positions, cameraX, cameraY, scale, s
       const ax = cx + a.x * z, ay = cy + a.y * z, bx = cx + b.x * z, by = cy + b.y * z;
       if (!lineInViewport(ax, ay, bx, by, width, height)) continue;
       // Overview suppresses unselected lines; points and counts show the distribution.
-      if (kind === 'normal' && z < 0.35) continue;
+      if (kind === 'normal' && z < 0.35 && edges.length > 60) continue;
       d += `M ${ax} ${ay} L ${bx} ${by} `;
     }
     return { d, strokeWidth: kind === 'selected' ? 2.8 : kind === 'connected' ? 2.2 : 1 + Math.min(1, Math.max(0, (z - 0.12) / 0.6)) * 0.6, strokeOpacity: kind !== 'normal' ? 1 : selected ? 0.18 : 0.38 + Math.min(1, Math.max(0, (z - 0.12) / 0.6)) * 0.37 };
@@ -243,18 +244,18 @@ function Connections({ kind, edges, graph, positions, cameraX, cameraY, scale, s
   const color = graph.nodes[selected]?.color ?? (edge && graph.nodes[edge.sourceId]?.color) ?? theme.edge;
   return <AnimatedPath animatedProps={animated} stroke={kind === 'normal' ? theme.edge : color} fill="none" strokeLinecap="round" />;
 }
-function AtlasNode({ count, id, graph, positions, selected, visibility, labelSizes, cameraX, cameraY, scale, appear, reduced, onSelect }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; count: number; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
+function AtlasNode({ dimmed, connected, count, id, graph, positions, selected, visibility, labelSizes, cameraX, cameraY, scale, appear, reduced, onSelect }: LabelState & { cameraX: SharedValue<number>; cameraY: SharedValue<number>; positions: SharedValue<Record<string, Position>>; graph: KnowledgeGraph; dimmed: boolean; connected: boolean; count: number; id: string; selected: boolean; scale: SharedValue<number>; appear: boolean; reduced: boolean; onSelect: (id: string) => void }) {
   const theme = useThemeColors();
   const look = graph.nodes[id], main = look.kind === 'knowledge';
   const emergence = useSharedValue(appear && !reduced ? 0 : 1);
   useEffect(() => { if (appear && !reduced) { emergence.set(0); emergence.set(withTiming(1, { duration: 150 })); } else if (reduced) emergence.set(1); }, [emergence, reduced, appear]);
-  const node = useAnimatedStyle(() => ({ opacity: emergence.value, transform: [{ translateX: cameraX.get() + positions.get()[id].x * scale.get() }, { translateY: cameraY.get() + positions.get()[id].y * scale.get() }] }));
+  const node = useAnimatedStyle(() => ({ opacity: emergence.value * (dimmed ? 0.25 : 1), transform: [{ translateX: cameraX.get() + positions.get()[id].x * scale.get() }, { translateY: cameraY.get() + positions.get()[id].y * scale.get() }] }));
   const label = useAnimatedStyle(() => ({ opacity: visibility.value[id] ? 1 : 0 }));
   const orbSize = useAnimatedStyle(() => { const size = (main ? 64 : 28) * Math.min(1, 2.1 * scale.get()); return { width: size, height: size }; });
   const markSize = useAnimatedStyle(() => ({ fontSize: 30 * Math.min(1, 2.1 * scale.get()) }));
   return <Animated.View style={[atlas.nodeAnchor, { left: -90, top: -32 }, node]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`${graph.nodes[id].name}、${main ? '開封済み教材' : '周辺語'}`} accessibilityState={{ selected }} onAccessibilityTap={() => onSelect(id)} accessibilityActions={[{ name: 'activate' }]} onAccessibilityAction={(event) => { if (event.nativeEvent.actionName === 'activate') onSelect(id); }} style={{ alignItems: 'center', gap: 9, width: 180, minHeight: 80 }}>
-      <View style={atlas.orbSlot}><Animated.View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, selected && { outlineWidth: 3, outlineColor: look.color, outlineOffset: 6 }, orbSize]}>
+      <View style={atlas.orbSlot}><Animated.View style={[atlas.orb, { width: main ? 64 : 28, height: main ? 64 : 28, borderRadius: 40, backgroundColor: main ? look.color : theme.surface, borderColor: look.color, borderWidth: main ? 0 : 2 }, (selected || connected) && { outlineWidth: selected ? 3 : 2, outlineColor: look.color, outlineOffset: 6 }, orbSize]}>
         {main && <Animated.Text accessible={false} style={[{ color: '#FFFDF5' }, markSize]}>{look.mark}</Animated.Text>}
         {!main && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: look.color }} />}
       </Animated.View></View>

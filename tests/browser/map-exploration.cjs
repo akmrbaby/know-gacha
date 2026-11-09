@@ -1,0 +1,63 @@
+// Optional Web touch/UI verification. Native sheet feel is verified separately on iPhone.
+const {chromium}=require(process.env.MAP_PLAYWRIGHT_MODULE || 'playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,reducedMotion:'reduce'});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
+  await page.addInitScript(()=>{
+   const ids=['photonics-electronics','ethnography','surrealism','optical-fiber','ccd','photography','dada','collage','user-research','user-centered-design'];
+   if(!localStorage.getItem('knowgacha.progress.v1'))localStorage.setItem('knowgacha.progress.v1',JSON.stringify({version:1,dayOffset:0,openings:ids.map((keywordId,i)=>({keywordId,date:`2026-01-${String(i+1).padStart(2,'0')}`,openedAt:`2026-01-${String(i+1).padStart(2,'0')}T12:00:00Z`}))}));
+  });
+  const url=process.env.MAP_TEST_URL || 'http://localhost:8094';
+  const button=name=>page.getByRole('button',{name,exact:true});
+  const camera=async()=>{await page.waitForTimeout(850);return page.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.map-viewport.v1')));};
+  const same=(a,b)=>{for(const key of ['centerX','centerY','scale'])assert.ok(Math.abs(a[key]-b[key])<1e-8,`selection must keep camera ${key}`);};
+  await page.goto(url);await page.getByTestId('atlas-canvas').waitFor({timeout:120000});
+  await page.waitForTimeout(1500);
+  assert.equal(await page.getByRole('button',{name:'開封履歴',exact:true}).count(),0,'no permanent history row covering canvas');
+  await page.screenshot({path:'/tmp/map-exploration-overview.png'});
+  const before=await camera();
+  await button('知識の一覧を開く').click();
+  await page.getByRole('button',{name:'写真 開封済み',exact:true}).click();
+  await page.getByTestId('map-preview').waitFor();
+  same(await camera(),before);
+  assert.equal(await page.getByRole('dialog').count(),0,'selection leaves canvas interactive');
+  await button('中央に表示').click();const focused=await camera();
+  assert.ok(Math.abs(focused.scale-before.scale)>0.01,'explicit center changes camera');
+  const canvas=page.getByTestId('atlas-canvas');
+  const dimmed=await canvas.getByRole('button').evaluateAll(nodes=>nodes.map(node=>Number(getComputedStyle(node.parentElement).opacity)));
+  assert.ok(dimmed.some(value=>value<0.3),'unrelated nodes are dimmed');
+  assert.ok(dimmed.some(value=>value===1),'selected neighborhood stays bright');
+  const node=canvas.getByRole('button',{name:'写真、開封済み教材',exact:true});
+  const orb=await node.locator(':scope > div').first().boundingBox();
+  await page.mouse.click(orb.x+orb.width/2,orb.y+orb.height/2);
+  same(await camera(),focused);
+  await page.screenshot({path:'/tmp/map-exploration-preview.png'});
+  const bounds=await canvas.boundingBox();
+  await page.mouse.move(bounds.x+8,bounds.y+180);await page.mouse.down();await page.mouse.move(bounds.x+40,bounds.y+210,{steps:8});await page.mouse.up();
+  const panned=await camera();assert.ok(Math.abs(panned.centerX-focused.centerX)>1,'pan works while preview is open');
+  const handle=await page.getByTestId('map-preview-handle').boundingBox();
+  await page.mouse.move(handle.x+handle.width/2,handle.y+10);await page.mouse.down();await page.mouse.move(handle.x+handle.width/2,handle.y-50,{steps:8});await page.mouse.up();
+  await page.getByTestId('map-sheet').waitFor();
+  same(await camera(),panned);
+  await button('詳細を閉じる').click();await page.getByTestId('map-preview').waitFor();
+  same(await camera(),panned);
+  await button('詳細を開く').click();await page.getByText('この知識のつながり',{exact:true}).waitFor();
+  await page.getByRole('button').filter({hasText:'調査・記録の方法の一つ'}).first().click();
+  await page.getByTestId('map-preview').waitFor();same(await camera(),panned);
+  await button('詳細を開く').click();await page.getByText('つながりの理由',{exact:true}).waitFor();
+  await button('詳細を閉じる').click();await button('選択を解除').click();
+  assert.equal(await page.getByTestId('map-preview').count(),0);
+  await button('知識の一覧を開く').click();await page.getByRole('button',{name:'開封履歴',exact:true}).click();await page.waitForURL('**/history');
+  await page.goto(url);await page.getByTestId('atlas-canvas').waitFor();same(await camera(),panned);
+  await button('知識の一覧を開く').click();await page.getByRole('button',{name:'写真 開封済み',exact:true}).click();
+  await page.emulateMedia({colorScheme:'dark'});await page.setViewportSize({width:320,height:844});
+  await page.addStyleTag({content:'[data-testid="map-preview"] [dir="auto"] {font-size:28px !important;line-height:40px !important}'});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow with large text');
+  await page.screenshot({path:'/tmp/map-exploration-dark-large.png'});
+  assert.deepEqual(errors,[]);
+  console.log('PASS ten-item Map: compact controls, selection keeps camera, explicit center, neighborhood highlight, background pan, swipe/details/return, edge selection, deselect, history and restore');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});
