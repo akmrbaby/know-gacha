@@ -1,3 +1,4 @@
+import { knowledgeColors } from '../colors';
 import { extra, light, extraRelations } from './additional-knowledge';
 import { keywords } from './keywords';
 export type RelatedConcept = { id: string; name: string; summary: string; sourceUrl: string };
@@ -25,9 +26,9 @@ export const relations: Relation[] = [
 relations.push(...extraRelations.map(edge => ({...edge, ownerId: edge.sourceId})));
 relatedConcepts.push({id: light.id, name: light.name, summary: light.summary, sourceUrl: light.evidence[0].url});
 export const specimens: Record<string, { mark: string; color: string; tint: string }> = {
-  'photonics-electronics': { mark: '◇', color: '#286D73', tint: '#E5F0EB' },
-  ethnography: { mark: '◎', color: '#8B592F', tint: '#F5EBDC' },
-  surrealism: { mark: '✳', color: '#775B86', tint: '#EEE7F2' },
+  'photonics-electronics': { mark: '◇', color: knowledgeColors.teal, tint: '#E5F0EB' },
+  ethnography: { mark: '◎', color: knowledgeColors.amber, tint: '#F5EBDC' },
+  surrealism: { mark: '✳︎', color: knowledgeColors.violet, tint: '#EEE7F2' },
 };
 for (const node of extra) specimens[node.id] = {mark: node.mark, color: node.color, tint: '#E5F0EB'};
 export type Position = { x: number; y: number };
