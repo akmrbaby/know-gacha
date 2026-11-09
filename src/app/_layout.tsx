@@ -13,8 +13,8 @@ export default function Layout() {
   const reduced = useReducedMotion();
   const navigation = dark ? DarkTheme : DefaultTheme;
   return <GestureHandlerRootView style={{ flex: 1 }}><ThemeProvider value={{ ...navigation, colors: { ...navigation.colors, background: colors.background, card: colors.surface, text: colors.text, primary: colors.accent, border: colors.separator } }}>
-    <ProgressProvider><StatusBar style={dark ? 'light' : 'dark'} /><Stack screenOptions={{ animation: reduced === false ? 'default' : 'none', headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <ProgressProvider><StatusBar style={dark ? 'light' : 'dark'} /><Stack screenOptions={{ headerBackTitle: '戻る', headerBackButtonDisplayMode: 'default', animation: reduced === false ? 'default' : 'none', headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
+      <Stack.Screen name="(tabs)" options={{ title: 'ホーム', headerShown: false }} />
       <Stack.Screen name="history" options={{ title: '開封履歴' }} />
       <Stack.Screen name="word/[id]" options={{ title: '言葉のノート' }} />
     </Stack><LaunchIntro /></ProgressProvider>
