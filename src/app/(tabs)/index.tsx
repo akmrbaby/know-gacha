@@ -1,11 +1,12 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMapViewport } from '../../hooks/useMapViewport';
 import { Capsule } from '../../components/Capsule';
 import { availability } from '../../graph/availability';
 import { GraphCanvas, type CameraRequest } from '../../components/GraphCanvas';
+import { MapPreview } from '../../components/MapPreview';
 import { MapSheet } from '../../components/MapSheet';
 import { AppIcon } from '../../components/native-ui/AppIcon';
 import { AppSheet } from '../../components/native-ui/AppSheet';
@@ -33,14 +34,14 @@ export default function GraphScreen() {
   const [selected, setSelected] = useState('');
   const [reveal, setReveal] = useState<string | null>(null);
   const drawing = useRef(false);
-  const { today, remaining, exhausted } = availability(progress, date);
+  const { today, remaining } = availability(progress, date);
   async function draw() {
     if (drawing.current || !ready || !remaining) return;
     drawing.current = true;
     try { const id = await open(); if (id) { setPanelOpen(false); setReveal(id); } }
     finally { drawing.current = false; }
   }
-  function finishReveal() { if (reveal) { const id = reveal; setReveal(null); choose(id); } }
+  function finishReveal() { if (reveal) { const id = reveal; setReveal(null); choose(id); setRequest({id,kind:'focus',token:0}); } }
   const [list, setList] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [active, setActive] = useState(false);
@@ -55,15 +56,14 @@ export default function GraphScreen() {
   function choose(id: string, userInitiated = true) {
     setList(false);
     setSelected(id);
-    setPanelOpen(!!id);
+    setPanelOpen(false);
     if (id) {
       if (userInitiated && id !== selected) selectionFeedback();
-      setRequest({ id, kind: 'focus', token: 0 });
     }
   }
   useEffect(() => {
     if (!ready || !requested || consumed.current === requestKey || !(graph.ids.includes(requested) || graph.edges.some(edge => edge.id === requested))) return;
-    const frame = requestAnimationFrame(() => { consumed.current = requestKey; choose(requested, false); });
+    const frame = requestAnimationFrame(() => { consumed.current = requestKey; choose(requested, false); setRequest({id:requested,kind:'focus',token:Date.now()}); });
     return () => cancelAnimationFrame(frame);
     // The route parameter is an explicit camera request, separate from selection renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,7 +77,7 @@ export default function GraphScreen() {
   const selectedEdge = graph.edges.find(edge => edge.id === validSelected);
   const sheetTitle = validSelected ? selectedEdge ? `${conceptName(selectedEdge.sourceId)} → ${conceptName(selectedEdge.targetId)}` : conceptName(validSelected) : '出会った知識';
   return <View style={[map.screen, { backgroundColor: colors.map }]} onLayout={event => setSize(event.nativeEvent.layout)}>
-    {ready && viewport.ready && graph.ids.length > 0 && <GraphCanvas dynamic initialCamera={viewport.initial} onCameraChange={viewport.save} ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={panelOpen ? validSelected : ''} request={request} newOwner={newOwner} onSelect={choose} />}
+    {ready && viewport.ready && graph.ids.length > 0 && <GraphCanvas dynamic initialCamera={viewport.initial} onCameraChange={viewport.save} ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={validSelected} request={request} newOwner={newOwner} onSelect={choose} />}
     <View pointerEvents="box-none" style={[map.top, { top: insets.top + spacing.sm }]}>
       <NativeToolbar style={map.titlebar}>
         <View pointerEvents="none" style={map.title}><NativeText variant="title" accessibilityRole="header">Map</NativeText><NativeText variant="caption">{progress.openings.length}語の知識</NativeText></View>
@@ -91,17 +91,16 @@ export default function GraphScreen() {
       {error && !ready ? <Action title="読み込みを再試行" onPress={retry} /> : ready && <Action title="最初の知識をひらく" loading={busy} onPress={() => { void draw(); }} />}
       {ready && error && <NativeText accessibilityRole="alert">{error}</NativeText>}
     </ScrollView>}
-    {ready && !panelOpen && !reveal && graph.ids.length > 0 && <View style={[map.daily, { backgroundColor: colors.surface }]}>
-      <NativeText variant="caption">{remaining ? `あと${remaining}回ひらけます` : exhausted ? 'すべての知識を開封済み · つながりを探索できます' : '本日は開封済み · 次の開封は明日'}</NativeText>
-      {remaining ? <Action title="今日の知識をひらく" loading={busy} onPress={() => { void draw(); }} /> : today && <Action title="今日の知識をMapで見る" onPress={() => choose(today.keywordId)} />}
-      {error && <NativeText accessibilityRole="alert">{error}</NativeText>}
-      <NavigationRow title="開封履歴" onPress={() => router.push('/history')} />
-    </View>}
-    {graph.ids.length > 0 && !panelOpen && <View pointerEvents="box-none" style={map.bottom}>
+    {ready && !panelOpen && !reveal && !validSelected && graph.ids.length > 0 && <View pointerEvents="box-none" style={map.bottom}>
+      <Pressable accessibilityRole="button" accessibilityLabel={remaining ? `残り${remaining}回、ガチャをひらく` : today ? '今日の知識を選択' : 'Gachaをひらく'} disabled={busy} onPress={() => remaining ? void draw() : today ? choose(today.keywordId) : router.navigate('/gacha')} style={[map.daily, { backgroundColor: colors.surface }]}>
+        <AppIcon name="gacha" /><NativeText variant="label">{remaining ? `残り${remaining}回` : today ? '今日の知識' : 'Gacha'}</NativeText>
+      </Pressable>
       <NativeToolbar style={map.zoom}>
         {(['out', 'in', 'fit'] as const).map(kind => <NativeIconAction key={kind} label={kind === 'in' ? '地図を拡大' : kind === 'out' ? '地図を縮小' : '地図全体を表示'} onPress={() => setRequest({ kind, token: Date.now() })}><AppIcon name={kind === 'in' ? 'plus' : kind === 'out' ? 'minus' : 'fit'} /></NativeIconAction>)}
       </NativeToolbar>
     </View>}
+    {error && ready && graph.ids.length > 0 && <View style={[map.error,{backgroundColor:colors.surface}]}><NativeText accessibilityRole="alert">{error}</NativeText></View>}
+    {active && !!validSelected && !panelOpen && !reveal && <MapPreview selected={validSelected} edges={graph.edges} height={size.height} onSelect={choose} onClose={() => setSelected('')} onExpand={() => setPanelOpen(true)} onCenter={() => setRequest({id:validSelected,kind:'focus',token:Date.now()})} />}
     {active && <AppSheet isPresented={panelOpen || !!reveal} title={reveal ? '今日の知識をひらく' : sheetTitle} closeLabel={reveal ? 'Mapで見る' : validSelected ? '詳細を閉じる' : '一覧を閉じる'} onClose={() => {
       if (reveal) { setSelected(reveal); setRequest({ id: reveal, kind: 'focus', token: Date.now() }); setReveal(null); }
       setPanelOpen(false);
@@ -114,6 +113,7 @@ export default function GraphScreen() {
             <NavigationRow title={edge.label} description="つながりの理由" onPress={() => choose(edge.id)} />
           </View>)}
         </View>)}
+        <NavigationRow title="開封履歴" onPress={() => {setPanelOpen(false);router.push('/history');}} />
         <NativeText variant="caption">周辺語・関係は試作用原稿です。配置の距離は意味の近さを表しません。</NativeText>
       </ScrollView>}
     </AppSheet>}
@@ -124,8 +124,9 @@ const map = StyleSheet.create({
   top: { position: 'absolute', left: spacing.md, right: spacing.md },
   titlebar: { justifyContent: 'space-between' },
   title: { flex: 1, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-  bottom: { position: 'absolute', right: spacing.md, left: spacing.md, bottom: spacing.md, alignItems: 'flex-end' },
-  daily: { position: 'absolute', left: spacing.md, right: spacing.md, bottom: 82, padding: spacing.sm, gap: spacing.xs, borderRadius: 16 },
+  bottom: { position: 'absolute', right: spacing.md, left: spacing.md, bottom: spacing.md, flexDirection:'row', flexWrap:'wrap', gap:spacing.sm, justifyContent:'space-between', alignItems:'center' },
+  daily: { minHeight:48, flexDirection:'row', alignItems:'center', gap:spacing.sm, paddingHorizontal:12, borderRadius:24 },
+  error: {position:'absolute',left:spacing.md,right:spacing.md,bottom:80,padding:spacing.sm,borderRadius:12},
   zoom: { justifyContent: 'flex-end' },
   empty: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
   scroll: { flex: 1 },
