@@ -18,6 +18,7 @@ function Navigation() {
     <ProgressProvider><StatusBar style={dark ? 'light' : 'dark'} /><Stack screenOptions={{ headerBackTitle: t('戻る'), headerBackButtonDisplayMode: locale === 'en' ? 'minimal' : 'default', animation: reduced === false ? 'default' : 'none', headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen name="(tabs)" options={{ title: t('ホーム'), headerShown: false }} />
       <Stack.Screen name="history" options={{ title: t('開封履歴') }} />
+      <Stack.Screen name="settings" options={{ title: t('設定') }} />
       <Stack.Screen name="word/[id]" options={{ title: t('言葉のノート') }} />
     </Stack><LaunchIntro /></ProgressProvider>
   </ThemeProvider></GestureHandlerRootView>;

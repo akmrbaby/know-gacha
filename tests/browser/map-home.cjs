@@ -30,6 +30,7 @@ const assert=require('node:assert/strict');
   assert.equal(JSON.parse(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'))).openings.length,2);
   const animated=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'no-preference'});animated.on('pageerror',e=>errors.push(e.message));
   await animated.goto(url);await animated.getByRole('button',{name:'最初の知識をひらく',exact:true}).click();await animated.getByTestId('map-preview').waitFor();
+  await animated.getByRole('dialog').waitFor({state:'hidden'});
   assert.equal(await animated.getByRole('dialog').count(),0);
   assert.equal(JSON.parse(await animated.evaluate(()=>localStorage.getItem('knowgacha.progress.v1'))).openings.length,1);
   assert.deepEqual(errors,[]);console.log('PASS Map empty/first draw, preview/detail/read, remaining chip, second draw, tab/resize/reload camera and history, animated reveal');

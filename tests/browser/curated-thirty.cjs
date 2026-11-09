@@ -31,7 +31,7 @@ const assert=require('node:assert/strict');
   await button('開封履歴 30 / 30語').waitFor();
   const final=await saved();assert.equal(final.openings.length,34);assert.equal(new Set(final.openings.map(x=>x.keywordId)).size,34);
   await page.reload();await page.getByText('コンプリート',{exact:true}).waitFor();assert.deepEqual(await saved(),final);
-  await button('English').click();await page.goto(url+'/word/affordance');
+  await button('設定を開く').click();await button('English').click();await page.getByRole('heading',{name:'Settings',exact:true}).waitFor();await page.goto(url+'/word/affordance');
   await page.getByText('An affordance is a possibility for action arising in the relationship between an environment and an agent.',{exact:true}).waitFor();
   await page.getByText('Scope and limits',{exact:true}).waitFor();await page.getByRole('link',{name:/OECS: Affordances/}).waitFor();
   await page.screenshot({path:'/workspace/scratch/curated-affordance-en.png'});

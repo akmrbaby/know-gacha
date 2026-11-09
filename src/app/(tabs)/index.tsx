@@ -9,6 +9,7 @@ import { availability } from '../../graph/availability';
 import { GraphCanvas, type CameraRequest } from '../../components/GraphCanvas';
 import { MapPreview } from '../../components/MapPreview';
 import { MapSheet } from '../../components/MapSheet';
+import { SettingsAction } from '../../components/SettingsAction';
 import { AppIcon } from '../../components/native-ui/AppIcon';
 import { AppSheet } from '../../components/native-ui/AppSheet';
 import { NativeIconAction } from '../../components/native-ui/NativeIconAction';
@@ -78,12 +79,13 @@ export default function GraphScreen() {
   const validSelected = graph.ids.includes(selected) || graph.edges.some(edge => edge.id === selected) ? selected : '';
   const selectedEdge = graph.edges.find(edge => edge.id === validSelected);
   const sheetTitle = validSelected ? selectedEdge ? `${conceptName(selectedEdge.sourceId)} → ${conceptName(selectedEdge.targetId)}` : conceptName(validSelected) : '出会った知識';
-  return <View style={[map.screen, { backgroundColor: colors.map }]} onLayout={event => setSize(event.nativeEvent.layout)}>
+  return <View pointerEvents={active ? 'auto' : 'none'} style={[map.screen, { backgroundColor: colors.map }]} onLayout={event => setSize(event.nativeEvent.layout)}>
     {ready && viewport.ready && graph.ids.length > 0 && <GraphCanvas dynamic initialCamera={viewport.initial} onCameraChange={viewport.save} ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={validSelected} request={request} newOwner={newOwner} onSelect={choose} />}
     <View pointerEvents="box-none" style={[map.top, { top: insets.top + spacing.sm }]}>
       <NativeToolbar style={map.titlebar}>
         <View pointerEvents="none" style={map.title}><NativeText variant="title" accessibilityRole="header">Map</NativeText><NativeText variant="caption">{progress.openings.length}語の知識</NativeText></View>
         {graph.ids.length > 0 && <NativeIconAction label="知識の一覧を開く" onPress={() => { selectionFeedback(); setSelected(''); setList(true); setPanelOpen(true); }}><AppIcon name="list" /></NativeIconAction>}
+        <SettingsAction />
       </NativeToolbar>
     </View>
     {!graph.ids.length && <ScrollView contentContainerStyle={[map.empty, { paddingTop: insets.top + 120 }]}>
@@ -123,7 +125,7 @@ export default function GraphScreen() {
 }
 const map = StyleSheet.create({
   screen: { flex: 1, overflow: 'hidden' },
-  top: { position: 'absolute', left: spacing.md, right: spacing.md },
+  top: { position: 'absolute', left: spacing.md, right: spacing.md, zIndex: 1 },
   titlebar: { justifyContent: 'space-between' },
   title: { flex: 1, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
   bottom: { position: 'absolute', right: spacing.md, left: spacing.md, bottom: spacing.md, flexDirection:'row', flexWrap:'wrap', gap:spacing.sm, justifyContent:'space-between', alignItems:'center' },

@@ -1,4 +1,4 @@
-import { LanguageSelector } from '../../components/LanguageSelector';
+import { SettingsAction } from '../../components/SettingsAction';
 import { useI18n } from '../../i18n/I18nProvider';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -47,9 +47,12 @@ export default function Gacha() {
   const status = !ready ? '読み込み中' : opening ? '開封中' : exhausted ? 'コンプリート' : remaining ? `残り${remaining}回` : '開封済み';
   return <SafeAreaView style={[gacha.screen, { backgroundColor: colors.background }]}>
     <ScrollView contentContainerStyle={gacha.content}>
-      <View style={gacha.brand}>
-        <NativeText variant="label">KnowGacha<NativeText variant="label" style={{ color: colors.accent }}>.</NativeText></NativeText>
-        <NativeText variant="caption">脳ガチャ — 好奇心の入口</NativeText>
+      <View style={gacha.brandRow}>
+        <View style={gacha.brand}>
+          <NativeText variant="label">KnowGacha<NativeText variant="label" style={{ color: colors.accent }}>.</NativeText></NativeText>
+          <NativeText variant="caption">脳ガチャ — 好奇心の入口</NativeText>
+        </View>
+        <SettingsAction />
       </View>
       <View style={gacha.header}>
         <View style={{ gap: spacing.xs }}>
@@ -96,14 +99,14 @@ export default function Gacha() {
             </>}
           </View>}
         </View>}
-        <LanguageSelector />
       </View>}
     </ScrollView>
   </SafeAreaView>;
 }
 const gacha = StyleSheet.create({
   screen: { flex: 1 },
-  brand: { gap: 2 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  brand: { flex: 1, gap: 2 },
   content: { padding: spacing.lg, paddingBottom: spacing.xl, gap: spacing.lg, maxWidth: 600, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   status: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 20, paddingVertical: spacing.xs, paddingHorizontal: 12 },

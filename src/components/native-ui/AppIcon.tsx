@@ -12,6 +12,8 @@ const symbols = {
   gacha: { ios: 'sparkles', android: 'auto_awesome', web: 'auto_awesome' },
   arrow: { ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' },
   history: { ios: 'clock', android: 'history', web: 'history' },
+  settings: { ios: 'gearshape', android: 'settings', web: 'settings' },
+  check: { ios: 'checkmark', android: 'check', web: 'check' },
 } as const;
 export function AppIcon({ name, color }: { name: keyof typeof symbols; color?: ColorValue | null }) {
   const theme = useThemeColors();
