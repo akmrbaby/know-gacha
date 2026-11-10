@@ -2,7 +2,7 @@
   "expo": {
     "name": "KnowGacha ― 脳ガチャ ―",
     "slug": "know-gacha",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -30,6 +30,13 @@
     "scheme": "knowgacha",
     "plugins": [
       "expo-router",
+      [
+        "expo-notifications",
+        {
+          "enableRemoteNotifications": false,
+          "enableBackgroundRemoteNotifications": false
+        }
+      ],
       [
         "expo-splash-screen",
         {

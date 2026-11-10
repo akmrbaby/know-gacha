@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [daily-reminders.md](daily-reminders.md) | 任意時刻の毎日通知・開封後の取り消し・通知からGachaへ | 実装・自動テスト・Web・iOS export済み、1.0.3の新ビルドと実機受信確認が必要 |
 | [visible-map-motion.md](visible-map-motion.md) | 小さすぎる動き・縮小／選択で停止する条件の見直し | 実装・Web検証済み、iPhone実機確認待ち |
 | [living-map.md](living-map.md) | 生き物のようにゆっくり動くMapと操作中の静止 | iOSで停止の報告あり、起動状態の同期修正を比較検証済み・実機再確認待ち |
 | [curated-thirty.md](curated-thirty.md) | 他学部の視点に出会う30教材と旧履歴の互換性 | 実装・自動検証・Web確認・iOS export済み、実機の新教材確認は未実施 |

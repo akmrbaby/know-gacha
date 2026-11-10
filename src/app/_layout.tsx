@@ -8,6 +8,8 @@ import { useThemeColors } from '../theme';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { LaunchIntro } from '../components/LaunchIntro';
 import { ProgressProvider } from '../state/ProgressProvider';
+import { ReminderProvider } from '../state/ReminderProvider';
+import { ReminderTapHandler } from '../components/ReminderTapHandler';
 function Navigation() {
   const {t,locale}=useI18n();
   const colors = useThemeColors();
@@ -15,12 +17,12 @@ function Navigation() {
   const reduced = useReducedMotion();
   const navigation = dark ? DarkTheme : DefaultTheme;
   return <GestureHandlerRootView style={{ flex: 1 }}><ThemeProvider value={{ ...navigation, colors: { ...navigation.colors, background: colors.background, card: colors.surface, text: colors.text, primary: colors.accent, border: colors.separator } }}>
-    <ProgressProvider><StatusBar style={dark ? 'light' : 'dark'} /><Stack screenOptions={{ headerBackTitle: t('戻る'), headerBackButtonDisplayMode: locale === 'en' ? 'minimal' : 'default', animation: reduced === false ? 'default' : 'none', headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
+    <ProgressProvider><ReminderProvider><StatusBar style={dark ? 'light' : 'dark'} /><Stack screenOptions={{ headerBackTitle: t('戻る'), headerBackButtonDisplayMode: locale === 'en' ? 'minimal' : 'default', animation: reduced === false ? 'default' : 'none', headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen name="(tabs)" options={{ title: t('ホーム'), headerShown: false }} />
       <Stack.Screen name="history" options={{ title: t('開封履歴') }} />
       <Stack.Screen name="settings" options={{ title: t('設定') }} />
       <Stack.Screen name="word/[id]" options={{ title: t('言葉のノート') }} />
-    </Stack><LaunchIntro /></ProgressProvider>
+    </Stack><ReminderTapHandler /><LaunchIntro /></ReminderProvider></ProgressProvider>
   </ThemeProvider></GestureHandlerRootView>;
 }
 
