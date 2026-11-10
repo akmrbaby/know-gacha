@@ -19,6 +19,7 @@ export function LaunchIntro() {
   const [progress] = useState(() => new Animated.Value(0));
   const [fade] = useState(() => new Animated.Value(1));
   const [animationDone, setAnimationDone] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
   const [ended, setEnded] = useState(false);
   useEffect(() => {
     const deadline = setTimeout(() => setEnded(true), 1800);
@@ -26,7 +27,7 @@ export function LaunchIntro() {
     return () => { clearTimeout(deadline); subscription.remove(); };
   }, []);
   useEffect(() => {
-    if (ended || reduced === null) return;
+    if (ended || reduced === null || !imageReady) return;
     if (reduced) {
       const timer = setTimeout(() => setAnimationDone(true), 0);
       return () => clearTimeout(timer);
@@ -34,7 +35,7 @@ export function LaunchIntro() {
     const animation = Animated.timing(progress, {toValue:1,duration:400,useNativeDriver:true});
     animation.start(({finished}) => { if (finished) setAnimationDone(true); });
     return () => animation.stop();
-  }, [ended, reduced, progress]);
+  }, [ended, reduced, progress, imageReady]);
   useEffect(() => {
     if (!(ready && languageReady && animationDone) && !error) return;
     if (reduced !== false || error) {
@@ -47,9 +48,10 @@ export function LaunchIntro() {
   }, [ready, languageReady, animationDone, error, reduced, fade]);
   useEffect(() => { if (ended) hideNativeSplash(); }, [ended]);
   if (ended) return null;
-  return <View testID="launch-intro" accessibilityLabel={t('KnowGachaを起動しています')} accessible style={styles.overlay} onLayout={hideNativeSplash}>
+  const reveal = () => { hideNativeSplash(); setImageReady(true); };
+  return <View testID="launch-intro" accessibilityLabel={t('KnowGachaを起動しています')} accessible style={styles.overlay}>
     <Animated.View style={{opacity:fade}}>
-      <BrandMark progress={reduced === true ? undefined : progress} />
+      <BrandMark progress={reduced === true ? undefined : progress} onLoad={reveal} onError={reveal} />
     </Animated.View>
   </View>;
 }

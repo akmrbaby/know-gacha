@@ -2,7 +2,7 @@
   "expo": {
     "name": "KnowGacha ― 脳ガチャ ―",
     "slug": "know-gacha",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#153D3A",
+        "backgroundColor": "#DCE9E2",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
@@ -40,12 +40,12 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#153D3A",
+          "backgroundColor": "#DCE9E2",
           "image": "./assets/splash-icon.png",
           "imageWidth": 256,
           "resizeMode": "contain",
           "dark": {
-            "backgroundColor": "#153D3A",
+            "backgroundColor": "#DCE9E2",
             "image": "./assets/splash-icon.png"
           }
         }
