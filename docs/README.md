@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [living-map.md](living-map.md) | 生き物のようにゆっくり動くMapと操作中の静止 | 実装・Web操作／動画確認・iOS export済み、実機未確認 |
 | [curated-thirty.md](curated-thirty.md) | 他学部の視点に出会う30教材と旧履歴の互換性 | 実装・自動検証・Web確認・iOS export済み、実機の新教材確認は未実施 |
 | [languages.md](languages.md) | 日本語・英語の表示・教材・参考資料 | 実装・自動検証・Web確認・iOS export済み、1.0.2の新ビルドで実機確認が必要 |
 | [settings-language.md](settings-language.md) | Map・Gacha右上の設定から言語を切り替える配置 | 実装・Web操作確認・iOS export済み、実機確認は未実施 |

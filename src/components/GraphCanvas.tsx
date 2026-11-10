@@ -15,6 +15,7 @@ import { fitCamera, focusCamera, MAX_SCALE, MIN_SCALE, zoomAt, type Camera } fro
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import type { LayoutMeasurement } from '../graph/measurement';
 import { useGraphLayout } from '../hooks/useGraphLayout';
+import { useLivingPositions } from '../hooks/useLivingPositions';
 import { useThemeColors } from '../theme';
 
 export type CameraRequest = { id?: string; kind: 'focus' | 'fit' | 'in' | 'out'; token: number };
@@ -22,13 +23,13 @@ type Props = {
   ids: string[]; edges: Relation[]; width: number; height: number;
   selected: string; request: CameraRequest | null; newOwner?: string;
   initialCamera?: Camera; onCameraChange?: (camera: Camera) => void;
-  onSelect: (id: string) => void; graph?: KnowledgeGraph; dynamic?: boolean; measurement?: LayoutMeasurement;
+  onSelect: (id: string) => void; graph?: KnowledgeGraph; dynamic?: boolean; measurement?: LayoutMeasurement; active?: boolean;
 };
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, initialCamera, onCameraChange, graph = baseGraph, dynamic = false, measurement }: Props) {
+export function GraphCanvas({ ids, edges, width, height, selected, request, newOwner, onSelect, initialCamera, onCameraChange, graph = baseGraph, dynamic = false, measurement, active = true }: Props) {
   const theme = useThemeColors();
   const reduced = useReducedMotion();
-  const { positions, drag, wake } = useGraphLayout(graph, { ids, edges }, dynamic, reduced !== false, measurement);
+  const { positions: basePositions, drag, wake } = useGraphLayout(graph, { ids, edges }, dynamic, reduced !== false, measurement);
   const touching = useSharedValue(false);
   const grabbed = useSharedValue('');
   const offset = useSharedValue({ x: 0, y: 0 });
@@ -41,6 +42,8 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const relatedIds = useMemo(() => Object.fromEntries(edges.flatMap(edge => edge.id === selected || edge.sourceId === selected || edge.targetId === selected ? [[edge.sourceId, true], [edge.targetId, true]] : [])), [edges, selected]);
   const [rendered, setRendered] = useState<Record<string, number>>(() => viewportNodes(ids, graph.positions, initial, width, height, {}));
   const renderedIds = useSharedValue(Object.keys(rendered));
+  const pinching = useSharedValue(false);
+  const positions = useLivingPositions({ base: basePositions, drag, renderedIds, frozen: { ...relatedIds, [selected]: true }, touching, pinching, cameraX: x, cameraY: y, scale, active: active && reduced === false });
   useEffect(() => {
     function refresh() {
       const next = viewportNodes(ids, positions.get(), { x: x.get(), y: y.get(), scale: scale.get() }, width, height, { ...relatedIds, [selected]: true });
@@ -76,7 +79,6 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
     }
     return visibleLabels(boxes.sort((a, b) => a.priority - b.priority), width, height);
   });
-  const pinching = useSharedValue(false);
   const pinchedThisPan = useSharedValue(false);
   const rebasePan = useSharedValue(false);
   const lastFocal = useSharedValue({ x: 0, y: 0 });

@@ -4,11 +4,11 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try {
-  const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},hasTouch:true,reducedMotion:'reduce'});
+  const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},hasTouch:true,reducedMotion:process.env.MAP_TEST_MOTION||'reduce'});
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto((process.env.MAP_TEST_URL || 'http://localhost:8087')+'/graph-demo');
   await page.getByText('デモ · 5件',{exact:true}).waitFor({timeout:120000});
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(process.env.MAP_TEST_MOTION==='no-preference'?7500:1500);
   const canvas=page.getByTestId('atlas-canvas');
   const bounds=await canvas.boundingBox();
   const client=await page.context().newCDPSession(page);
