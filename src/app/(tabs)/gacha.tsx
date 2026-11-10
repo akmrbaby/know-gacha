@@ -67,8 +67,8 @@ export default function Gacha() {
           <NativeText>{error ? '知識を読み込めませんでした' : '知識を準備しています…'}</NativeText>
           {error && <><NativeText accessibilityRole="alert">{error}</NativeText><Action title="読み込みを再試行" onPress={retry} /></>}
         </> : opening ? <>
-          <NativeText variant="label" accessibilityLiveRegion="polite">知識をひらいています</NativeText>
           <Capsule opening onFinish={finish} />
+          <NativeText variant="label" accessibilityLiveRegion="polite">知識をひらいています</NativeText>
           <Action title="演出をスキップ" secondary onPress={finish} />
         </> : displayedId ? <>
           {!today && exhausted && <NativeText variant="caption">最近出会った知識</NativeText>}

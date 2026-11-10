@@ -27,6 +27,7 @@ function adaptive(source,output) {
 render(['assets/brand/approved-icon.png','-resize','1024x1024','-alpha','off','-strip','PNG24:assets/icon.png']);
 render(['assets/brand/approved-icon.png','-resize','64x64','-alpha','off','-strip','PNG24:assets/favicon.png']);
 render(['assets/brand/mascot-source.png','-channel','A','-threshold','50%','+channel','-resize','1024x1024','-strip','PNG32:assets/splash-icon.png']);
+render(['assets/brand/mascot-source.png','-channel','A','-threshold','50%','+channel','-resize','512x512','-strip','PNG32:assets/gacha-mascot.png']);
 const stencil=inspect('assets/brand/monochrome-stencil.png');
 render(['-size',`${stencil.width}x${stencil.height}`,'xc:white','(','assets/brand/monochrome-stencil.png','-colorspace','Gray','-threshold','50%',')','-alpha','off','-compose','CopyOpacity','-composite','-strip','PNG32:assets/brand/monochrome.png']);
 adaptive('assets/splash-icon.png','assets/android-icon-foreground.png');
