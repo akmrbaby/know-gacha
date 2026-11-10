@@ -1,7 +1,8 @@
 import { LanguageSelector } from '../components/LanguageSelector';
 import { MapMotionStatus } from '../components/MapMotionStatus';
+import { ReminderSettings } from '../components/ReminderSettings';
 import { Page } from '../components/ui';
 
 export default function Settings() {
-  return <Page><LanguageSelector /><MapMotionStatus /></Page>;
+  return <Page><LanguageSelector /><ReminderSettings /><MapMotionStatus /></Page>;
 }
