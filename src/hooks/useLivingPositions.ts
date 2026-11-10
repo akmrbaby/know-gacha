@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 import { useAnimatedReaction, useDerivedValue, useFrameCallback, useSharedValue, type SharedValue } from 'react-native-reanimated';
 import { advanceDrift, createDrift, displayPositions, freezeDrift, type Drift } from '../graph/life';
 import type { Position } from '../knowledge/model';
 import type { NodeDrag } from './useGraphLayout';
+import { createForegroundStore } from '../state/foreground';
+
+const foregroundStore = createForegroundStore(AppState);
 
 export function useLivingPositions({ base, drag, renderedIds, frozen, touching, pinching, cameraX, cameraY, scale, active }: {
   base: SharedValue<Record<string, Position>>; drag: SharedValue<NodeDrag>;
@@ -11,15 +14,11 @@ export function useLivingPositions({ base, drag, renderedIds, frozen, touching, 
   touching: SharedValue<boolean>; pinching: SharedValue<boolean>;
   cameraX: SharedValue<number>; cameraY: SharedValue<number>; scale: SharedValue<number>; active: boolean;
 }) {
-  const [foreground, setForeground] = useState(AppState.currentState === 'active');
+  const foreground = useSyncExternalStore(foregroundStore.subscribe, foregroundStore.getSnapshot, foregroundStore.getServerSnapshot);
   const [session] = useState(() => Math.floor(Math.random() * 4294967296));
   const drifts = useSharedValue<Record<string, Drift>>({});
   const cooldown = useSharedValue(1.2), ramp = useSharedValue(0), elapsed = useSharedValue(0);
   const previousCamera = useSharedValue({ x: 0, y: 0, scale: 0 });
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', state => setForeground(state === 'active'));
-    return () => subscription.remove();
-  }, []);
   useAnimatedReaction(() => drag.value?.active ? drag.value.id : '', (id, previous) => {
     if (id && id !== previous) {
       // The drag target already includes the visible offset. Absorb that offset
