@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 import { useAnimatedReaction, useDerivedValue, useFrameCallback, useSharedValue, type SharedValue } from 'react-native-reanimated';
-import { advanceDrift, createDrift, displayPositions, freezeDrift, type Drift } from '../graph/life';
+import { advanceDrift, createDrift, displayPositions, freezeDrift, retuneDrift, type Drift } from '../graph/life';
 import type { Position } from '../knowledge/model';
 import type { NodeDrag } from './useGraphLayout';
 import { createForegroundStore } from '../state/foreground';
@@ -17,13 +17,13 @@ export function useLivingPositions({ base, drag, renderedIds, frozen, touching, 
   const foreground = useSyncExternalStore(foregroundStore.subscribe, foregroundStore.getSnapshot, foregroundStore.getServerSnapshot);
   const [session] = useState(() => Math.floor(Math.random() * 4294967296));
   const drifts = useSharedValue<Record<string, Drift>>({});
-  const cooldown = useSharedValue(1.2), ramp = useSharedValue(0), elapsed = useSharedValue(0);
+  const cooldown = useSharedValue(0.8), ramp = useSharedValue(0), elapsed = useSharedValue(0);
   const previousCamera = useSharedValue({ x: 0, y: 0, scale: 0 });
   useAnimatedReaction(() => drag.value?.active ? drag.value.id : '', (id, previous) => {
     if (id && id !== previous) {
       // The drag target already includes the visible offset. Absorb that offset
       // into the layout instead of adding it a second time on release.
-      drifts.set({ ...drifts.value, [id]: createDrift(id, session) });
+      drifts.set({ ...drifts.value, [id]: createDrift(id, session, scale.value) });
     }
   });
   const frames = useFrameCallback(frame => {
@@ -33,8 +33,8 @@ export function useLivingPositions({ base, drag, renderedIds, frozen, touching, 
     const previous = previousCamera.value;
     const cameraMoved = camera.x !== previous.x || camera.y !== previous.y || camera.scale !== previous.scale;
     previousCamera.set(camera);
-    if (touching.value || pinching.value || cameraMoved || camera.scale < 0.35) {
-      cooldown.set(1.2); ramp.set(0); elapsed.set(0);
+    if (touching.value || pinching.value || cameraMoved) {
+      cooldown.set(0.8); ramp.set(0); elapsed.set(0);
       return;
     }
     if (cooldown.value > 0) { cooldown.set(Math.max(0, cooldown.value - dt)); return; }
@@ -42,19 +42,19 @@ export function useLivingPositions({ base, drag, renderedIds, frozen, touching, 
     if (elapsed.value < 1 / 30) return;
     const step = Math.min(0.05, elapsed.value);
     elapsed.set(0);
-    ramp.set(Math.min(1, ramp.value + step / 0.9));
+    ramp.set(Math.min(1, ramp.value + step / 0.6));
     const next = { ...drifts.value };
     let changed = false;
     for (const id of renderedIds.value) {
       if (!base.value[id]) continue;
-      const previous = next[id] ?? createDrift(id, session);
+      const previous = retuneDrift(next[id] ?? createDrift(id, session, camera.scale), camera.scale);
       const current = frozen[id] ? freezeDrift(previous) : advanceDrift(previous, step * ramp.value);
       if (current !== next[id]) { next[id] = current; changed = true; }
     }
     if (changed) drifts.set(next);
   }, false);
   useEffect(() => {
-    cooldown.set(1.2); ramp.set(0); elapsed.set(0);
+    cooldown.set(0.8); ramp.set(0); elapsed.set(0);
     frames.setActive(active && foreground);
     return () => frames.setActive(false);
   }, [active, foreground, frames, cooldown, ramp, elapsed]);

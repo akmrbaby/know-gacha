@@ -16,7 +16,7 @@ const url=process.env.MAP_TEST_URL||'http://127.0.0.1:8110';
   await button('選択を解除').click();await button('地図を縮小').click();await page.waitForTimeout(8000);
   const progress=await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),savedCamera=await camera();
   const start=await snapshot();await page.waitForTimeout(4000);const moved=await snapshot();
-  assert.ok(difference(start,moved)>0.25,'idle nodes really move');assert.ok(difference(start,moved)<12,'movement stays slow');
+  assert.ok(difference(start,moved)>0.25,'idle nodes really move');assert.ok(difference(start,moved)<30,'movement stays slow');
   assert.equal(await camera(),savedCamera,'ambient motion never changes the camera');
   const aligned=()=>canvas.evaluate(root=>{
    const bounds=root.getBoundingClientRect();
@@ -25,7 +25,7 @@ const url=process.env.MAP_TEST_URL||'http://127.0.0.1:8110';
   });
   assert.ok(await aligned()>=2,'edge endpoints follow rendered node centers while moving');
   const main=moved['光電融合、開封済み教材'];await page.mouse.click(main.x,main.y);await page.getByTestId('map-preview').waitFor();
-  await page.waitForTimeout(200);const held=await snapshot();await page.waitForTimeout(2200);assert.ok(difference(held,await snapshot())<0.1,'selection and its neighbors freeze in place');
+  await page.waitForTimeout(200);const held=await snapshot();await page.waitForTimeout(2200);const whileSelected=await snapshot();const id='光電融合、開封済み教材';assert.ok(Math.hypot(held[id].x-whileSelected[id].x,held[id].y-whileSelected[id].y)<0.1,'the selected node freezes in place');assert.ok(difference(held,whileSelected)>0.25,'neighbors remain alive while reading the preview');
   await button('選択を解除').click();await page.waitForTimeout(2300);
   const bounds=await canvas.boundingBox();await page.mouse.move(bounds.x+10,bounds.y+110);await page.mouse.down();await page.waitForTimeout(150);
   const touch=await snapshot();await page.waitForTimeout(1700);assert.ok(difference(touch,await snapshot())<0.1,'touching pauses all drift');
@@ -39,6 +39,6 @@ const url=process.env.MAP_TEST_URL||'http://127.0.0.1:8110';
   assert.equal(await camera(),savedCamera);assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),progress);
   assert.equal(await canvas.locator('path').count(),3);assert.deepEqual(errors,[]);
   await page.screenshot({path:'/workspace/scratch/living-map-final.png'});
-  await context.close();console.log('PASS slow idle motion; camera/progress unchanged; edge alignment; moving-node selection; frozen neighbors; touch pause and delayed restart; live reduced-motion preference; three SVG paths');
+  await context.close();console.log('PASS slow idle motion; camera/progress unchanged; edge alignment; moving-node selection; selected node frozen and neighbors moving; touch pause and delayed restart; live reduced-motion preference; three SVG paths');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

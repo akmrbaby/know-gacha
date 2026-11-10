@@ -16,6 +16,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion';
 import type { LayoutMeasurement } from '../graph/measurement';
 import { useGraphLayout } from '../hooks/useGraphLayout';
 import { useLivingPositions } from '../hooks/useLivingPositions';
+import { frozenNodes } from '../graph/life';
 import { useThemeColors } from '../theme';
 
 export type CameraRequest = { id?: string; kind: 'focus' | 'fit' | 'in' | 'out'; token: number };
@@ -43,17 +44,18 @@ export function GraphCanvas({ ids, edges, width, height, selected, request, newO
   const [rendered, setRendered] = useState<Record<string, number>>(() => viewportNodes(ids, graph.positions, initial, width, height, {}));
   const renderedIds = useSharedValue(Object.keys(rendered));
   const pinching = useSharedValue(false);
-  const positions = useLivingPositions({ base: basePositions, drag, renderedIds, frozen: { ...relatedIds, [selected]: true }, touching, pinching, cameraX: x, cameraY: y, scale, active: active && reduced === false });
+  const frozen = useMemo(() => frozenNodes(selected, edges), [selected, edges]);
+  const positions = useLivingPositions({ base: basePositions, drag, renderedIds, frozen, touching, pinching, cameraX: x, cameraY: y, scale, active: active && reduced === false });
   useEffect(() => {
     function refresh() {
-      const next = viewportNodes(ids, positions.get(), { x: x.get(), y: y.get(), scale: scale.get() }, width, height, { ...relatedIds, [selected]: true });
+      const next = viewportNodes(ids, basePositions.get(), { x: x.get(), y: y.get(), scale: scale.get() }, width, height, { ...relatedIds, [selected]: true });
       setRendered(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
       renderedIds.set(Object.keys(next));
     }
     refresh();
     const timer = setInterval(refresh, 120);
     return () => clearInterval(timer);
-  }, [ids, positions, x, y, scale, width, height, relatedIds, selected, renderedIds]);
+  }, [ids, basePositions, x, y, scale, width, height, relatedIds, selected, renderedIds]);
   const renderedEdges = edges.filter(edge => rendered[edge.sourceId] && rendered[edge.targetId]);
   const labelOrder = useMemo(() => ids.map(id => {
     const main = graph.nodes[id].kind === 'knowledge', related = !!relatedIds[id] || id === selected;

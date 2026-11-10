@@ -140,5 +140,9 @@
   "架空の接続": "Synthetic connection",
   "規模検証用に生成した接続です。知識の事実関係を表しません。": "A connection generated for scale testing. It does not represent a factual relationship.",
   "設定": "Settings",
-  "設定を開く": "Open settings"
+  "設定を開く": "Open settings",
+  "Mapの動き": "Map motion",
+  "端末の設定を確認しています…": "Checking device settings…",
+  "端末の「視差効果を減らす」設定により、Mapの動きを停止しています。": "Map motion is paused because Reduce Motion is enabled on your device.",
+  "丸い点と名前・線がゆっくり動きます。操作中と詳細表示中は静止します。": "The round nodes, names, and lines move slowly. Motion pauses while you interact or read details."
 }

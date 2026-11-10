@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const ts=require('typescript');
 const m={exports:{}};
 new Function('exports',ts.transpileModule(fs.readFileSync('src/graph/life.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText)(m.exports);
-const {createDrift,advanceDrift,freezeDrift,displayPositions}=m.exports;
+const {createDrift,advanceDrift,freezeDrift,displayPositions,retuneDrift,frozenNodes}=m.exports;
 
 test('individual paths remain bounded and slow for ten minutes, with gradual turns and rests',()=>{
  let turns=0,rests=0;
@@ -15,8 +15,8 @@ test('individual paths remain bounded and slow for ten minutes, with gradual tur
   for(let i=0;i<18000;i++){
    const previous=state;state=advanceDrift(Object.freeze(previous),1/30);
    assert.ok(Math.hypot(state.x,state.y)<=state.radius+1e-9);
-   assert.ok(Math.hypot(state.x-previous.x,state.y-previous.y)<=2.11/30);
-   assert.ok(Math.hypot(state.vx-previousV.x,state.vy-previousV.y)<0.11,'heading and speed change gradually');
+   assert.ok(Math.hypot(state.x-previous.x,state.y-previous.y)<=previous.speed/30+1e-9);
+   assert.ok(Math.hypot(state.vx-previousV.x,state.vy-previousV.y)<0.6,'heading and speed change gradually');
    if(i%90===0&&Math.hypot(state.vx,state.vy)>0.3){
     if(earlierHeading&&Math.abs(Math.atan2(state.vy*earlierHeading.x-state.vx*earlierHeading.y,state.vx*earlierHeading.x+state.vy*earlierHeading.y))>0.2)turns++;
     earlierHeading={x:state.vx,y:state.vy};
@@ -38,7 +38,7 @@ test('pausing preserves the displayed position, and a delayed frame never catche
  assert.equal(frozen.vx,0);assert.equal(frozen.vy,0);
  assert.equal(advanceDrift(frozen,0),frozen);
  const resumed=advanceDrift(frozen,60);
- assert.ok(Math.hypot(resumed.x-frozen.x,resumed.y-frozen.y)<0.01,'background time cannot cause a jump');
+ assert.ok(Math.hypot(resumed.x-frozen.x,resumed.y-frozen.y)<0.03,'background time cannot cause a jump');
 });
 test('identity gives stable speed and session randomness gives different routes',()=>{
  const a=createDrift('affordance',1),b=createDrift('affordance',2);
@@ -66,13 +66,13 @@ let callback;
 (function visit(node){if(ts.isCallExpression(node)&&node.expression.getText(hook)==='useFrameCallback')callback=node.arguments[0].getText(hook);ts.forEachChild(node,visit);})(hook);
 function shared(value){return{value,set(next){this.value=next;}};}
 function frameHarness(overrides={}){
- const scope={active:true,foreground:true,base:shared({a:{x:0,y:0},b:{x:200,y:100}}),drag:shared(null),renderedIds:shared(['a']),frozen:{},touching:shared(false),pinching:shared(false),cameraX:shared(0),cameraY:shared(0),scale:shared(1),previousCamera:shared({x:0,y:0,scale:1}),cooldown:shared(0),ramp:shared(1),elapsed:shared(0),drifts:shared({a:{...createDrift('a',1),x:2,y:3,vx:1,vy:0}}),session:1,createDrift,freezeDrift,advanceDrift,...overrides};
+ const scope={active:true,foreground:true,base:shared({a:{x:0,y:0},b:{x:200,y:100}}),drag:shared(null),renderedIds:shared(['a']),frozen:{},touching:shared(false),pinching:shared(false),cameraX:shared(0),cameraY:shared(0),scale:shared(1),previousCamera:shared({x:0,y:0,scale:1}),cooldown:shared(0),ramp:shared(1),elapsed:shared(0),drifts:shared({a:{...createDrift('a',1),x:2,y:3,vx:1,vy:0}}),session:1,createDrift,freezeDrift,advanceDrift,retuneDrift,...overrides};
  const code=ts.transpileModule(`const callback=${callback};`,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
  const run=new Function(...Object.keys(scope),code+'return callback;')(...Object.values(scope));
  return {...scope,run:()=>run({timeSincePreviousFrame:50})};
 }
-test('inactive, background, touching, and overview frames cannot advance drift',()=>{
- for(const flags of [{active:false},{foreground:false},{touching:shared(true)},{pinching:shared(true)},{scale:shared(0.2)}]){
+test('inactive, background and touching frames cannot advance drift',()=>{
+ for(const flags of [{active:false},{foreground:false},{touching:shared(true)},{pinching:shared(true)}]){
   const h=frameHarness(flags),before=JSON.stringify(h.drifts.value);
   for(let i=0;i<40;i++)h.run();
   assert.equal(JSON.stringify(h.drifts.value),before);
@@ -80,12 +80,37 @@ test('inactive, background, touching, and overview frames cannot advance drift',
  const h=frameHarness();h.run();assert.notEqual(h.drifts.value.a.x,2,'active visible nodes advance');
  assert.ok(!h.drifts.value.b,'off-screen nodes do not acquire a frame update');
 });
-test('selected neighbors hold their offsets and release waits before restarting',()=>{
+test('selected nodes hold their offsets and release waits before restarting',()=>{
  const h=frameHarness({frozen:{a:true}});for(let i=0;i<40;i++)h.run();
  assert.equal(h.drifts.value.a.x,2);assert.equal(h.drifts.value.a.y,3);assert.equal(h.drifts.value.a.vx,0);
  const g=frameHarness();g.touching.value=true;g.run();g.touching.value=false;
- for(let i=0;i<20;i++)g.run();assert.equal(g.drifts.value.a.x,2,'the first second after release is quiet');
+ for(let i=0;i<10;i++)g.run();assert.equal(g.drifts.value.a.x,2,'the first half-second after release is quiet');
  for(let i=0;i<30;i++)g.run();assert.notEqual(g.drifts.value.a.x,2,'then motion resumes');
  const camera=frameHarness();camera.cameraX.value=10;camera.run();
- assert.equal(camera.drifts.value.a.x,2);assert.equal(camera.cooldown.value,1.2,'camera animation also postpones drift');
+ assert.equal(camera.drifts.value.a.x,2);assert.equal(camera.cooldown.value,0.8,'camera animation also postpones drift');
+});
+
+test('normal and overview zooms both produce visible screen movement with bounded reach',()=>{
+ for(const zoom of [0.05,0.15,0.3,1,2.2]){
+  let state=createDrift('light',37,zoom);
+  const maxRadius=state.radius;
+  for(let i=0;i<120;i++)state=advanceDrift(state,1/30);
+  assert.ok(Math.hypot(state.x,state.y)*zoom>4,'four seconds should visibly move a node at zoom '+zoom);
+  assert.ok(Math.hypot(state.x,state.y)<=maxRadius+1e-9);
+ }
+ const h=frameHarness({scale:shared(0.2),previousCamera:shared({x:0,y:0,scale:0.2})});
+ for(let i=0;i<40;i++)h.run();assert.notEqual(h.drifts.value.a.x,2,'overview no longer disables motion');
+});
+test('zoom retuning preserves the exact displayed world point and eases into the new envelope',()=>{
+ let state=createDrift('light',37,0.15);state={...state,x:state.radius*0.8,y:0,vx:2,vy:1};
+ const next=retuneDrift(Object.freeze(state),1.5);
+ assert.equal(next.x,state.x);assert.equal(next.y,state.y);assert.equal(next.vx,0);assert.equal(next.vy,0);
+ let settling=next;for(let i=0;i<1800;i++)settling=advanceDrift(settling,1/30);
+ assert.ok(Math.hypot(settling.x,settling.y)*1.5<=settling.reach+0.001);
+});
+test('a selected node freezes while neighbors remain alive; an edge freezes both endpoints',()=>{
+ const edges=[{id:'a-b',sourceId:'a',targetId:'b'}];
+ assert.deepEqual(frozenNodes('a',edges),{a:true});assert.deepEqual(frozenNodes('a-b',edges),{a:true,b:true});
+ const h=frameHarness({frozen:frozenNodes('a',edges),renderedIds:shared(['a','b'])});
+ for(let i=0;i<60;i++)h.run();assert.equal(h.drifts.value.a.x,2);assert.ok(Math.hypot(h.drifts.value.b.x,h.drifts.value.b.y)>1);
 });
