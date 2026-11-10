@@ -9,4 +9,6 @@
 
 `node scripts/export-brand.cjs`で1024pxのアイコン・スプラッシュ・Android素材と64pxのfaviconを再生成する。ImageMagick 7が必要。元の画像は変更せず、書き出し時のサイズと色形式だけを揃える。Android foregroundとmonochromeは66dpの円形安全域へ収め、全不透明ピクセルの半径を検査する。
 
+`assets/gacha-mascot.png`は同じ透過原稿を512pxで書き出したアプリ内の開封用画像。SVGの切り抜きで上下に分けて動かし、別のキャラクターを描き直さない。
+
 起動時は`assets/splash-icon.png`をOSとJSで共用する。[設計と検証](../../docs/brain-capsule-brand.md)を参照。
