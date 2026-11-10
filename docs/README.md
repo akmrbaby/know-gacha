@@ -2,7 +2,8 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
-| [mascot-gacha-animation.md](mascot-gacha-animation.md) | 採用キャラクターでGacha・Mapの開封演出を統一 | 実装・自動テスト・Web・iOS export済み、開封演出の実機確認は未実施 |
+| [map-first-discovery-design.md](map-first-discovery-design.md) | Mapへ入口を集約し、開封結果と読書を一続きにするUIUXレビュー | 実装・自動テスト・Web確認・iOS export済み、今回のUIの実機確認待ち |
+| [mascot-gacha-animation.md](mascot-gacha-animation.md) | 採用キャラクターでGacha・Mapの開封演出を統一 | 実装・自動テスト・Web・iOS export済み、ユーザーより実機確認OK |
 | [brain-capsule-brand.md](brain-capsule-brand.md) | 採用した半目・脳のしわ・短い足のカプセルをアイコンと起動へ反映 | ユーザーより反映確認OK、確認範囲の詳細は未記録 |
 | [daily-reminders.md](daily-reminders.md) | 任意時刻の毎日通知・開封後の取り消し・通知からGachaへ | 実装・自動テスト・Web・iOS export済み、1.0.3の新ビルドと実機受信確認が必要 |
 | [visible-map-motion.md](visible-map-motion.md) | 小さすぎる動き・縮小／選択で停止する条件の見直し | 実装・Web検証済み、iPhone実機確認待ち |
