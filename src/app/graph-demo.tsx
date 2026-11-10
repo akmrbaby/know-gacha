@@ -1,7 +1,7 @@
 import { useI18n } from '../i18n/I18nProvider';
 import { Text } from '../i18n/Text';
-import { router, Stack } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { router, Stack, useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import Constants from 'expo-constants';
 import { FlatList, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { GraphCanvas, type CameraRequest } from '../components/GraphCanvas';
@@ -15,6 +15,8 @@ import { graphLabEnabled } from '../graph/lab';
 import { graphCounts, neighborhood } from '../knowledge/model';
 
 export default function GraphDemo() {
+  const [active, setActive] = useState(false);
+  useFocusEffect(useCallback(() => { setActive(true); return () => setActive(false); }, []));
   const {t}=useI18n();
   const { theme, styles } = useUI();
   const demo = makeStyles(theme);
@@ -73,7 +75,7 @@ export default function GraphDemo() {
       <Text numberOfLines={2} style={[styles.small, { height: 36 }]}>{measurement.recording ? '計測中 · ノード／背景ドラッグ、ピンチ、指の切り替えを試してください。' : 'UIの呼び出し間隔と配置時間を記録。機種・操作感は別途記録してください。'}</Text>
     </View>
     <View style={demo.map} onLayout={(event) => { const { width, height } = event.nativeEvent.layout; setSize({ width, height }); }}>
-      <GraphCanvas measurement={measurement.probe} dynamic graph={demoGraph} ids={view.ids} edges={view.edges} width={size.width} height={size.height} selected={selected} request={request} onSelect={choose} />
+      <GraphCanvas active={active && !list && !selected && !measurement.recording && !measurement.report} measurement={measurement.probe} dynamic graph={demoGraph} ids={view.ids} edges={view.edges} width={size.width} height={size.height} selected={selected} request={request} onSelect={choose} />
       {!!measurement.report && <View style={demo.report}><ScrollView style={{ maxHeight: 160 }}><Text selectable testID="map-measurement-report" style={styles.small}>{measurement.report}</Text></ScrollView></View>}
       {list && <FlatList testID="demo-list" style={demo.list} contentContainerStyle={{ padding: 16 }} data={visible.ids} keyExtractor={(id) => id} renderItem={({ item: id }) => <Pressable accessibilityRole="button" onPress={() => choose(id)} style={demo.listItem}><Text style={styles.body}>{demoGraph.nodes[id].name}</Text><Text style={styles.small}>{demoGraph.nodes[id].kind === 'knowledge' ? '取得済み' : '未取得の周辺概念'} · {demoGraph.nodes[id].provenance === 'fixture' ? '架空の検証用' : '出典あり'}</Text></Pressable>} />}
       {!!selected && !list && <MapSheet demo graph={demoGraph} edges={visible.edges} acquiredIds={demoOrder.slice(0, count)} selected={selected} height={size.height} onSelect={choose} onClose={() => { setSelected(''); setNearby(false); }} />}

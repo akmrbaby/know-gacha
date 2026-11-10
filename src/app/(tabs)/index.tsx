@@ -80,7 +80,7 @@ export default function GraphScreen() {
   const selectedEdge = graph.edges.find(edge => edge.id === validSelected);
   const sheetTitle = validSelected ? selectedEdge ? `${conceptName(selectedEdge.sourceId)} → ${conceptName(selectedEdge.targetId)}` : conceptName(validSelected) : '出会った知識';
   return <View pointerEvents={active ? 'auto' : 'none'} style={[map.screen, { backgroundColor: colors.map }]} onLayout={event => setSize(event.nativeEvent.layout)}>
-    {ready && viewport.ready && graph.ids.length > 0 && <GraphCanvas dynamic initialCamera={viewport.initial} onCameraChange={viewport.save} ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={validSelected} request={request} newOwner={newOwner} onSelect={choose} />}
+    {ready && viewport.ready && graph.ids.length > 0 && <GraphCanvas dynamic active={active && !panelOpen && !reveal} initialCamera={viewport.initial} onCameraChange={viewport.save} ids={graph.ids} edges={graph.edges} width={size.width} height={size.height} selected={validSelected} request={request} newOwner={newOwner} onSelect={choose} />}
     <View pointerEvents="box-none" style={[map.top, { top: insets.top + spacing.sm }]}>
       <NativeToolbar style={map.titlebar}>
         <View pointerEvents="none" style={map.title}><NativeText variant="title" accessibilityRole="header">Map</NativeText><NativeText variant="caption">{progress.openings.length}語の知識</NativeText></View>
