@@ -20,7 +20,7 @@ const assert=require('node:assert/strict');
    assert.notEqual(timing.shown,null);assert.notEqual(timing.hidden,null);
    const duration=timing.hidden-timing.shown;
    assert.ok(duration<2100,`launch must not block: ${duration}`);
-   if(reduced==='no-preference')assert.ok(duration>=400,'normal launch reveals the nodes');
+   if(reduced==='no-preference')assert.ok(duration>=400,'normal launch animates the mascot');
    else assert.ok(duration<500,'reduced motion skips the animation');
    await page.getByRole('tab',{name:'Gacha',exact:true}).click();await page.getByRole('button',{name:'今日の知識をひらく',exact:true}).waitFor();
    assert.equal(await page.getByTestId('launch-intro').count(),0,'tab changes do not replay');
@@ -35,5 +35,27 @@ const assert=require('node:assert/strict');
   await broken.getByRole('button',{name:'読み込みを再試行',exact:true}).click();await broken.getByRole('button',{name:'最初の知識をひらく',exact:true}).waitFor();
   assert.equal(await broken.getByTestId('launch-intro').count(),0,'retry does not replay launch');
   console.log('PASS first launch, reduced motion, no replay on tab change, read error and retry');
+  for(const failure of ['abort','stall']){
+   const page=await browser.newPage({locale:'ja-JP',viewport:{width:390,height:844},reducedMotion:'no-preference'});
+   let intercepted=0;
+   await page.addInitScript(()=>{
+    window.launchTiming={shown:null,hidden:null};
+    new MutationObserver(()=>{const visible=!!document.querySelector('[data-testid="launch-intro"]');if(visible&&window.launchTiming.shown===null)window.launchTiming.shown=performance.now();if(!visible&&window.launchTiming.shown!==null&&window.launchTiming.hidden===null)window.launchTiming.hidden=performance.now();}).observe(document,{childList:true,subtree:true});
+   });
+   await page.route(/splash-icon/,async route=>{
+    intercepted++;
+    if(failure==='stall')await new Promise(resolve=>setTimeout(resolve,3000));
+    try{await route.abort();}catch{}
+   });
+   await page.goto(url,{waitUntil:'domcontentloaded'});
+   await page.getByRole('button',{name:'最初の知識をひらく',exact:true}).waitFor({timeout:120000});
+   await page.getByTestId('launch-intro').waitFor({state:'detached'});
+   assert.ok(intercepted>0,'exercise the actual mascot asset request');
+   const timing=await page.evaluate(()=>window.launchTiming),duration=timing.hidden-timing.shown;
+   assert.ok(timing.shown!==null&&timing.hidden!==null&&duration<2100,'missing mascot must not block launch');
+   if(failure==='stall')assert.ok(duration>=1600,'a stalled image exits through the maximum wait');
+   console.log('PASS mascot image '+failure+', launch released in '+Math.round(duration)+'ms');
+   await page.close();
+  }
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});
