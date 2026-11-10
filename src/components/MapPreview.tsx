@@ -1,3 +1,4 @@
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -14,6 +15,7 @@ export function MapPreview({ selected, edges, height, onSelect, onClose, onExpan
   selected: string; edges: GraphRelation[]; height: number; onSelect: (id: string) => void; onClose: () => void; onExpand: () => void; onCenter: () => void;
 }) {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const edge = edges.find(item => item.id === selected), node = baseGraph.nodes[selected];
   const name = (id: string) => baseGraph.nodes[id]?.name ?? '';
   const title = edge ? `${name(edge.sourceId)} → ${name(edge.targetId)}` : name(selected);
@@ -21,7 +23,7 @@ export function MapPreview({ selected, edges, height, onSelect, onClose, onExpan
   const swipe = usePanGesture({ minDistance: 18, onDeactivate: event => {
     if (!event.canceled && event.translationY < -30) scheduleOnRN(onExpand);
   }});
-  return <View testID="map-preview" style={[styles.preview, { backgroundColor: colors.surface, borderColor: colors.separator, maxHeight: Math.max(180, Math.min(320, height * 0.34)) }]}>
+  return <View testID="map-preview" style={[styles.preview, { bottom:Math.max(spacing.sm,insets.bottom), backgroundColor: colors.surface, borderColor: colors.separator, maxHeight: Math.max(180, Math.min(320, height * 0.34)) }]}>
     <GestureDetector gesture={swipe}>
       <View testID="map-preview-handle" style={styles.handleArea}>
         <View style={[styles.handle, { backgroundColor: colors.separator }]} />
@@ -34,7 +36,7 @@ export function MapPreview({ selected, edges, height, onSelect, onClose, onExpan
     <ScrollView nestedScrollEnabled contentContainerStyle={styles.content}>
       <NativeText numberOfLines={2}>{edge ? edge.label : node?.summary}</NativeText>
       <View style={styles.actions}>
-        <View style={{flex:1}}><Action title="詳細を開く" onPress={onExpand} /></View>
+        <View style={{flex:1}}><Action title="読む" onPress={onExpand} /></View>
         <View style={{flex:1}}><Action title="中央に表示" secondary onPress={onCenter} /></View>
       </View>
       {neighbors.length > 0 && <View>
