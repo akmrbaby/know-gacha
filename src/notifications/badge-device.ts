@@ -2,7 +2,8 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { BADGE_ID, type BadgePort } from './badges';
 import { normalizePermission, requestPermission } from './device';
-import type { Permission } from './reminders';
+import { HORIZON_DAYS, isReminder, type Permission } from './reminders';
+import { localDate } from '../state/progress';
 export const supported=Platform.OS==='ios';
 export async function getPermission():Promise<Permission>{
   if(!supported)return {status:'unsupported',canAskAgain:false};
@@ -21,15 +22,21 @@ export const badges:BadgePort={
     const succeeded=await Notifications.setBadgeCountAsync(count);
     if(count>0 && !succeeded)throw new Error('Could not update badge');
   },
-  rollover:async count=>{
-    const pending=await Notifications.getAllScheduledNotificationsAsync();
-    const existing=pending.find(item=>item.identifier===BADGE_ID);
-    if(count!==null && existing?.content.data?.signature===`1:${count}`)return;
-    if(existing)await Notifications.cancelScheduledNotificationAsync(BADGE_ID);
-    if(count===null)return;
-    await Notifications.scheduleNotificationAsync({identifier:BADGE_ID,
-      content:{badge:count,sound:false,data:{kind:'badge-rollover',signature:`1:${count}`}},
-      trigger:{type:Notifications.SchedulableTriggerInputTypes.CALENDAR,hour:0,minute:0,second:0,repeats:true},
-    });
+  rollover:async updates=>{
+    const pending=[...await Notifications.getAllScheduledNotificationsAsync()];
+    const end=new Date();end.setDate(end.getDate()+HORIZON_DAYS);
+    const cutoff=localDate(end);
+    // Older builds reserved 60 reminders. Trim their far-future tail before adding daily badge updates.
+    for(const old of pending)if(isReminder(old.identifier) && old.identifier.slice(-10)>=cutoff)await Notifications.cancelScheduledNotificationAsync(old.identifier);
+    const wanted=new Map(updates.map(update=>[update.id,update]));
+    const owned=(id:string)=>id===BADGE_ID || id.startsWith(`${BADGE_ID}:`);
+    for(const old of pending)if(owned(old.identifier) && (!wanted.has(old.identifier) || wanted.get(old.identifier)?.signature!==old.content.data?.signature))await Notifications.cancelScheduledNotificationAsync(old.identifier);
+    for(const update of updates){
+      if(pending.some(old=>old.identifier===update.id && old.content.data?.signature===update.signature))continue;
+      await Notifications.scheduleNotificationAsync({identifier:update.id,
+        content:{badge:update.count,sound:false,data:{kind:'badge-rollover',signature:update.signature}},
+        trigger:{type:Notifications.SchedulableTriggerInputTypes.DATE,date:new Date(update.at),delivery:'bestEffort'},
+      });
+    }
   },
 };

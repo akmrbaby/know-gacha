@@ -20,7 +20,7 @@ export function BadgeSettings(){
         <NativeText style={{flex:1}}>アイコンに残り回数を表示</NativeText>
         <Switch accessibilityLabel={t('アイコンに残り回数を表示')} value={enabled} disabled={!ready||busy} trackColor={{true:colors.accent}} onValueChange={value=>{void configure(value);}} />
       </View>
-      <NativeText variant="caption">当日分と初回特典の合計を表示します。0回ならバッジを消します。通知の許可が必要です。</NativeText>
+      <NativeText variant="caption">貯まった日次分と初回特典の合計を表示します。0回ならバッジを消します。通知の許可が必要です。</NativeText>
       {enabled && permission.status==='granted' && progressReady && <NativeText accessibilityLiveRegion="polite">{`現在の残り回数：${badgeCounts(progress,date).current}回`}</NativeText>}
       <NativeText variant="caption">翌日分は音や本文のない予約で更新します。端末の状態によって反映が遅れる場合があります。</NativeText>
       {permission.status==='denied' && <Action title="端末の通知設定を開く" secondary onPress={()=>{setLinkError(false);void Linking.openSettings().catch(()=>setLinkError(true));}}/>}

@@ -17,7 +17,7 @@ test('local calendar date handles month/year rollover without UTC conversion', (
   assert.equal(localDate(new Date(2026, 0, 1, 0, 1)), '2026-01-01');
 });
 test('initial ten draws consume one daily then nine welcome grants and survive restore', () => {
-  let state = emptyProgress();
+  let state = emptyProgress(9,'2026-11-09');
   assert.equal(allowance(state, '2026-11-09').total, 10);
   for(let i=0;i<10;i++) {
     state = restoreProgress(JSON.stringify(openForDate(state,'2026-11-09',()=>0)));
@@ -31,7 +31,7 @@ test('initial ten draws consume one daily then nine welcome grants and survive r
   assert.equal(openForDate(state,'2026-11-10',()=>0).openings.length,11,'new day adds one draw while content remains');
 });
 test('future two-welcome configuration starts with three; daily refresh does not refill welcome', () => {
-  let state=emptyProgress(2);
+  let state=emptyProgress(2,'2026-11-09');
   assert.deepEqual(allowance(state,'2026-11-09'),{daily:1,bonus:2,total:3});
   for(let i=0;i<3;i++) state=openForDate(state,'2026-11-09',()=>0);
   assert.equal(openForDate(state,'2026-11-09'),state);
@@ -43,7 +43,7 @@ test('future two-welcome configuration starts with three; daily refresh does not
 test('legacy migration preserves history and rejects duplicated daily use and overspent bonus', () => {
  const legacy={version:1,dayOffset:2,openings:[{keywordId:'ethnography',date:'2026-11-08',openedAt:'2026-11-08T12:00:00Z'}]};
  const migrated=restoreProgress(JSON.stringify(legacy));
- assert.equal(migrated.version,2); assert.equal(migrated.dayOffset,2);
+ assert.equal(migrated.version,3); assert.equal(migrated.dayOffset,2);
  assert.equal(migrated.openings[0].keywordId,'ethnography');
  assert.deepEqual(allowance(migrated,'2026-11-08'),{daily:0,bonus:9,total:9});
  const state=openForDate(migrated,'2026-11-08',()=>0);
@@ -52,11 +52,11 @@ test('legacy migration preserves history and rejects duplicated daily use and ov
  assert.throws(()=>restoreProgress(JSON.stringify({...state,openings:state.openings.map(item=>({...item,grant:'daily'}))})));
 });
 test('restoration preserves day offset and rejects corrupt/duplicate records', () => {
-  assert.deepEqual(restoreProgress(null), emptyProgress());
-  assert.equal(restoreProgress(JSON.stringify({ ...emptyProgress(), dayOffset: 2 })).dayOffset, 2);
+  assert.deepEqual(restoreProgress(null), emptyProgress(9,localDate()));
+  assert.equal(restoreProgress(JSON.stringify({ ...emptyProgress(9,'2026-11-07'), dayOffset: 2 })).dayOffset, 2);
   assert.throws(() => restoreProgress('{'));
   assert.throws(() => restoreProgress('{"version":2}'));
-  const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
+  const state = openForDate(emptyProgress(9,'2026-11-07'), '2026-11-07', () => 0);
   state.openings.push(state.openings[0]);
   assert.throws(() => restoreProgress(JSON.stringify(state)));
 });
@@ -74,7 +74,7 @@ test('the atlas reveals only opened clusters, with no daily unlock for related c
   const all = visibleGraph(allKeywords.map((word) => word.id));
   assert.equal(all.ids.length, Object.keys(baseGraph.nodes).length);
   assert.equal(all.edges.length, baseGraph.relations.length);
-  const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
+  const state = openForDate(emptyProgress(9,'2026-11-07'), '2026-11-07', () => 0);
   visibleGraph(state.openings.map((item) => item.keywordId));
   assert.equal(restoreProgress(JSON.stringify(state)).openings.length, 1);
 });
@@ -123,7 +123,7 @@ test('fit includes all visible node centers and focus leaves the collapsed sheet
   }
 });
 test('Gacha remaining count agrees with saved grants and exhausted content',()=>{
- let state=emptyProgress();
+ let state=emptyProgress(9,'2026-11-09');
  for(let i=0;i<10;i++) {
   assert.equal(availability(state,'2026-11-09').remaining,10-i);
   state=restoreProgress(JSON.stringify(openForDate(state,'2026-11-09',()=>0)));
@@ -147,7 +147,7 @@ test('curated pool contains 30 substantial articles; retired IDs remain readable
 test('old complete ten-topic ledger survives and 24 new topics remain drawable',()=>{
  assert.deepEqual(visibleGraph(['light']),{ids:[],edges:[]},'ordinary peripheral concepts do not unlock acquisitions');
  const oldIds=['photonics-electronics','ethnography','surrealism','optical-fiber','ccd','photography','dada','collage','user-research','user-centered-design'];
- const old={...emptyProgress(),openings:oldIds.map((keywordId,i)=>({keywordId,date:'2026-11-01',openedAt:`2026-11-01T12:00:${String(i).padStart(2,'0')}Z`,grant:i?'welcome':'daily'}))};
+ const old={...emptyProgress(9,'2026-11-01'),openings:oldIds.map((keywordId,i)=>({keywordId,date:'2026-11-01',openedAt:`2026-11-01T12:00:${String(i).padStart(2,'0')}Z`,grant:i?'welcome':'daily'}))};
  let state=restoreProgress(JSON.stringify(old));
  assert.deepEqual(state,old);
  assert.equal(availability(state,'2026-11-01').remaining,0);
@@ -166,4 +166,37 @@ test('old complete ten-topic ledger survives and 24 new topics remain drawable',
  assert.deepEqual(state.openings.slice(0,10),old.openings);
  const view=visibleGraph(oldIds);
  for(const id of oldIds)assert.ok(view.ids.includes(id),'old acquisition remains on the Map: '+id);
+});
+
+test('three calendar days bank three grants, spend them on one day, and survive restarting',()=>{
+ let state=emptyProgress(0,'2026-11-11');
+ state=openForDate(state,'2026-11-11',()=>0);
+ assert.equal(allowance(state,'2026-11-14').daily,3);
+ for(let i=0;i<3;i++)state=restoreProgress(JSON.stringify(openForDate(state,'2026-11-14',()=>0)));
+ assert.equal(state.openings.length,4);assert.equal(allowance(state,'2026-11-14').daily,0);
+ assert.equal(openForDate(state,'2026-11-14'),state);
+ assert.equal(allowance(state,'2026-11-15').daily,1);
+});
+test('month/year/leap-day and daylight-saving calendar changes accrue by dates',()=>{
+ for(const [start,end,days] of [['2026-12-31','2027-01-03',4],['2028-02-28','2028-03-01',3],['2026-03-07','2026-03-10',4],['2026-10-31','2026-11-03',4]])assert.equal(allowance(emptyProgress(0,start),end).daily,days);
+ let state=openForDate(emptyProgress(0,'2026-11-11'),'2026-11-14',()=>0);
+ assert.equal(allowance(state,'2026-11-12').daily,3);
+ state=openForDate(state,'2026-11-12',()=>0);
+ assert.doesNotThrow(()=>restoreProgress(JSON.stringify(state)),'backward time-zone dates never damage saved history');
+});
+test('old v2 daily/welcome ledger migrates with missed grants, rejecting overspending in v3',()=>{
+ const old={version:2,initialBonus:2,dayOffset:0,openings:[{keywordId:keywords[0].id,date:'2026-11-11',openedAt:'2026-11-11T12:00:00Z',grant:'daily'}]};
+ const migrated=restoreProgress(JSON.stringify(old),new Date(2026,10,14));
+ assert.equal(migrated.startedOn,'2026-11-11');assert.deepEqual(migrated.openings,old.openings);
+ assert.deepEqual(allowance(migrated,'2026-11-14'),{daily:3,bonus:2,total:5});
+ assert.throws(()=>restoreProgress(JSON.stringify({...migrated,openings:[...migrated.openings,{...old.openings[0],keywordId:keywords[1].id}]})));
+});
+test('initial grant date persists before any draw, migration saves once, and storage failures reject',async()=>{
+ const {loadSavedProgress}=load('src/state/progress.ts');
+ let raw=null,writes=0;const storage={getItem:async()=>raw,setItem:async(_,value)=>{raw=value;writes++;}};
+ const first=await loadSavedProgress(storage,new Date(2026,10,11));assert.equal(first.startedOn,'2026-11-11');assert.equal(writes,1);
+ const after=await loadSavedProgress(storage,new Date(2026,10,14));assert.equal(after.openings.length,0);assert.equal(allowance(after,'2026-11-14').daily,4);assert.equal(writes,1);
+ raw=JSON.stringify({version:2,dayOffset:0,initialBonus:2,openings:[]});await loadSavedProgress(storage,new Date(2026,10,11));assert.equal(JSON.parse(raw).version,3);assert.equal(writes,2);
+ await assert.rejects(loadSavedProgress({getItem:async()=>null,setItem:async()=>{throw new Error('full');}}));
+ raw='broken';await assert.rejects(loadSavedProgress(storage));assert.equal(raw,'broken');
 });

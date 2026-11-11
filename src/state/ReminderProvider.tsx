@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { AppState } from 'react-native';
 import { useI18n } from '../i18n/I18nProvider';
 import * as device from '../notifications/device';
-import { createReminderQueue, defaultReminders, planReminders, reconcileReminders, REMINDER_KEY, restoreReminders, testNotice, type Permission, type ReminderSettings } from '../notifications/reminders';
+import { notificationQueue, defaultReminders, planReminders, reconcileReminders, REMINDER_KEY, restoreReminders, testNotice, type Permission, type ReminderSettings } from '../notifications/reminders';
 import { useProgress } from './ProgressProvider';
 
 type State = { settings: ReminderSettings; ready: boolean; busy: boolean; error: string | null; tested: boolean; permission: Permission;
@@ -18,7 +18,7 @@ export function ReminderProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const current = useRef({ settings, progress, locale, ready, progressReady, localeReady });
   useLayoutEffect(() => { current.current = { settings, progress, locale, ready, progressReady, localeReady }; }, [settings, progress, locale, ready, progressReady, localeReady]);
-  const queue = useRef(createReminderQueue());
+  const queue = useRef(notificationQueue);
   const locked = useRef(false);
   const load = useCallback(() => {
     return AsyncStorage.getItem(REMINDER_KEY).then(raw => {

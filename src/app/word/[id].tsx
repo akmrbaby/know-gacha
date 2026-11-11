@@ -26,7 +26,7 @@ function Article({id,opening}:{id:string;opening:boolean}) {
   const [canDraw,setCanDraw]=useState(false);
   const lock=useRef(false);
   const word=findKeyword(id);
-  const {remaining,bonus,exhausted}=availability(progress,date);
+  const {remaining,exhausted}=availability(progress,date);
   useEffect(()=>{
     if(animating)return;
     const timer=setTimeout(()=>setCanDraw(true),350);
@@ -36,7 +36,7 @@ function Article({id,opening}:{id:string;opening:boolean}) {
   async function draw(){
     if(lock.current || !canDraw || busy || !remaining)return;
     lock.current=true;
-    try {const next=await open();if(next)router.replace({pathname:'/word/[id]',params:{id:next,opening:String(Date.now())}});}
+    try {const next=await open();if(next)router.navigate({pathname:'/',params:{focus:'',reveal:next,fresh:String(Date.now())}});}
     finally{lock.current=false;}
   }
   if (!ready) return <Page><NativeText>{error ?? '知識を読み込んでいます…'}</NativeText>{error && <Action title="読み込みを再試行" onPress={retry} />}</Page>;
@@ -53,12 +53,12 @@ function Article({id,opening}:{id:string;opening:boolean}) {
           {relations.filter(edge => edge.ownerId === word.id).filter(edge=>{
             const other=edge.sourceId===id?edge.targetId:edge.sourceId;
             return baseGraph.nodes[other]?.kind==='concept' || progress.openings.some(item=>item.keywordId===other);
-          }).map(edge => <NavigationRow key={edge.id} title={conceptName(edge.sourceId === word.id ? edge.targetId : edge.sourceId)} description={edge.label} onPress={() => router.navigate({ pathname: '/', params: { focus: edge.id, fresh: String(Date.now()) } })} />)}
+          }).map(edge => <NavigationRow key={edge.id} title={conceptName(edge.sourceId === word.id ? edge.targetId : edge.sourceId)} description={edge.label} onPress={() => router.navigate({ pathname: '/', params: { reveal:'', focus: edge.id, fresh: String(Date.now()) } })} />)}
         </View>
         <View style={{gap:spacing.sm}}><NativeText variant="label">参考資料</NativeText>{baseGraph.nodes[word.id].evidence.map(item => <ReferenceLink key={item.url} title={item.title} url={item.url} />)}</View>
         <NativeText variant="caption">試作用原稿 · 公開用の校閲・出典確認は未実施です。</NativeText>
-        <Action title="Mapで見る" onPress={() => router.navigate({ pathname: '/', params: { focus: word.id, fresh: String(Date.now()) } })} />
-        {!exhausted && bonus>0 && remaining>0 && <Action title={`特典でもうひとつ（あと${remaining}回）`} secondary disabled={!canDraw} loading={busy} onPress={()=>{void draw();}}/>}
+        <Action title="Mapで見る" onPress={() => router.navigate({ pathname: '/', params: { reveal:'', focus: word.id, fresh: String(Date.now()) } })} />
+        {!exhausted && remaining>0 && <Action title={`ガチャをひく（あと${remaining}回）`} secondary disabled={!canDraw} loading={busy} onPress={()=>{void draw();}}/>}
         {error && <NativeText accessibilityRole="alert">{error}</NativeText>}
       </View>
     </Page>}

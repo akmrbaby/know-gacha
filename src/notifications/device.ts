@@ -22,8 +22,10 @@ export async function getPermission(): Promise<Permission> { return normalizePer
 export async function prepareChannel(locale: Locale) {
   if (Platform.OS === 'android') await Notifications.setNotificationChannelAsync(CHANNEL, { name: locale === 'ja' ? '毎日のリマインダー' : 'Daily reminders', importance: AndroidImportance.DEFAULT, sound: 'default' });
 }
-export async function requestPermission(): Promise<Permission> {
-  return normalizePermission(await Notifications.requestPermissionsAsync({ ios: { allowAlert: true, allowSound: true, allowBadge: true } }));
+let pendingPermission:Promise<Permission>|null=null;
+export function requestPermission():Promise<Permission> {
+  if(!pendingPermission)pendingPermission=Notifications.requestPermissionsAsync({ios:{allowAlert:true,allowSound:true,allowBadge:true}}).then(normalizePermission).finally(()=>{pendingPermission=null;});
+  return pendingPermission;
 }
 export const schedules: SchedulePort = {
   list: async () => (await Notifications.getAllScheduledNotificationsAsync()).map(item => ({ id: item.identifier, signature: item.content.data?.signature })),

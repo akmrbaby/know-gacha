@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import * as device from '../notifications/badge-device';
 import { BADGE_KEY, defaultBadge, restoreBadge, syncBadge } from '../notifications/badges';
-import { createReminderQueue, type Permission } from '../notifications/reminders';
+import { notificationQueue, type Permission } from '../notifications/reminders';
 import { localDate } from './progress';
 import { useProgress } from './ProgressProvider';
 type State={enabled:boolean;ready:boolean;busy:boolean;permission:Permission;error:string|null;configure:(enabled:boolean)=>Promise<void>;retry:()=>void};
@@ -15,7 +15,7 @@ export function BadgeProvider({children}:{children:ReactNode}){
   const [permission,setPermission]=useState<Permission>({status:device.supported?'unknown':'unsupported',canAskAgain:false});
   const current=useRef({settings,ready,progress,progressReady});
   useLayoutEffect(()=>{current.current={settings,ready,progress,progressReady};},[settings,ready,progress,progressReady]);
-  const queue=useRef(createReminderQueue()),locked=useRef(false);
+  const queue=useRef(notificationQueue),locked=useRef(false);
   const load=useCallback(()=>{
     return AsyncStorage.getItem(BADGE_KEY).then(raw=>{setSettings(restoreBadge(raw));setReady(true);setError(null);}).catch(()=>setError('バッジ設定を読み込めませんでした。保存済みの設定は変更していません。'));
   },[]);
