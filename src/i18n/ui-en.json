@@ -188,5 +188,14 @@
   "特典でもうひとつ": "Open another with a welcome draw",
   "出会った知識を読み返す": "Revisit your discoveries",
   "読む": "Read",
-  "知らなかった視点に、\nひとつ出会う。": "Discover a new\nway of seeing."
+  "知らなかった視点に、\nひとつ出会う。": "Discover a new\nway of seeing.",
+  "アイコンの残り回数": "App icon badge",
+  "残り回数のバッジはiPhone・iPadのアプリで利用できます。": "Remaining-draw badges are available in the iPhone and iPad app.",
+  "アイコンに残り回数を表示": "Show remaining draws on the app icon",
+  "当日分と初回特典の合計を表示します。0回ならバッジを消します。通知の許可が必要です。": "Shows daily and welcome draws combined. The badge disappears at zero. Notification permission is required.",
+  "翌日分は音や本文のない予約で更新します。端末の状態によって反映が遅れる場合があります。": "A scheduled update refreshes the daily draw without sound or message text. Your device may delay the update.",
+  "バッジ設定を読み込めませんでした。保存済みの設定は変更していません。": "Could not load badge settings. Your saved settings were not changed.",
+  "バッジを更新できませんでした。もう一度お試しください。": "Could not update the badge. Please try again.",
+  "バッジが許可されていません。端末の通知設定からバッジをオンにできます。": "Badges are not allowed. Enable Badges in your device notification settings.",
+  "バッジ設定の保存または更新に失敗しました。もう一度お試しください。": "Could not save or update badge settings. Please try again."
 }
