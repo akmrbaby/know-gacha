@@ -12,7 +12,7 @@ const assert=require('node:assert/strict');
    await page.getByTestId('badge-settings').scrollIntoViewIfNeeded();
    assert.equal(await page.getByTestId('badge-settings').getByRole('switch').count(),0,'Web must not offer a nonfunctional badge switch');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-   assert.equal(await page.evaluate(()=>localStorage.getItem('knowgacha.progress.v1')),null,'opening settings must not create acquisitions');
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('knowgacha.progress.v1')).openings.length),0,'opening settings must not create acquisitions');
    await page.screenshot({path:`/workspace/scratch/badge-settings-${locale}.png`});
    assert.deepEqual(errors,[]);await page.close();
   }

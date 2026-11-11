@@ -19,6 +19,7 @@ const escape = (s:string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const fragments = new RegExp(Object.keys(english).filter(key=>/[\u3040-\u30ff\u3400-\u9fff]/.test(key)).sort((a,b)=>b.length-a.length).map(escape).join('|'),'g');
 const counted = (n:string,word:string) => `${n} ${word}${n==='1'?'':'s'}`;
 const patterns: [RegExp,(...parts:string[])=>string][] = [
+ [/^ガチャをひく（あと(\d+)回）$/,n=>`Open Gacha (${n} left)`],
  [/^現在の残り回数：(\d+)回$/,n=>`Remaining draws: ${n}`],
  [/^初回特典 あと(\d+)回$/,n=>`${n} welcome draws left`],
  [/^今日の1回＋初回特典(\d+)回$/,n=>`One daily draw + ${n} welcome draws`],

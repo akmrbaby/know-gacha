@@ -11,18 +11,19 @@ const load=loader();
 const {defaultReminders,restoreReminders,planReminders,reconcileReminders,createReminderQueue,REMINDER_PREFIX,TEST_ID,HORIZON_DAYS,testNotice}=load('src/notifications/reminders.ts');
 const {emptyProgress,localDate}=load('src/state/progress.ts');
 const {keywords}=load('src/data/keywords.ts');
-const settings={...defaultReminders(),enabled:true};
+const settings={...defaultReminders(),enabled:true,hour:20};
 const now=new Date(2026,10,10,19,0,0);
 const opening=(keywordId,date)=>({keywordId,date,openedAt:now.toISOString(),grant:'daily'});
 
-test('reminders default to opt-out at 20:00 and validate without overwriting bad settings',()=>{
- assert.deepEqual(restoreReminders(null),{version:1,enabled:false,hour:20,minute:0});
+test('reminders default to on at 08:00 and validate without overwriting bad settings',()=>{
+ assert.deepEqual(restoreReminders(null),{version:1,enabled:true,hour:8,minute:0});
+ assert.deepEqual(restoreReminders('{"version":1,"enabled":false,"hour":20,"minute":0}'),{version:1,enabled:false,hour:20,minute:0});
  assert.deepEqual(restoreReminders(JSON.stringify({...settings,hour:7,minute:45})),{...settings,hour:7,minute:45});
  for(const raw of ['broken','null','{}',JSON.stringify({...settings,hour:24}),JSON.stringify({...settings,minute:-1}),JSON.stringify({...settings,minute:4.5}),JSON.stringify({...settings,enabled:1})])assert.throws(()=>restoreReminders(raw));
 });
 test('a bounded local-date plan skips the past and today after opening, without changing grants',()=>{
  const progress=emptyProgress(),before=JSON.stringify(progress);
- assert.equal(planReminders(defaultReminders(),progress,'ja',now).length,0);
+ assert.equal(planReminders({...defaultReminders(),enabled:false},progress,'ja',now).length,0);
  const plan=planReminders(settings,progress,'ja',now);
  assert.equal(plan.length,HORIZON_DAYS);assert.equal(new Set(plan.map(n=>n.id)).size,HORIZON_DAYS);
  assert.equal(plan[0].id,REMINDER_PREFIX+'2026-11-10');assert.equal(new Date(plan[0].at).getHours(),20);
@@ -134,4 +135,9 @@ test('cold and warm notification taps open Gacha once, clear handled responses, 
  model.notify({...response,notification:{...response.notification,request:{...response.notification.request,identifier:'another-feature'}}});assert.equal(navigations,1);
  model.notify({...response,notification:{...response.notification,date:101}});assert.equal(navigations,2);
  stop();assert.ok(model.removed());
+});
+
+test('simultaneous default-on and manual notification permission requests share one OS prompt',async()=>{
+ const model=nativeModel();await Promise.all([model.device.requestPermission(),model.device.requestPermission()]);
+ assert.equal(model.calls.filter(call=>call[0]==='request').length,1);
 });

@@ -110,7 +110,7 @@ test('neighborhood is restricted to the currently disclosed graph, including edg
 });
 test('demo transitions are independent of the persisted acquisition ledger', () => {
   const { emptyProgress, openForDate, restoreProgress } = load('src/state/progress.ts');
-  const state = openForDate(emptyProgress(), '2026-11-07', () => 0);
+  const state = openForDate(emptyProgress(9,'2026-11-07'), '2026-11-07', () => 0);
   const saved = JSON.stringify(state);
   Object.freeze(state.openings); Object.freeze(state);
   for (const count of [5, 6, 7, 8, 9, 10, 50, 100, 500, 5]) demoView(count);

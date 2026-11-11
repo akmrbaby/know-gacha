@@ -5,13 +5,13 @@ import type { Locale } from '../i18n/translate';
 export const REMINDER_KEY = 'knowgacha.reminders.v1';
 export const REMINDER_PREFIX = 'knowgacha.daily.v1:';
 export const TEST_ID = 'knowgacha.reminder-test.v1';
-export const HORIZON_DAYS = 60;
+export const HORIZON_DAYS = 30;
 export type ReminderSettings = { version: 1; enabled: boolean; hour: number; minute: number };
 export type Permission = { status: 'unknown' | 'undetermined' | 'granted' | 'denied' | 'unsupported'; canAskAgain: boolean };
 export type Notice = { id: string; at: number; signature: string; title: string; body: string; kind: 'daily-reminder' | 'reminder-test' };
 export type PendingNotice = { id: string; signature?: unknown };
 export type SchedulePort = { list: () => Promise<PendingNotice[]>; cancel: (id: string) => Promise<void>; schedule: (notice: Notice) => Promise<void> };
-export const defaultReminders = (): ReminderSettings => ({ version: 1, enabled: false, hour: 20, minute: 0 });
+export const defaultReminders = (): ReminderSettings => ({ version: 1, enabled: true, hour: 8, minute: 0 });
 
 export function restoreReminders(raw: string | null): ReminderSettings {
   if (raw === null) return defaultReminders();
@@ -27,16 +27,16 @@ export function hasUnreadTopics(progress: Progress): boolean {
 
 export function planReminders(settings: ReminderSettings, progress: Progress, locale: Locale, now = new Date()): Notice[] {
   if (!settings.enabled || !hasUnreadTopics(progress)) return [];
-  const openedDates = new Set(progress.openings.filter(item => item.grant === 'daily').map(item => item.date));
+  const openedDates = new Set(progress.openings.map(item => item.date));
   const notices: Notice[] = [];
   for (let day = 0; day < HORIZON_DAYS; day++) {
     // Construct each local date separately so DST does not shift subsequent days.
     const at = new Date(now.getFullYear(), now.getMonth(), now.getDate() + day, settings.hour, settings.minute, 0, 0);
     const date = localDate(at);
     if (at.getTime() <= now.getTime() || openedDates.has(date)) continue;
-    notices.push({ id: REMINDER_PREFIX + date, at: at.getTime(), signature: `1:${locale}:${at.getTime()}`, kind: 'daily-reminder',
-      title: locale === 'ja' ? '今日の、知らなかった世界へ' : 'A new world to discover today',
-      body: locale === 'ja' ? '今日のガチャで、新しい分野の言葉に出会いませんか。' : 'Open your daily Gacha and meet an idea from a different field.' });
+    notices.push({ id: REMINDER_PREFIX + date, at: at.getTime(), signature: `2:${locale}:${at.getTime()}`, kind: 'daily-reminder',
+      title: locale === 'ja' ? '今日も、知らなかった世界へ' : 'A new perspective awaits today',
+      body: locale === 'ja' ? '新しい言葉との出会いが待っています。ガチャをひらいてみませんか。' : 'A new word is waiting. Open Gacha and discover a different field.' });
   }
   return notices;
 }
@@ -69,3 +69,6 @@ export function createReminderQueue() {
     return result;
   };
 }
+
+// Reminders and badge reservations share the OS scheduling budget.
+export const notificationQueue = createReminderQueue();

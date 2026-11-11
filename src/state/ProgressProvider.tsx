@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { graphLabEnabled } from '../graph/lab';
 import { AppState } from 'react-native';
-import { emptyProgress, localDate, openForDate, restoreProgress, STORAGE_KEY, type Progress } from './progress';
+import { emptyProgress, localDate, openForDate, loadSavedProgress, STORAGE_KEY, type Progress } from './progress';
 type State = {
     progress: Progress;
     date: string;
@@ -28,8 +28,7 @@ export function ProgressProvider({ children }: {
     const offset = __DEV__ ? progress.dayOffset : 0;
     const date = localDate(clock, offset);
     const load = useCallback(() => {
-        return AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-            const restored = restoreProgress(raw);
+        return loadSavedProgress(AsyncStorage).then((restored) => {
             current.current = restored;
             setProgress(restored);
             setError(null);

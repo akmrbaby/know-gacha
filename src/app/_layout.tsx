@@ -10,6 +10,7 @@ import { LaunchIntro } from '../components/LaunchIntro';
 import { ProgressProvider } from '../state/ProgressProvider';
 import { BadgeProvider } from '../state/BadgeProvider';
 import { ReminderProvider } from '../state/ReminderProvider';
+import { NotificationPermissionPrompt } from '../components/NotificationPermissionPrompt';
 import { ReminderTapHandler } from '../components/ReminderTapHandler';
 function Navigation() {
   const {t,locale}=useI18n();
@@ -23,7 +24,7 @@ function Navigation() {
       <Stack.Screen name="history" options={{ title: t('知識一覧') }} />
       <Stack.Screen name="settings" options={{ title: t('設定') }} />
       <Stack.Screen name="word/[id]" options={{ title: t('言葉のノート') }} />
-    </Stack><ReminderTapHandler /><LaunchIntro /></ReminderProvider></BadgeProvider></ProgressProvider>
+    </Stack><ReminderTapHandler /><NotificationPermissionPrompt /><LaunchIntro /></ReminderProvider></BadgeProvider></ProgressProvider>
   </ThemeProvider></GestureHandlerRootView>;
 }
 

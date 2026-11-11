@@ -175,7 +175,7 @@
   "端末の通知設定を確認しています…": "Checking device notification settings…",
   "通知の許可が必要です。": "Notification permission is needed.",
   "もう一度試す": "Try again",
-  "知識一覧": "Your discoveries",
+  "知識一覧": "Discoveries",
   "知識一覧へ": "Browse your discoveries",
   "語や分野で検索": "Search by term or field",
   "一致する知識がありません。": "No matching discoveries.",
@@ -197,5 +197,12 @@
   "バッジ設定を読み込めませんでした。保存済みの設定は変更していません。": "Could not load badge settings. Your saved settings were not changed.",
   "バッジを更新できませんでした。もう一度お試しください。": "Could not update the badge. Please try again.",
   "バッジが許可されていません。端末の通知設定からバッジをオンにできます。": "Badges are not allowed. Enable Badges in your device notification settings.",
-  "バッジ設定の保存または更新に失敗しました。もう一度お試しください。": "Could not save or update badge settings. Please try again."
+  "バッジ設定の保存または更新に失敗しました。もう一度お試しください。": "Could not save or update badge settings. Please try again.",
+  "今日の知識を読む": "Read today's discovery",
+  "最近の知識を読む": "Read your latest discovery",
+  "最近の知識": "Latest discovery",
+  "すべての知識を開封済み": "All discoveries opened",
+  "貯まった日次分と初回特典の合計を表示します。0回ならバッジを消します。通知の許可が必要です。": "Shows saved daily draws plus welcome draws. The badge disappears at zero. Notification permission is required.",
+  "今日も、知らなかった世界へ": "A new perspective awaits today",
+  "新しい言葉との出会いが待っています。ガチャをひらいてみませんか。": "A new word is waiting. Open Gacha and discover a different field."
 }
