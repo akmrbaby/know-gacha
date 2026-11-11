@@ -38,7 +38,7 @@ export function restoreProgress(raw: string | null, now = new Date()): Progress 
     if(grant==='daily')legacyDates.add(item.date);
     ids.add(item.keywordId);return {keywordId:item.keywordId,date:item.date,openedAt:item.openedAt,grant};
   });
-  const startedOn=value.version===3?value.startedOn:openings.reduce((first,item)=>item.date<first?item.date:first,localDate(now,value.dayOffset));
+  const startedOn=value.version===3?value.startedOn:openings.reduce((first,item)=>item.date<first?item.date:first,localDate(now));
   dayNumber(startedOn);
   if(openings.some(item=>item.date<startedOn))throw new Error('Opening before daily grants started');
   if(openings.filter(item=>item.grant==='welcome').length>bonus)throw new Error('Overspent welcome bonus');

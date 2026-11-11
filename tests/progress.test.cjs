@@ -196,6 +196,7 @@ test('initial grant date persists before any draw, migration saves once, and sto
  let raw=null,writes=0;const storage={getItem:async()=>raw,setItem:async(_,value)=>{raw=value;writes++;}};
  const first=await loadSavedProgress(storage,new Date(2026,10,11));assert.equal(first.startedOn,'2026-11-11');assert.equal(writes,1);
  const after=await loadSavedProgress(storage,new Date(2026,10,14));assert.equal(after.openings.length,0);assert.equal(allowance(after,'2026-11-14').daily,4);assert.equal(writes,1);
+ const oldEmpty=restoreProgress(JSON.stringify({version:2,dayOffset:100,initialBonus:2,openings:[]}),new Date(2026,10,11));assert.equal(oldEmpty.startedOn,'2026-11-11','developer offset must not defer production accrual');
  raw=JSON.stringify({version:2,dayOffset:0,initialBonus:2,openings:[]});await loadSavedProgress(storage,new Date(2026,10,11));assert.equal(JSON.parse(raw).version,3);assert.equal(writes,2);
  await assert.rejects(loadSavedProgress({getItem:async()=>null,setItem:async()=>{throw new Error('full');}}));
  raw='broken';await assert.rejects(loadSavedProgress(storage));assert.equal(raw,'broken');
