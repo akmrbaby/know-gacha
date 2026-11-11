@@ -108,7 +108,7 @@ test('iOS-specific authorization takes priority, including provisional permissio
  assert.equal(normalize({status:'granted',granted:true,ios:{status:1},canAskAgain:false}).status,'denied');
  assert.equal(normalize({status:'undetermined',granted:false,ios:{status:0},canAskAgain:true}).status,'undetermined');
  await model.device.getPermission();assert.deepEqual(model.calls,[]);
- await model.device.requestPermission();assert.deepEqual(model.calls,[['request',{ios:{allowAlert:true,allowSound:true,allowBadge:false}}]]);
+ await model.device.requestPermission();assert.deepEqual(model.calls,[['request',{ios:{allowAlert:true,allowSound:true,allowBadge:true}}]]);
 });
 test('native adapter uses one-off best-effort dates, creates Android channel, and only dismisses own reminders',async()=>{
  const model=nativeModel('android'),notice=planReminders(settings,emptyProgress(),'en',now)[0];

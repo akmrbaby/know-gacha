@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [remaining-draw-badge.md](remaining-draw-badge.md) | アイコンに残り開封回数と翌日分を表示 | 実装・自動テスト・Web設定表示・iOS export済み、実機確認待ち |
 | [map-first-discovery-design.md](map-first-discovery-design.md) | Mapへ入口を集約し、開封結果と読書を一続きにするUIUXレビュー | 実装・自動テスト・Web確認・iOS export済み、今回のUIの実機確認待ち |
 | [mascot-gacha-animation.md](mascot-gacha-animation.md) | 採用キャラクターでGacha・Mapの開封演出を統一 | 実装・自動テスト・Web・iOS export済み、ユーザーより実機確認OK |
 | [brain-capsule-brand.md](brain-capsule-brand.md) | 採用した半目・脳のしわ・短い足のカプセルをアイコンと起動へ反映 | ユーザーより反映確認OK、確認範囲の詳細は未記録 |
