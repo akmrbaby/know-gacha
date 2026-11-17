@@ -45,7 +45,9 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "privacy:export": "node scripts/export-privacy.cjs",
-    "privacy:check": "node scripts/export-privacy.cjs --check"
+    "privacy:check": "node scripts/export-privacy.cjs --check",
+    "content:review": "node scripts/export-content-review.cjs",
+    "content:review:check": "node scripts/export-content-review.cjs --check"
   },
   "private": true
 }

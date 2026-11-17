@@ -2,6 +2,8 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [review/thirty-topics.md](review/thirty-topics.md) | 抽選対象30語の日英本文と参考資料をまとめた校閲原稿 | 原稿抽出済み、ユーザー校閲待ち |
+| [initial-three-draws.md](initial-three-draws.md) | 新規は初期3回・既存残高の保持・30語の校閲原稿 | 実装・自動テスト・Web・iOS export済み、実機/教材校閲待ち |
 | [privacy-data-audit.md](privacy-data-audit.md) | 端末内データ・Expo通信の調査とApp Privacy提出前の確認 | コード/SDKを調査済み、App Store Connect申告は未実施 |
 | [privacy-and-support.md](privacy-and-support.md) | 日英のプライバシーポリシーと設定のお問い合わせ導線 | 実装・自動テスト・Web・iOS export済み、マージ後公開/実機確認待ち |
 | [daily-rollover-map-reveal.md](daily-rollover-map-reveal.md) | 日次分の繰越・独立したMap操作・開封結果をMapへ・8時とバッジ初期オン | 実装・自動テスト・Web・iOS export済み、実機確認待ち |

@@ -16,7 +16,7 @@ test('local calendar date handles month/year rollover without UTC conversion', (
   assert.equal(localDate(new Date(2026, 11, 31, 23, 59), 1), '2027-01-01');
   assert.equal(localDate(new Date(2026, 0, 1, 0, 1)), '2026-01-01');
 });
-test('initial ten draws consume one daily then nine welcome grants and survive restore', () => {
+test('existing ten-draw grant consumes one daily then nine welcome grants and survives restore', () => {
   let state = emptyProgress(9,'2026-11-09');
   assert.equal(allowance(state, '2026-11-09').total, 10);
   for(let i=0;i<10;i++) {
@@ -30,7 +30,7 @@ test('initial ten draws consume one daily then nine welcome grants and survive r
   assert.equal(openForDate(state,'2026-11-09'),state);
   assert.equal(openForDate(state,'2026-11-10',()=>0).openings.length,11,'new day adds one draw while content remains');
 });
-test('future two-welcome configuration starts with three; daily refresh does not refill welcome', () => {
+test('two-welcome configuration starts with three; daily refresh does not refill welcome', () => {
   let state=emptyProgress(2,'2026-11-09');
   assert.deepEqual(allowance(state,'2026-11-09'),{daily:1,bonus:2,total:3});
   for(let i=0;i<3;i++) state=openForDate(state,'2026-11-09',()=>0);
@@ -52,7 +52,7 @@ test('legacy migration preserves history and rejects duplicated daily use and ov
  assert.throws(()=>restoreProgress(JSON.stringify({...state,openings:state.openings.map(item=>({...item,grant:'daily'}))})));
 });
 test('restoration preserves day offset and rejects corrupt/duplicate records', () => {
-  assert.deepEqual(restoreProgress(null), emptyProgress(9,localDate()));
+  assert.deepEqual(restoreProgress(null), emptyProgress(2,localDate()));
   assert.equal(restoreProgress(JSON.stringify({ ...emptyProgress(9,'2026-11-07'), dayOffset: 2 })).dayOffset, 2);
   assert.throws(() => restoreProgress('{'));
   assert.throws(() => restoreProgress('{"version":2}'));
@@ -200,4 +200,18 @@ test('initial grant date persists before any draw, migration saves once, and sto
  raw=JSON.stringify({version:2,dayOffset:0,initialBonus:2,openings:[]});await loadSavedProgress(storage,new Date(2026,10,11));assert.equal(JSON.parse(raw).version,3);assert.equal(writes,2);
  await assert.rejects(loadSavedProgress({getItem:async()=>null,setItem:async()=>{throw new Error('full');}}));
  raw='broken';await assert.rejects(loadSavedProgress(storage));assert.equal(raw,'broken');
+});
+
+test('new users start with three, while existing v1/v2/v3 grants are not reduced',()=>{
+ const now=new Date(2026,10,17);
+ let current=restoreProgress(null,now);
+ assert.equal(current.initialBonus,2);assert.deepEqual(allowance(current,'2026-11-17'),{daily:1,bonus:2,total:3});
+ for(let i=0;i<3;i++)current=restoreProgress(JSON.stringify(openForDate(current,'2026-11-17',()=>0)),now);
+ assert.equal(current.openings.filter(item=>item.grant==='daily').length,1);assert.equal(current.openings.filter(item=>item.grant==='welcome').length,2);
+ assert.equal(allowance(current,'2026-11-17').total,0);assert.equal(allowance(current,'2026-11-20').total,3);
+ for(const version of [2,3]){
+  const old={...emptyProgress(9,'2026-11-17'),version};const restored=restoreProgress(JSON.stringify(old),now);
+  assert.equal(restored.initialBonus,9);assert.equal(allowance(restored,'2026-11-17').total,10);
+ }
+ const legacy=restoreProgress(JSON.stringify({version:1,dayOffset:0,openings:[]}),now);assert.equal(legacy.initialBonus,9);
 });
