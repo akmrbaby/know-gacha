@@ -57,9 +57,9 @@ Webプレビュー用の `react-native-web` も依存に含めています。
 
 ## プライバシーとお問い合わせ
 
-設定の「サポートとプライバシー」から日英のプライバシーポリシー・お問い合わせ・Apple標準利用許諾契約を開けます。ポリシーはアプリに同梱し、端末内データとExpo更新通信を区別して説明します。GitHubへの投稿は公開されるため、個人情報を含めないよう事前に案内します。TestFlightのフィードバック手順も掲載しています。
+設定の「サポートとプライバシー」から日英のプライバシーポリシー・お問い合わせ・Apple標準利用許諾契約を開けます。ポリシーはアプリに同梱し、端末内データとExpo更新通信を区別して説明します。お問い合わせの主窓口はメールで、作成画面を開き、利用者が確認して送信します。GitHubへの投稿は公開されるため、個人情報を含めないよう事前に案内します。TestFlightのフィードバック手順も掲載しています。
 
-公開原稿は[日本語](legal/privacy-ja.md)・[English](legal/privacy-en.md)、公開サポート文書は[legal/README.md](legal/README.md)です。原稿は`src/legal/policy.json`から`npm run privacy:export`で生成し、`npm run privacy:check`とテストで一致を検証します。developへのマージ後、GitHubの文書URLをApp Store Connectへ設定できます。専用メールは未指定で、App Store ConnectのFeedback Email等は別途設定が必要です。
+公開原稿は[日本語](legal/privacy-ja.md)・[English](legal/privacy-en.md)、公開サポート文書は[legal/README.md](legal/README.md)です。原稿は`src/legal/policy.json`から`npm run privacy:export`で生成し、`npm run privacy:check`とテストで一致を検証します。developへのマージ後、GitHubの文書URLをApp Store Connectへ設定できます。公開窓口は`knowgacha.dev@gmail.com`です。App Store ConnectのFeedback Email等にもこの値を設定できますが、外部サービスへの登録は別途必要です。
 
 [実装・検証](docs/privacy-and-support.md)と[データ処理の確認記録](docs/privacy-data-audit.md)を参照してください。App Privacyの申告内容は本機能で自動確定しません。
 

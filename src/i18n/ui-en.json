@@ -218,5 +218,9 @@
   "GitHubへの投稿は公開されます。氏名、メールアドレス、端末識別子、開封履歴などの個人情報・非公開にしたい内容は書き込まないでください。投稿にはGitHubへのログインが必要です。": "GitHub posts are public. Do not include names, email addresses, device identifiers, discovery history or other personal or private information. Posting requires a GitHub account.",
   "GitHubで問い合わせる（公開）": "Contact on GitHub (public)",
   "不具合の報告には、問題が起きた画面と操作を、個人情報を含めずにお知らせください。履歴や端末情報は自動添付しません。": "For a bug report, describe the screen and actions involved without personal information. History and device information are not attached automatically.",
-  "不具合、ご意見、プライバシーに関するご質問を受け付けています。お問い合わせのために履歴や端末情報を自動送信することはありません。": "You can contact us about bugs, feedback and privacy questions. History and device information are not sent automatically with a contact request."
+  "不具合、ご意見、プライバシーに関するご質問を受け付けています。お問い合わせのために履歴や端末情報を自動送信することはありません。": "You can contact us about bugs, feedback and privacy questions. History and device information are not sent automatically with a contact request.",
+  "メールでのお問い合わせ": "Contact by email",
+  "メールで問い合わせる": "Email us",
+  "メールアプリを開けませんでした。表示されたメールアドレスへ直接ご連絡ください。": "Could not open your email app. Contact us directly at the email address shown.",
+  "メールアプリで本文を入力し、内容をご確認のうえ送信してください。アプリから自動送信はしません。": "Write your message in your email app and review it before sending. The app does not send email automatically."
 }
