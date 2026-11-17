@@ -1,0 +1,195 @@
+{
+  "updatedOn": "2026-11-17",
+  "operator": "KnowGacha / akmrbaby",
+  "links": {
+    "support": "https://github.com/akmrbaby/know-gacha/issues/new",
+    "expoPrivacy": "https://expo.dev/privacy",
+    "githubPrivacy": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+    "applePrivacy": "https://www.apple.com/legal/privacy/",
+    "appleEula": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+  },
+  "ja": {
+    "title": "プライバシーポリシー",
+    "introduction": "KnowGacha（脳ガチャ）は、専門外の言葉や概念に出会うための学習アプリです。このポリシーは、アプリの利用に伴う情報の保存・通信・利用について説明します。運営者はKnowGachaの開発者akmrbabyです。",
+    "sections": [
+      {
+        "id": "local-data",
+        "title": "1. 端末に保存する情報",
+        "paragraphs": [
+          "開封した知識と日時、日次権利の開始日・残高計算に必要な記録、初回特典、言語、通知・バッジ設定、Mapの表示位置を端末内に保存します。これらは開封回数の管理、読み返し、表示や通知の設定に使用します。検証用のビルドでは、開発用の日付設定も保存する場合があります。",
+          "本アプリにはアカウント登録や、開封履歴を運営者のサーバーへ同期する機能はありません。端末の保存領域がOSのバックアップに含まれる場合があり、その取扱いは利用するOS・バックアップサービスの設定に従います。"
+        ]
+      },
+      {
+        "id": "updates",
+        "title": "2. アプリ更新時の通信",
+        "paragraphs": [
+          "アプリの修正や教材・画像等の更新を配信するため、ExpoのEAS Updateを利用します。アプリの起動時等に更新確認や更新ファイルの取得が行われます。",
+          "この通信では、通信先にIPアドレス等の接続情報が伝わります。また、Expoのクライアント識別子、プラットフォーム、アプリの実行環境のバージョン、適用中・同梱・失敗した更新の識別子、起動失敗等の技術的なエラー情報が送信される場合があります。クライアント識別子は広告用の識別子とは別のものです。",
+          "これらは更新の配信、互換性の確認、障害対応等のために利用されます。開封履歴や通知設定を更新要求へ添付する機能は実装していません。Expo等の提供者による処理・保存については、提供者のプライバシーポリシーをご確認ください。"
+        ],
+        "links": [
+          {
+            "label": "Expoのプライバシーポリシー",
+            "key": "expoPrivacy"
+          }
+        ]
+      },
+      {
+        "id": "notifications",
+        "title": "3. 通知とアイコンのバッジ",
+        "paragraphs": [
+          "通知とバッジは、OSの許可に基づいて端末内で予約・更新するローカル通知です。時刻、開封状態、残り回数を使って予約します。遠隔Push通知のためのトークンを取得し、運営者やExpoのPush配信サービスへ送る処理はありません。",
+          "アプリの設定でリマインダーとバッジを個別に変更できます。端末の通知設定から許可を取り消すこともできます。通知を拒否しても、知識の開封・読書・Mapの基本機能を利用できます。"
+        ]
+      },
+      {
+        "id": "feedback",
+        "title": "4. お問い合わせとTestFlight",
+        "paragraphs": [
+          "不具合やご意見は、設定の「お問い合わせ」で案内する窓口から任意に送信できます。送信いただいた内容は、回答、不具合調査、アプリの改善のために利用します。本アプリが開封履歴や端末識別子を問い合わせへ自動添付することはありません。",
+          "現在のGitHub窓口への投稿は公開されます。氏名、メールアドレス、端末識別子、開封履歴などの個人情報・非公開にしたい内容を書き込まないでください。公開投稿の保存・削除はGitHubの仕組みに従い、削除後も第三者によるコピー等が残る可能性があります。",
+          "TestFlightをご利用の場合は、TestFlightアプリの「フィードバックを送信」から連絡できます。TestFlightが扱うフィードバック、クラッシュ情報、利用に関する診断情報等にはAppleの規約・プライバシーポリシーが適用されます。内容や画像を送る前に、含まれる情報をご確認ください。"
+        ],
+        "links": [
+          {
+            "label": "GitHubのお問い合わせ窓口（公開）",
+            "key": "support"
+          },
+          {
+            "label": "Appleのプライバシーポリシー",
+            "key": "applePrivacy"
+          }
+        ]
+      },
+      {
+        "id": "external-services",
+        "title": "5. 外部サービスとリンク",
+        "paragraphs": [
+          "参考資料や公開ポリシー、GitHubのお問い合わせ、Apple・Expoの文書を開くと、外部のブラウザやサービスへ移動します。リンク先での接続情報や操作の取扱いには、各サービスの方針が適用されます。公開ポリシーはGitHub上で提供します。",
+          "現行のアプリには広告や広告追跡、独自の行動分析SDKは組み込んでいません。位置情報、連絡先、写真ライブラリの内容をアプリから取得する機能もありません。"
+        ],
+        "links": [
+          {
+            "label": "GitHubのプライバシーに関する説明",
+            "key": "githubPrivacy"
+          }
+        ]
+      },
+      {
+        "id": "retention-deletion",
+        "title": "6. 保存期間と削除・設定の変更",
+        "paragraphs": [
+          "端末内の履歴や設定は、アプリの利用に必要な間、端末の保存領域に保持します。端末内のデータは、OSのアプリデータ削除またはアプリの削除によって削除できます。iOSの「Appを取り除く」はデータを残すため、データも消す場合は「Appを削除」を選んでください。OSのバックアップに含まれるデータは、別途バックアップ側の設定から管理してください。",
+          "アプリを削除すると、端末に保存した開封履歴や権利の記録を引き継げなくなります。本アプリには履歴を遠隔から参照・削除するためのアカウントやサーバー同期はありません。更新配信やTestFlight等の外部サービス側が扱う情報の保存期間・削除方法は、各提供者の方針に従います。",
+          "プライバシーに関するお問い合わせも下記の窓口で受け付けます。公開投稿には個人情報を記載せず、TestFlightをご利用の場合は同アプリのフィードバック機能をご利用ください。"
+        ],
+        "links": [
+          {
+            "label": "お問い合わせ窓口（GitHub・公開）",
+            "key": "support"
+          }
+        ]
+      },
+      {
+        "id": "changes",
+        "title": "7. ポリシーの変更",
+        "paragraphs": [
+          "機能や情報の取扱いを変更する場合は、このポリシーと改定日を更新します。重要な変更は、アプリ内の案内や公開ページなどでお知らせします。新たな許可や同意が必要な場合は、適切な方法で確認します。"
+        ]
+      }
+    ]
+  },
+  "en": {
+    "title": "Privacy Policy",
+    "introduction": "KnowGacha is a learning app for discovering concepts outside your usual fields. This policy explains how information is stored, transmitted and used when you use the app. It is operated by its developer, akmrbaby.",
+    "sections": [
+      {
+        "id": "local-data",
+        "title": "1. Information stored on your device",
+        "paragraphs": [
+          "The app stores discovered topics and dates, records needed to calculate daily draw credits and their start date, welcome draws, language, reminder and badge settings, and your Map position on your device. These records support draw balances, revisiting discoveries, display preferences and notifications. Evaluation builds may also store a development date setting.",
+          "The app has no user accounts or feature that synchronizes your discovery history to a server operated by the developer. Device storage may be included in operating-system backups, subject to your OS and backup-service settings."
+        ]
+      },
+      {
+        "id": "updates",
+        "title": "2. App update communications",
+        "paragraphs": [
+          "We use Expo EAS Update to deliver fixes and updates to content and images. The app may check for updates and download update files when it starts or at other update-check times.",
+          "The receiving services receive connection information such as your IP address. Requests may also include an Expo client identifier, platform, app runtime version, identifiers for current, embedded or failed updates, and technical error information such as launch failures. The client identifier is separate from an advertising identifier.",
+          "This information supports update delivery, compatibility checks and troubleshooting. We have not implemented a feature that attaches your discovery history or notification preferences to update requests. Please consult the providers' privacy policies for their processing and retention practices."
+        ],
+        "links": [
+          {
+            "label": "Expo Privacy Policy",
+            "key": "expoPrivacy"
+          }
+        ]
+      },
+      {
+        "id": "notifications",
+        "title": "3. Notifications and app icon badges",
+        "paragraphs": [
+          "Reminders and badge updates are local notifications scheduled on your device with OS permission. Scheduling uses notification times, discovery status and remaining draws. The app does not obtain and send remote push tokens to the developer or Expo's push delivery service.",
+          "You can change reminders and badges independently in the app and revoke permission in your device notification settings. Declining notifications does not prevent you from opening discoveries, reading or using the Map."
+        ]
+      },
+      {
+        "id": "feedback",
+        "title": "4. Contact and TestFlight feedback",
+        "paragraphs": [
+          "You may voluntarily send bug reports or feedback using the channels described under Contact in Settings. Submitted information is used to respond, investigate problems and improve the app. The app does not automatically attach your discovery history or device identifiers to a contact request.",
+          "Posts to the current GitHub channel are public. Do not include your name, email address, device identifiers, discovery history or other personal or private information. Public posts follow GitHub's retention and deletion mechanisms; copies made by others may remain after deletion.",
+          "If you use TestFlight, you can contact the developer through Send Beta Feedback in the TestFlight app. Apple's terms and privacy policy apply to feedback, crashes and usage diagnostics handled by TestFlight. Review any text and images before submitting them."
+        ],
+        "links": [
+          {
+            "label": "GitHub contact channel (public)",
+            "key": "support"
+          },
+          {
+            "label": "Apple Privacy Policy",
+            "key": "applePrivacy"
+          }
+        ]
+      },
+      {
+        "id": "external-services",
+        "title": "5. External services and links",
+        "paragraphs": [
+          "Opening references, the public policy, GitHub support or Apple and Expo documents takes you to an external browser or service. Those services' policies govern connection information and actions on their sites. The public policy is hosted on GitHub.",
+          "The current app has no advertising, advertising tracking or dedicated behavioral analytics SDK. It has no feature that accesses your location, contacts or photo-library contents."
+        ],
+        "links": [
+          {
+            "label": "GitHub General Privacy Statement",
+            "key": "githubPrivacy"
+          }
+        ]
+      },
+      {
+        "id": "retention-deletion",
+        "title": "6. Retention, deletion and settings",
+        "paragraphs": [
+          "History and settings remain in device storage while needed to use the app. You can delete local data through OS app-data deletion or by deleting the app. On iOS, Offload App keeps data; choose Delete App to remove its data. Manage data in OS backups separately through your backup settings.",
+          "Deleting the app removes access to locally saved discovery history and draw records. The app has no account or server synchronization for remotely viewing or deleting that history. Retention and deletion of information handled by external update services, TestFlight or other providers follow those providers' policies.",
+          "You can also use the contact channel below for privacy questions. Do not include personal information in public posts. If you use TestFlight, use its feedback feature."
+        ],
+        "links": [
+          {
+            "label": "Contact channel (GitHub, public)",
+            "key": "support"
+          }
+        ]
+      },
+      {
+        "id": "changes",
+        "title": "7. Changes to this policy",
+        "paragraphs": [
+          "We will update this policy and its revision date when features or information practices change. Material changes will be communicated in the app or on the public page. Where a new permission or consent is needed, we will request it appropriately."
+        ]
+      }
+    ]
+  }
+}

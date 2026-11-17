@@ -55,6 +55,14 @@ Webプレビュー用の `react-native-web` も依存に含めています。
 
 開発用ボタンは `__DEV__` のときだけ表示・実行できます。製品モードでは開発用日付差分を無視します。トンネル経由のiPhone接続・起動は確認済みです。上記の各機能については、この手順で別途確認してください。
 
+## プライバシーとお問い合わせ
+
+設定の「サポートとプライバシー」から日英のプライバシーポリシー・お問い合わせ・Apple標準利用許諾契約を開けます。ポリシーはアプリに同梱し、端末内データとExpo更新通信を区別して説明します。GitHubへの投稿は公開されるため、個人情報を含めないよう事前に案内します。TestFlightのフィードバック手順も掲載しています。
+
+公開原稿は[日本語](legal/privacy-ja.md)・[English](legal/privacy-en.md)、公開サポート文書は[legal/README.md](legal/README.md)です。原稿は`src/legal/policy.json`から`npm run privacy:export`で生成し、`npm run privacy:check`とテストで一致を検証します。developへのマージ後、GitHubの文書URLをApp Store Connectへ設定できます。専用メールは未指定で、App Store ConnectのFeedback Email等は別途設定が必要です。
+
+[実装・検証](docs/privacy-and-support.md)と[データ処理の確認記録](docs/privacy-data-audit.md)を参照してください。App Privacyの申告内容は本機能で自動確定しません。
+
 ## アイコンの残り回数（iOS）
 
 Map右上の設定 →「アイコンに残り回数を表示」をオンにし、通知を許可すると、ホーム画面のアイコンへ開封可能回数を表示します。貯まった日次分＋初回特典で数え、0回なら消えます。開封成功後に更新し、翌日分は音や本文のない予約で更新します。毎日のリマインダーとは別にオン/オフできます。OSの通知設定で「バッジ」も有効にしてください。

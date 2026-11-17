@@ -43,7 +43,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "privacy:export": "node scripts/export-privacy.cjs",
+    "privacy:check": "node scripts/export-privacy.cjs --check"
   },
   "private": true
 }

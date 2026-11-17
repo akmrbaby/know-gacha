@@ -23,6 +23,8 @@ function Navigation() {
       <Stack.Screen name="(tabs)" options={{ title: t('ホーム'), headerShown: false }} />
       <Stack.Screen name="history" options={{ title: t('知識一覧') }} />
       <Stack.Screen name="settings" options={{ title: t('設定') }} />
+      <Stack.Screen name="privacy" options={{title:t('プライバシーポリシー')}} />
+      <Stack.Screen name="contact" options={{title:t('お問い合わせ')}} />
       <Stack.Screen name="word/[id]" options={{ title: t('言葉のノート') }} />
     </Stack><ReminderTapHandler /><NotificationPermissionPrompt /><LaunchIntro /></ReminderProvider></BadgeProvider></ProgressProvider>
   </ThemeProvider></GestureHandlerRootView>;
