@@ -1,0 +1,85 @@
+name: iOS TestFlight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+jobs:
+  build-and-submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check release configuration
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo '::error::Add EXPO_TOKEN to repository Actions secrets.'
+            exit 1
+          fi
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { expo } = require('./app.json');
+          const eas = require('./eas.json');
+          if (!/^[0-9]+$/.test(process.env.ASC_APP_ID || '')) {
+            console.error('Set Actions variable ASC_APP_ID to the numeric Apple ID from App Store Connect > App Information.');
+            process.exit(1);
+          }
+          if (!expo.extra?.eas?.projectId || expo.ios?.bundleIdentifier !== 'com.akmrbaby.knowgacha' ||
+              eas.build.production?.channel !== 'production' ||
+              eas.build.production?.autoIncrement !== true ||
+              (eas.build.production?.distribution || 'store') !== 'store') {
+            console.error('Invalid production iOS configuration. Check project, bundle ID, channel, distribution and autoIncrement.');
+            process.exit(1);
+          }
+          // Only the runner copy is updated; Apple credentials stay in EAS.
+          eas.submit.production.ios = {
+            ...eas.submit.production.ios,
+            ascAppId: process.env.ASC_APP_ID,
+          };
+          fs.writeFileSync('eas.json', JSON.stringify(eas, null, 2) + '\n');
+          NODE
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Build iOS production
+        id: build
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx eas-cli@27.5.0 build --platform ios --profile production --non-interactive --wait --json > "$RUNNER_TEMP/ios-production-build.json"
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const builds = JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP, 'ios-production-build.json'), 'utf8'));
+          if (!Array.isArray(builds) || builds.length !== 1 || builds[0].status !== 'FINISHED' ||
+              !/^[0-9a-f-]{36}$/i.test(builds[0].id || '')) {
+            console.error('Expected exactly one finished iOS build. Check EAS before retrying.');
+            process.exit(1);
+          }
+          const id = builds[0].id;
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `build_id=${id}\n`);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            `Source commit: ${process.env.GITHUB_SHA}\n\nEAS production build ID: ${id}\n`);
+          NODE
+      - name: Upload this build to App Store Connect
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          BUILD_ID: ${{ steps.build.outputs.build_id }}
+        run: npx eas-cli@27.5.0 submit --platform ios --profile production --id "$BUILD_ID" --non-interactive --wait --no-auto-testflight-setup
+      - name: Record next step
+        run: |
+          echo 'Upload completed. Check Apple processing, compliance and internal tester group access in App Store Connect > TestFlight. Device installation has not been verified.' >> "$GITHUB_STEP_SUMMARY"

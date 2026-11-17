@@ -2,7 +2,7 @@
 
 ## 目的と範囲
 
-GitHubから品質チェックとiOS内部配布ビルドを実行する。アプリの画面・操作・保存データへの変更はない。TestFlight提出は対象外。EAS Updateの設定・配信手順は[eas-update.md](eas-update.md)を参照する。
+GitHubから品質チェックとiOS内部配布ビルドを実行する。アプリの画面・操作・保存データへの変更はない。この文書は内部配布を扱う。TestFlight用のproductionビルド・送信は[testflight-ci.md](testflight-ci.md)、EAS Updateの設定・配信手順は[eas-update.md](eas-update.md)を参照する。
 
 ## パッケージ管理
 

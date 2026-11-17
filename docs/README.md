@@ -2,6 +2,7 @@
 
 | 文書 | 役割 | 状態 |
 | --- | --- | --- |
+| [testflight-ci.md](testflight-ci.md) | TestFlight用の手動productionビルド・送信と初回設定 | ワークフロー実装済み、外部認証設定・ビルド・送信・実機は未検証 |
 | [review/thirty-topics.md](review/thirty-topics.md) | 抽選対象30語の日英本文と参考資料をまとめた校閲原稿 | 原稿抽出済み、ユーザー校閲待ち |
 | [initial-three-draws.md](initial-three-draws.md) | 新規は初期3回・既存残高の保持・30語の校閲原稿 | 実装・自動テスト・Web・iOS export済み、実機/教材校閲待ち |
 | [privacy-data-audit.md](privacy-data-audit.md) | 端末内データ・Expo通信の調査とApp Privacy提出前の確認 | コード/SDKを調査済み、App Store Connect申告は未実施 |
