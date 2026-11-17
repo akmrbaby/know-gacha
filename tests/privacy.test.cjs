@@ -13,9 +13,19 @@ test('both languages cover the same disclosures and reference the same providers
  assert.ok(policy.en.sections.find(s=>s.id==='updates').paragraphs.join(' ').includes('client identifier'));
  assert.ok(policy.en.sections.find(s=>s.id==='feedback').paragraphs.join(' ').includes('public'));
 });
-test('policy links are explicit HTTPS destinations and contact never includes device data or a guessed address',()=>{
+test('policy links use HTTPS or the exact approved email address without attached data',()=>{
  for(const text of [policy.ja,policy.en])for(const section of text.sections)for(const link of section.links??[])assert.ok(policy.links[link.key]);
- for(const url of Object.values(policy.links)){const parsed=new URL(url);assert.equal(parsed.protocol,'https:');assert.equal(parsed.username,'');assert.equal(parsed.password,'');}
+ for(const [key,url] of Object.entries(policy.links)){const parsed=new URL(url);assert.equal(parsed.protocol,key==='email'?'mailto:':'https:');assert.equal(parsed.username,'');assert.equal(parsed.password,'');}
  const contact=new URL(policy.links.support);assert.equal(contact.hostname,'github.com');assert.equal(contact.pathname,'/akmrbaby/know-gacha/issues/new');
  for(const key of ['body','email','deviceId','history'])assert.equal(contact.searchParams.has(key),false);
+});
+
+test('private contact uses only the user-provided address and is present in both policy versions',()=>{
+ assert.equal(policy.supportEmail,'knowgacha.dev@gmail.com');assert.equal(policy.links.email,'mailto:'+policy.supportEmail);
+ const mail=new URL(policy.links.email);assert.equal(mail.pathname,policy.supportEmail);assert.equal(mail.search,'');assert.equal(mail.hash,'');
+ for(const locale of ['ja','en']){
+  const feedback=policy[locale].sections.find(section=>section.id==='feedback');
+  assert.ok(feedback.paragraphs.join(' ').includes(policy.supportEmail));assert.ok(feedback.links.some(link=>link.key==='email'));assert.ok(feedback.links.some(link=>link.key==='googlePrivacy'));
+ }
+ assert.ok(fs.readFileSync('legal/README.md','utf8').includes(policy.supportEmail));
 });

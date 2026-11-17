@@ -6,7 +6,9 @@
     "expoPrivacy": "https://expo.dev/privacy",
     "githubPrivacy": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
     "applePrivacy": "https://www.apple.com/legal/privacy/",
-    "appleEula": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    "appleEula": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+    "email": "mailto:knowgacha.dev@gmail.com",
+    "googlePrivacy": "https://policies.google.com/privacy"
   },
   "ja": {
     "title": "プライバシーポリシー",
@@ -47,11 +49,16 @@
         "id": "feedback",
         "title": "4. お問い合わせとTestFlight",
         "paragraphs": [
-          "不具合やご意見は、設定の「お問い合わせ」で案内する窓口から任意に送信できます。送信いただいた内容は、回答、不具合調査、アプリの改善のために利用します。本アプリが開封履歴や端末識別子を問い合わせへ自動添付することはありません。",
+          "不具合、ご意見、プライバシーに関するお問い合わせは、knowgacha.dev@gmail.comへ任意に送信できます。メールでは、送信元のメールアドレス、本文、利用者が任意に添付した画像等を受け取ります。これらを回答、不具合調査、アプリの改善のために利用します。本アプリが開封履歴や端末識別子を問い合わせへ自動添付することはありません。",
+          "お問い合わせメールの受信・管理にはGoogleのGmailを利用します。メールの送受信に伴うGoogleによる情報の取扱いは、Googleのプライバシーポリシーもご確認ください。",
           "現在のGitHub窓口への投稿は公開されます。氏名、メールアドレス、端末識別子、開封履歴などの個人情報・非公開にしたい内容を書き込まないでください。公開投稿の保存・削除はGitHubの仕組みに従い、削除後も第三者によるコピー等が残る可能性があります。",
           "TestFlightをご利用の場合は、TestFlightアプリの「フィードバックを送信」から連絡できます。TestFlightが扱うフィードバック、クラッシュ情報、利用に関する診断情報等にはAppleの規約・プライバシーポリシーが適用されます。内容や画像を送る前に、含まれる情報をご確認ください。"
         ],
         "links": [
+          {
+            "label": "メールでお問い合わせ",
+            "key": "email"
+          },
           {
             "label": "GitHubのお問い合わせ窓口（公開）",
             "key": "support"
@@ -59,6 +66,10 @@
           {
             "label": "Appleのプライバシーポリシー",
             "key": "applePrivacy"
+          },
+          {
+            "label": "Googleのプライバシーポリシー",
+            "key": "googlePrivacy"
           }
         ]
       },
@@ -66,7 +77,7 @@
         "id": "external-services",
         "title": "5. 外部サービスとリンク",
         "paragraphs": [
-          "参考資料や公開ポリシー、GitHubのお問い合わせ、Apple・Expoの文書を開くと、外部のブラウザやサービスへ移動します。リンク先での接続情報や操作の取扱いには、各サービスの方針が適用されます。公開ポリシーはGitHub上で提供します。",
+          "参考資料や公開ポリシー、GitHubのお問い合わせ、Apple・Expoの文書を開くと、外部のブラウザやサービスへ移動します。リンク先での接続情報や操作の取扱いには、各サービスの方針が適用されます。公開ポリシーはGitHub上で提供します。 お問い合わせメールの受信にはGmailを使用します。",
           "現行のアプリには広告や広告追跡、独自の行動分析SDKは組み込んでいません。位置情報、連絡先、写真ライブラリの内容をアプリから取得する機能もありません。"
         ],
         "links": [
@@ -82,9 +93,13 @@
         "paragraphs": [
           "端末内の履歴や設定は、アプリの利用に必要な間、端末の保存領域に保持します。端末内のデータは、OSのアプリデータ削除またはアプリの削除によって削除できます。iOSの「Appを取り除く」はデータを残すため、データも消す場合は「Appを削除」を選んでください。OSのバックアップに含まれるデータは、別途バックアップ側の設定から管理してください。",
           "アプリを削除すると、端末に保存した開封履歴や権利の記録を引き継げなくなります。本アプリには履歴を遠隔から参照・削除するためのアカウントやサーバー同期はありません。更新配信やTestFlight等の外部サービス側が扱う情報の保存期間・削除方法は、各提供者の方針に従います。",
-          "プライバシーに関するお問い合わせも下記の窓口で受け付けます。公開投稿には個人情報を記載せず、TestFlightをご利用の場合は同アプリのフィードバック機能をご利用ください。"
+          "お問い合わせのメールは、回答や関連する内容の確認に必要な期間保管し、不要になった情報は削除します。法令上の保存が必要な場合は、その期間保管します。問い合わせ情報の確認・削除やプライバシーに関するご希望は、knowgacha.dev@gmail.comへご連絡ください。公開されるGitHubへの投稿には個人情報を記載しないでください。"
         ],
         "links": [
+          {
+            "label": "プライバシーについてメールで問い合わせる",
+            "key": "email"
+          },
           {
             "label": "お問い合わせ窓口（GitHub・公開）",
             "key": "support"
@@ -139,11 +154,16 @@
         "id": "feedback",
         "title": "4. Contact and TestFlight feedback",
         "paragraphs": [
-          "You may voluntarily send bug reports or feedback using the channels described under Contact in Settings. Submitted information is used to respond, investigate problems and improve the app. The app does not automatically attach your discovery history or device identifiers to a contact request.",
+          "You may voluntarily contact knowgacha.dev@gmail.com about bugs, feedback or privacy questions. Email contact provides us with your sender address, message and any images or other files you choose to attach. This information is used to respond, investigate issues and improve the app. The app does not automatically attach your discovery history or device identifiers to a contact request.",
+          "We use Google's Gmail to receive and manage support email. Please also consult Google's Privacy Policy for its handling of information involved in sending and receiving email.",
           "Posts to the current GitHub channel are public. Do not include your name, email address, device identifiers, discovery history or other personal or private information. Public posts follow GitHub's retention and deletion mechanisms; copies made by others may remain after deletion.",
           "If you use TestFlight, you can contact the developer through Send Beta Feedback in the TestFlight app. Apple's terms and privacy policy apply to feedback, crashes and usage diagnostics handled by TestFlight. Review any text and images before submitting them."
         ],
         "links": [
+          {
+            "label": "Contact by email",
+            "key": "email"
+          },
           {
             "label": "GitHub contact channel (public)",
             "key": "support"
@@ -151,6 +171,10 @@
           {
             "label": "Apple Privacy Policy",
             "key": "applePrivacy"
+          },
+          {
+            "label": "Google Privacy Policy",
+            "key": "googlePrivacy"
           }
         ]
       },
@@ -158,7 +182,7 @@
         "id": "external-services",
         "title": "5. External services and links",
         "paragraphs": [
-          "Opening references, the public policy, GitHub support or Apple and Expo documents takes you to an external browser or service. Those services' policies govern connection information and actions on their sites. The public policy is hosted on GitHub.",
+          "Opening references, the public policy, GitHub support or Apple and Expo documents takes you to an external browser or service. Those services' policies govern connection information and actions on their sites. The public policy is hosted on GitHub. We use Gmail to receive support email.",
           "The current app has no advertising, advertising tracking or dedicated behavioral analytics SDK. It has no feature that accesses your location, contacts or photo-library contents."
         ],
         "links": [
@@ -174,9 +198,13 @@
         "paragraphs": [
           "History and settings remain in device storage while needed to use the app. You can delete local data through OS app-data deletion or by deleting the app. On iOS, Offload App keeps data; choose Delete App to remove its data. Manage data in OS backups separately through your backup settings.",
           "Deleting the app removes access to locally saved discovery history and draw records. The app has no account or server synchronization for remotely viewing or deleting that history. Retention and deletion of information handled by external update services, TestFlight or other providers follow those providers' policies.",
-          "You can also use the contact channel below for privacy questions. Do not include personal information in public posts. If you use TestFlight, use its feedback feature."
+          "We retain support email for as long as needed to respond and review related issues, and delete information when no longer needed, subject to any legally required retention. Contact knowgacha.dev@gmail.com about reviewing or deleting contact information or other privacy requests. Do not include personal information in public GitHub posts."
         ],
         "links": [
+          {
+            "label": "Email us about privacy",
+            "key": "email"
+          },
           {
             "label": "Contact channel (GitHub, public)",
             "key": "support"
@@ -191,5 +219,6 @@
         ]
       }
     ]
-  }
+  },
+  "supportEmail": "knowgacha.dev@gmail.com"
 }

@@ -4,9 +4,12 @@
 
 KnowGacha（脳ガチャ）は、専門外の言葉や概念に出会うための学習アプリです。開発者: **akmrbaby**。
 
+- [メールでお問い合わせ：knowgacha.dev@gmail.com](mailto:knowgacha.dev@gmail.com)
 - [プライバシーポリシー](privacy-ja.md)
 - [GitHubでお問い合わせ（公開）](https://github.com/akmrbaby/know-gacha/issues/new)
 - [Apple標準利用許諾契約](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/)
+
+非公開のご相談やプライバシーに関するお問い合わせは、メールをご利用ください。メール本文や画像は送信前にご確認ください。
 
 GitHubへの投稿は公開されます。氏名・メールアドレス・端末識別子・開封履歴など、個人情報や非公開にしたい内容は投稿しないでください。投稿にはGitHubへのログインが必要です。
 
@@ -16,9 +19,12 @@ TestFlightをご利用の場合は、TestFlightアプリでKnowGachaを選び、
 
 KnowGacha is a learning app for discovering concepts outside your usual fields. Developer: **akmrbaby**.
 
+- [Email: knowgacha.dev@gmail.com](mailto:knowgacha.dev@gmail.com)
 - [Privacy Policy](privacy-en.md)
 - [Contact on GitHub (public)](https://github.com/akmrbaby/know-gacha/issues/new)
 - [Apple Standard EULA](https://www.apple.com/legal/internet-services/itunes/dev/stdeula/)
+
+For private or privacy-related inquiries, use email. Review text and images before sending.
 
 GitHub posts are public and require a GitHub account. Do not post names, email addresses, device identifiers, discovery history or other personal or private information.
 

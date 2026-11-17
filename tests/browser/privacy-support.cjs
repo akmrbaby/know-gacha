@@ -36,6 +36,13 @@ const url=process.env.MAP_TEST_URL || 'http://127.0.0.1:8116';
    const contact=page.getByTestId('contact-page');await contact.waitFor();
    assert.ok((await contact.innerText()).includes(code==='ja'?'公開されます':'public'));
    assert.equal(await contact.getByRole('textbox').count(),0);
+   await page.evaluate(()=>window.failExternal=true);
+   const email=button(code==='ja'?'メールで問い合わせる':'Email us');await email.click();
+   await contact.getByRole('alert').waitFor();assert.equal(await contact.getByRole('alert').innerText(),code==='ja'?'メールアプリを開けませんでした。表示されたメールアドレスへ直接ご連絡ください。':'Could not open your email app. Contact us directly at the email address shown.');assert.ok(await contact.getByText(policy.supportEmail,{exact:true}).count());
+   assert.equal((await page.evaluate(()=>window.externalCalls)).at(-1),policy.links.email);
+   await page.evaluate(()=>window.failExternal=false);await email.click();assert.equal(await contact.getByRole('alert').count(),0);
+   assert.equal((await page.evaluate(()=>window.externalCalls)).at(-1),`mailto:${policy.supportEmail}`);
+   await contact.getByText(policy.supportEmail,{exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:`/workspace/scratch/support-email-${code}.png`});
    const count=await page.evaluate(()=>window.externalCalls.length);
    await button(code==='ja'?'GitHubで問い合わせる（公開）':'Contact on GitHub (public)').click();
    assert.equal(await page.evaluate(()=>window.externalCalls.length),count+1);
@@ -46,6 +53,6 @@ const url=process.env.MAP_TEST_URL || 'http://127.0.0.1:8116';
    assert.equal((await page.evaluate(()=>window.externalCalls)).at(-1),policy.links.appleEula);
    assert.deepEqual(errors,[]);await context.close();
   }
-  console.log('PASS Japanese/English settings, full policy and cached offline reading, contact disclosure, explicit external URLs, browser failure/retry, Apple EULA, unchanged records and small dark layout');
+  console.log('PASS Japanese/English settings, full policy and cached offline reading, contact disclosure, email composer and fallback, explicit external URLs, browser failure/retry, Apple EULA, unchanged records and small dark layout');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

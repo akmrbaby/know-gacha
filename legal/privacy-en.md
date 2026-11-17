@@ -32,19 +32,25 @@ You can change reminders and badges independently in the app and revoke permissi
 
 ## 4. Contact and TestFlight feedback
 
-You may voluntarily send bug reports or feedback using the channels described under Contact in Settings. Submitted information is used to respond, investigate problems and improve the app. The app does not automatically attach your discovery history or device identifiers to a contact request.
+You may voluntarily contact knowgacha.dev@gmail.com about bugs, feedback or privacy questions. Email contact provides us with your sender address, message and any images or other files you choose to attach. This information is used to respond, investigate issues and improve the app. The app does not automatically attach your discovery history or device identifiers to a contact request.
+
+We use Google's Gmail to receive and manage support email. Please also consult Google's Privacy Policy for its handling of information involved in sending and receiving email.
 
 Posts to the current GitHub channel are public. Do not include your name, email address, device identifiers, discovery history or other personal or private information. Public posts follow GitHub's retention and deletion mechanisms; copies made by others may remain after deletion.
 
 If you use TestFlight, you can contact the developer through Send Beta Feedback in the TestFlight app. Apple's terms and privacy policy apply to feedback, crashes and usage diagnostics handled by TestFlight. Review any text and images before submitting them.
 
+[Contact by email](mailto:knowgacha.dev@gmail.com)
+
 [GitHub contact channel (public)](https://github.com/akmrbaby/know-gacha/issues/new)
 
 [Apple Privacy Policy](https://www.apple.com/legal/privacy/)
 
+[Google Privacy Policy](https://policies.google.com/privacy)
+
 ## 5. External services and links
 
-Opening references, the public policy, GitHub support or Apple and Expo documents takes you to an external browser or service. Those services' policies govern connection information and actions on their sites. The public policy is hosted on GitHub.
+Opening references, the public policy, GitHub support or Apple and Expo documents takes you to an external browser or service. Those services' policies govern connection information and actions on their sites. The public policy is hosted on GitHub. We use Gmail to receive support email.
 
 The current app has no advertising, advertising tracking or dedicated behavioral analytics SDK. It has no feature that accesses your location, contacts or photo-library contents.
 
@@ -56,7 +62,9 @@ History and settings remain in device storage while needed to use the app. You c
 
 Deleting the app removes access to locally saved discovery history and draw records. The app has no account or server synchronization for remotely viewing or deleting that history. Retention and deletion of information handled by external update services, TestFlight or other providers follow those providers' policies.
 
-You can also use the contact channel below for privacy questions. Do not include personal information in public posts. If you use TestFlight, use its feedback feature.
+We retain support email for as long as needed to respond and review related issues, and delete information when no longer needed, subject to any legally required retention. Contact knowgacha.dev@gmail.com about reviewing or deleting contact information or other privacy requests. Do not include personal information in public GitHub posts.
+
+[Email us about privacy](mailto:knowgacha.dev@gmail.com)
 
 [Contact channel (GitHub, public)](https://github.com/akmrbaby/know-gacha/issues/new)
 
